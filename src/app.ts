@@ -7,12 +7,14 @@ import { BROTHS } from "./data/broths";
 import { CITIES, cityBySlug } from "./data/cities";
 import plateauData from "./data/plateau-tilesets.json";
 import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops";
+import { TRAILS } from "./data/trails";
 import { t } from "./i18n";
 import type { MapEngineImpl } from "./map/engine";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau";
 import type { StreetView } from "./map/streetview";
 import type { MapEngine } from "./map/types";
 import { router } from "./router";
+import { TrailPlayer } from "./trail";
 import { BuildingPanel } from "./ui/building-panel";
 import { ShopCard } from "./ui/card";
 import { MapControls } from "./ui/controls";
@@ -70,6 +72,12 @@ export class App {
   private readonly card: ShopCard;
   private readonly controls: MapControls;
   private readonly buildingPanel: BuildingPanel;
+  private readonly trail = new TrailPlayer({
+    visit: (slug) => this.visitStop(slug),
+    announce: (message) => toast(message, 2600),
+    onChange: (playing) => this.panel.setTrailPlaying(playing),
+    cancelFlight: () => this.engine?.cancelFlight(),
+  });
 
   constructor() {
     this.panel = new Panel(ORDERED_SHOPS, {
@@ -84,12 +92,18 @@ export class App {
         this.refresh();
       },
       onCity: (slug) => this.jumpToCity(slug),
-      onSelect: (slug) => this.select(slug, { fly: true, focus: true }),
-      onTrail: () => undefined,
+      onSelect: (slug) => {
+        this.trail.stop();
+        this.select(slug, { fly: true, focus: true });
+      },
+      onTrail: () => this.toggleTrail(),
     });
 
     this.card = new ShopCard({
-      onClose: () => this.closeCard(),
+      onClose: () => {
+        this.trail.stop();
+        this.closeCard();
+      },
       onStandOutside: (shop) => void this.openStreetView(shop),
       onBuildingInfo: () => void this.toggleBuilding(),
       onStepInside: () => undefined,
@@ -170,7 +184,8 @@ export class App {
   }
 
   private onEscape(): void {
-    if (this.streetView?.isOpen) this.closeStreetView();
+    if (this.trail.playing) this.trail.stop();
+    else if (this.streetView?.isOpen) this.closeStreetView();
     else if (this.buildingPanel.open) this.turnOffBuilding();
     else if (this.selected) this.closeCard();
   }
@@ -192,6 +207,33 @@ export class App {
     } catch {
       toast(t("copyFailed"), 3500);
     }
+  }
+
+  // ── Broth trails ─────────────────────────────────────────────────────────
+
+  private toggleTrail(): void {
+    if (this.trail.playing) {
+      this.trail.stop();
+      return;
+    }
+    const trail = TRAILS[0];
+    if (!trail) return;
+    // Show the trail's broth on the map while touring.
+    this.query = "";
+    this.panel.searchInput.value = "";
+    this.broths.clear();
+    this.broths.add(trail.broth);
+    this.panel.setBrothPressed(this.broths);
+    this.refresh();
+    if (isMobileLayout()) this.sheet.setSnap("peek");
+    void this.trail.play(trail);
+  }
+
+  private async visitStop(slug: string): Promise<void> {
+    const shop = shopBySlug.get(slug);
+    if (!shop) return;
+    this.select(slug, { fly: false, focus: false });
+    await this.engine?.flyToShop(shop, { bottomInset: this.bottomInset() });
   }
 
   // ── Street View ("Stand outside") ────────────────────────────────────────
@@ -340,6 +382,7 @@ export class App {
       }
       engine.onShopPicked((slug) => this.select(slug, { fly: true, focus: false }));
       engine.onUserInteraction(() => {
+        this.trail.stop();
         if (isMobileLayout() && !this.selected) this.sheet.setSnap("peek");
       });
       engine.setShops(this.filtered());
