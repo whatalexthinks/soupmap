@@ -24,8 +24,8 @@ import {
   type Viewer,
 } from "cesium";
 import Supercluster from "supercluster";
-import type { Shop } from "../data/shops";
-import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, pinGlyph } from "./glyph";
+import type { Shop } from "../data/shops.ts";
+import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, pinGlyph } from "./glyph.ts";
 
 export type PickId = { kind: "shop"; slug: string } | { kind: "cluster"; clusterId: number };
 

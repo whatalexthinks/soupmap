@@ -1,10 +1,10 @@
 /** Sidebar (desktop) / bottom sheet (mobile): search, broth chips, cities, trail, shop list. */
-import type { BrothId } from "../data/broths";
-import type { Shop } from "../data/shops";
-import { t } from "../i18n";
-import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "../render/templates";
-import { $ } from "./dom";
-import { icon } from "./icons";
+import type { BrothId } from "../data/broths.ts";
+import type { Shop } from "../data/shops.ts";
+import { t } from "../i18n.ts";
+import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "../render/templates.ts";
+import { $ } from "./dom.ts";
+import { icon } from "./icons.ts";
 
 export interface PanelHandlers {
   onQuery(query: string): void;

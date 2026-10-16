@@ -2,7 +2,7 @@
  * Broth trails: guided camera tours through a list of shops.
  * Phase 1 ships the Tonkotsu Trail; more trails (e.g. a Sapporo Miso Trail) are just entries here.
  */
-import type { BrothId } from "./broths";
+import type { BrothId } from "./broths.ts";
 
 export interface Trail {
   slug: string;

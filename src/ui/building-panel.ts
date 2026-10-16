@@ -1,9 +1,9 @@
 /** The PLATEAU "Building info" panel: plain-English facts about the picked building. */
-import type { BuildingFacts } from "../map/plateau-attributes";
-import { getSource } from "../sources";
-import { t } from "../i18n";
-import { $, esc } from "./dom";
-import { icon } from "./icons";
+import type { BuildingFacts } from "../map/plateau-attributes.ts";
+import { getSource } from "../sources.ts";
+import { t } from "../i18n.ts";
+import { $, esc } from "./dom.ts";
+import { icon } from "./icons.ts";
 
 export type BuildingPanelState =
   | { kind: "loading" }

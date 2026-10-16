@@ -28,9 +28,9 @@ import {
   UrlTemplateImageryProvider,
   type Cartesian2,
 } from "cesium";
-import { creditHtml, getSource } from "../sources";
-import type { MapEngineImpl } from "./engine";
-import { readBuildingFacts, type BuildingFacts } from "./plateau-attributes";
+import { creditHtml, getSource } from "../sources.ts";
+import type { MapEngineImpl } from "./engine.ts";
+import { readBuildingFacts, type BuildingFacts } from "./plateau-attributes.ts";
 
 export interface PlateauTilesetRef {
   cityCode: string;

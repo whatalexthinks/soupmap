@@ -10,8 +10,8 @@ import {
   Math as CesiumMath,
   type Viewer,
 } from "cesium";
-import { cityByName, type City } from "../data/cities";
-import type { Shop } from "../data/shops";
+import { cityByName, type City } from "../data/cities.ts";
+import type { Shop } from "../data/shops.ts";
 
 interface View {
   lng: number;

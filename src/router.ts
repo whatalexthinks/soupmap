@@ -2,7 +2,7 @@
  * Deep links. Phase 1: /#<slug> opens a shop and selection updates the hash.
  * Also accepts /shop/<slug> so Phase 2's prerendered shop pages can boot the same app.
  */
-import { shopBySlug } from "./data/shops";
+import { shopBySlug } from "./data/shops.ts";
 
 function slugFromLocation(): string | null {
   const hash = decodeURIComponent(location.hash.replace(/^#\/?/, ""));

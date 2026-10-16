@@ -1,8 +1,7 @@
 /**
- * Bowl glyphs drawn to canvas at runtime: map pins, cluster badges and list icons.
- * No Cesium dependency; the UI uses the same drawings for list rows.
+ * Bowl glyphs drawn to canvas at runtime: map pins and cluster badges. No Cesium dependency.
  */
-import { BROTHS, type BrothId } from "../data/broths";
+import { BROTHS, type BrothId } from "../data/broths.ts";
 
 const SCALE = 2; // draw at 2x for crisp rendering on high-DPI screens
 const LACQUER = "#17142c";
@@ -175,18 +174,4 @@ export function clusterGlyph(count: number): HTMLCanvasElement {
 
   clusterCache.set(count, c);
   return c;
-}
-
-const iconCache = new Map<BrothId, string>();
-
-/** Small bowl icon (data URL) for list rows and chips. */
-export function brothIcon(broth: BrothId): string {
-  const cached = iconCache.get(broth);
-  if (cached) return cached;
-  const [c, ctx] = canvas(28, 24);
-  drawSteam(ctx, 14, 8, 7, "rgba(243,239,230,0.7)");
-  drawBowl(ctx, 14, 11, 11, BROTHS[broth].color, false);
-  const url = c.toDataURL("image/png");
-  iconCache.set(broth, url);
-  return url;
 }

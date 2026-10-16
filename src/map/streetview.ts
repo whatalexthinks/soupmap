@@ -19,8 +19,8 @@ import {
   type CubeMapPanorama,
   type PerspectiveFrustum,
 } from "cesium";
-import type { Shop } from "../data/shops";
-import type { MapEngineImpl } from "./engine";
+import type { Shop } from "../data/shops.ts";
+import type { MapEngineImpl } from "./engine.ts";
 
 export interface PanoInfo {
   panoId: string;

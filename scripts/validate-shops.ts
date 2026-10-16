@@ -5,8 +5,8 @@
  *   npm run validate
  */
 import { readFileSync } from "node:fs";
-import { CITIES } from "../src/data/cities";
-import { ShopsSchema, type Shop } from "../src/data/schema";
+import { CITIES } from "../src/data/cities.ts";
+import { ShopsSchema, type Shop } from "../src/data/schema.ts";
 
 const SHOPS_PATH = new URL("../src/data/shops.json", import.meta.url);
 const PLATEAU_PATH = new URL("../src/data/plateau-tilesets.json", import.meta.url);

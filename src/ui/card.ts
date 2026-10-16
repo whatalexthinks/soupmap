@@ -1,10 +1,10 @@
 /** The shop card: names, broth, signature bowl, facts, blurb, media and actions. */
-import { BROTHS } from "../data/broths";
-import type { Shop } from "../data/shops";
-import { getSource } from "../sources";
-import { t } from "../i18n";
-import { $, esc, prefersReducedMotion } from "./dom";
-import { icon } from "./icons";
+import { BROTHS } from "../data/broths.ts";
+import type { Shop } from "../data/shops.ts";
+import { getSource } from "../sources.ts";
+import { t } from "../i18n.ts";
+import { $, esc, prefersReducedMotion } from "./dom.ts";
+import { icon } from "./icons.ts";
 
 export interface CardHandlers {
   onClose(): void;

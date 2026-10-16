@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import { ORDERED_SHOPS } from "./src/data/shops";
-import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "./src/render/templates";
+import { ORDERED_SHOPS } from "./src/data/shops.ts";
+import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "./src/render/templates.ts";
 
 const cesiumVersion: string = JSON.parse(readFileSync("node_modules/cesium/package.json", "utf8")).version;
 // Versioned path, so /cesium/<version>/ can be cached as immutable forever.

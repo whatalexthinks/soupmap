@@ -2,7 +2,7 @@
  * Mobile bottom sheet for the panel: three snap heights (peek, half, full),
  * draggable by the handle and header, togglable with the keyboard.
  */
-import { $, isMobileLayout } from "./dom";
+import { $, isMobileLayout } from "./dom.ts";
 
 type Snap = "peek" | "half" | "full";
 

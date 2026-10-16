@@ -25,12 +25,12 @@ import {
   type Cartesian2,
   type Cesium3DTileset,
 } from "cesium";
-import type { City } from "../data/cities";
-import type { Shop } from "../data/shops";
-import { creditHtml, getSource } from "../sources";
-import { CameraDirector } from "./camera";
-import { PinLayer, type PickId } from "./pins";
-import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types";
+import type { City } from "../data/cities.ts";
+import type { Shop } from "../data/shops.ts";
+import { creditHtml, getSource } from "../sources.ts";
+import { CameraDirector } from "./camera.ts";
+import { PinLayer, type PickId } from "./pins.ts";
+import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types.ts";
 
 export interface EngineOptions {
   container: HTMLElement;

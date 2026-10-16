@@ -1,5 +1,5 @@
 /** Plays a broth trail: fly to each stop, open its card, linger, move on. Stoppable at any time. */
-import type { Trail } from "./data/trails";
+import type { Trail } from "./data/trails.ts";
 
 export interface TrailHost {
   /** Select the shop, open its card and fly there; resolves when the camera arrives. */

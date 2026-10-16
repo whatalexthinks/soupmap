@@ -2,26 +2,27 @@
  * App orchestration: UI state, deep links, and the lazily loaded 3D map.
  * The UI works on its own; the map attaches when its chunk arrives.
  */
-import type { BrothId } from "./data/broths";
-import { BROTHS } from "./data/broths";
-import { CITIES, cityBySlug } from "./data/cities";
-import plateauData from "./data/plateau-tilesets.json";
-import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops";
-import { TRAILS } from "./data/trails";
-import { t } from "./i18n";
-import type { MapEngineImpl } from "./map/engine";
-import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau";
-import type { StreetView } from "./map/streetview";
-import type { MapEngine } from "./map/types";
-import { router } from "./router";
-import { TrailPlayer } from "./trail";
-import { BuildingPanel } from "./ui/building-panel";
-import { ShopCard } from "./ui/card";
-import { MapControls } from "./ui/controls";
-import { $, esc, isMobileLayout } from "./ui/dom";
-import { Loader, toast } from "./ui/feedback";
-import { Panel } from "./ui/panel";
-import { BottomSheet } from "./ui/sheet";
+import type { BrothId } from "./data/broths.ts";
+import { BROTHS } from "./data/broths.ts";
+import { CITIES, cityBySlug } from "./data/cities.ts";
+import plateauData from "./data/plateau-tilesets.json" with { type: "json" };
+import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops.ts";
+import { TRAILS } from "./data/trails.ts";
+import { t } from "./i18n.ts";
+import type { MapEngineImpl } from "./map/engine.ts";
+import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
+import type { StreetView } from "./map/streetview.ts";
+import type { MapEngine } from "./map/types.ts";
+import { router } from "./router.ts";
+import { TrailPlayer } from "./trail.ts";
+import { BuildingPanel } from "./ui/building-panel.ts";
+import { ShopCard } from "./ui/card.ts";
+import { MapControls } from "./ui/controls.ts";
+import { $, esc, isMobileLayout } from "./ui/dom.ts";
+import { Loader, toast } from "./ui/feedback.ts";
+import { Panel } from "./ui/panel.ts";
+import { BottomSheet } from "./ui/sheet.ts";
+import { SplatModal } from "./ui/splat-modal.ts";
 
 /** PLATEAU building tilesets by municipality code (from scripts/fetch-plateau-catalog.ts). */
 const PLATEAU_INDEX: ReadonlyMap<string, PlateauTilesetRef> = new Map(
@@ -59,8 +60,7 @@ export class App {
   private query = "";
   private readonly broths = new Set<BrothId>();
   private selected: string | null = null;
-  private engine: MapEngine | null = null;
-  private engineImpl: MapEngineImpl | null = null;
+  private engine: MapEngineImpl | null = null;
   private streetView: StreetView | null = null;
   private buildingInfo: BuildingInfo | null = null;
   private lowPower = false;
@@ -72,6 +72,7 @@ export class App {
   private readonly card: ShopCard;
   private readonly controls: MapControls;
   private readonly buildingPanel: BuildingPanel;
+  private readonly splat = new SplatModal();
   private readonly trail = new TrailPlayer({
     visit: (slug) => this.visitStop(slug),
     announce: (message) => toast(message, 2600),
@@ -106,7 +107,10 @@ export class App {
       },
       onStandOutside: (shop) => void this.openStreetView(shop),
       onBuildingInfo: () => void this.toggleBuilding(),
-      onStepInside: () => undefined,
+      onStepInside: (shop) => {
+        this.trail.stop();
+        void this.splat.show(shop);
+      },
       onCopyLink: (shop) => this.copyLink(shop),
     });
 
@@ -184,6 +188,7 @@ export class App {
   }
 
   private onEscape(): void {
+    if (this.splat.open) return; // the dialog handles its own Escape
     if (this.trail.playing) this.trail.stop();
     else if (this.streetView?.isOpen) this.closeStreetView();
     else if (this.buildingPanel.open) this.turnOffBuilding();
@@ -282,7 +287,7 @@ export class App {
   // ── Building info (PLATEAU) ──────────────────────────────────────────────
 
   private buildingAvailable(shop: Shop): boolean {
-    return !!this.engineImpl && PLATEAU_INDEX.has(shop.cityCode);
+    return !!this.engine && PLATEAU_INDEX.has(shop.cityCode);
   }
 
   private updateBuildingToggles(shop: Shop | undefined): void {
@@ -314,10 +319,10 @@ export class App {
   }
 
   private async turnOnBuilding(shop: Shop): Promise<void> {
-    const engine = this.engineImpl;
+    const engine = this.engine;
     if (!engine || !PLATEAU_INDEX.has(shop.cityCode)) return;
     if (!this.buildingInfo) {
-      const { BuildingInfo } = await import("./map/plateau");
+      const { BuildingInfo } = await import("./map/plateau.ts");
       this.buildingInfo = new BuildingInfo(engine, PLATEAU_INDEX, this.lowPower, (e) => this.onBuildingEvent(e));
     }
     const city = CITIES.find((c) => c.name === shop.city);
@@ -361,7 +366,7 @@ export class App {
     this.lowPower = matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
     try {
       window.CESIUM_BASE_URL = __CESIUM_BASE_URL__;
-      const { createMapEngine } = await import("./map/engine");
+      const { createMapEngine } = await import("./map/engine.ts");
       const engine = await createMapEngine({
         container: $("#cesium"),
         creditViewport: $("#credit-viewport"),
@@ -372,12 +377,11 @@ export class App {
         onStatus: (status) => this.controls.setStatus(status),
       });
       this.engine = engine;
-      this.engineImpl = engine;
       // ?debug exposes the engine for inspection in the console and in browser tests.
       if (new URLSearchParams(location.search).has("debug")) Object.assign(window, { soupmap: engine });
       this.trackCreditBar();
       if (this.googleKey && engine.mode === "google") {
-        const { StreetView } = await import("./map/streetview");
+        const { StreetView } = await import("./map/streetview.ts");
         this.streetView = new StreetView(engine, this.googleKey);
       }
       engine.onShopPicked((slug) => this.select(slug, { fly: true, focus: false }));

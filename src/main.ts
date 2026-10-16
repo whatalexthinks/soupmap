@@ -3,6 +3,6 @@ import "@fontsource-variable/fraunces/soft.css";
 import "@fontsource-variable/instrument-sans";
 import "@fontsource/noto-sans-jp/400.css";
 import "./styles/main.css";
-import { App } from "./app";
+import { App } from "./app.ts";
 
 new App().start();
