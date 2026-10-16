@@ -1,0 +1,22 @@
+# dependencies & build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# secrets: never commit API keys
+.env
+.env.*
+!.env.example
+
+# discovery leads may contain ODbL (OpenStreetMap) data; review locally, don't publish
+data/candidates/*.json
+
+# raw downloads from the data scripts
+data/cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
