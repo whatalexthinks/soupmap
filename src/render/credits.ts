@@ -44,6 +44,16 @@ function shopDataHtml(shops: readonly Shop[]): string {
   </section>`;
 }
 
+function mapTermsHtml(): string {
+  return `<section class="block" aria-labelledby="terms-heading">
+    <h2 id="terms-heading">Map terms</h2>
+    <p>The 3D map and Street View come from Google Maps Platform. By using them you agree to the
+    <a href="https://policies.google.com/terms">Google Terms of Service</a> and the
+    <a href="https://www.google.com/help/terms_maps/">Google Maps/Google Earth Additional Terms of Service</a>,
+    and the <a href="https://policies.google.com/privacy">Google Privacy Policy</a> applies to Google's part of the service.</p>
+  </section>`;
+}
+
 export function creditsHtml(shops: readonly Shop[]): string {
   const sections = KIND_ORDER.map((kind) => {
     const items = SOURCES.filter((s) => s.kind === kind);
@@ -53,5 +63,5 @@ export function creditsHtml(shops: readonly Shop[]): string {
       ${items.map(sourceHtml).join("")}
     </section>`;
   }).join("");
-  return shopDataHtml(shops) + sections;
+  return shopDataHtml(shops) + mapTermsHtml() + sections;
 }
