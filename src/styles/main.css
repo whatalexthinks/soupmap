@@ -925,7 +925,7 @@ a:hover {
   position: absolute;
   z-index: 26;
   left: 50%;
-  top: var(--gap);
+  bottom: calc(var(--credit-h) + 12px);
   transform: translateX(-50%);
   width: min(360px, calc(100vw - 32px));
   padding: 14px 16px;
@@ -1220,14 +1220,8 @@ body.is-pano .building {
     max-width: calc(100vw - 80px);
   }
 
-  .building {
-    top: auto;
-    bottom: calc(var(--credit-h) + 12px);
-  }
-
   body.has-card .building {
     bottom: calc(var(--credit-h) + min(56dvh, 100dvh - 72px) + 8px);
-    top: auto;
   }
 
   .toast {

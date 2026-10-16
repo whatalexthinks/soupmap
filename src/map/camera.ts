@@ -143,8 +143,10 @@ export class CameraDirector {
       this.duration(duration, SHOP_DURATION),
     );
 
+    // Only trust a sampled height inside a plausible band around the city's ground;
+    // a bad depth readback must never send the camera underground.
     const actual = this.sampleGroundHeight(shop);
-    if (actual !== undefined && Math.abs(actual - guess) > 20) {
+    if (actual !== undefined && actual > guess - 150 && actual < guess + 400 && Math.abs(actual - guess) > 20) {
       await this.flyToSphere(...this.shopFraming(shop, actual, heading, bottomInset), this.duration(undefined, 0.9));
     }
   }
