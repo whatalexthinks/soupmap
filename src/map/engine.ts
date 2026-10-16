@@ -140,7 +140,8 @@ export class MapEngineImpl implements MapEngine {
       GoogleMaps.defaultApiKey = key;
       const tileset = await timeout(
         createGooglePhotorealistic3DTileset(
-          { key },
+          // We run with no geocoder at all, which satisfies Google's "Google geocoder only" rule.
+          { key, onlyUsingWithGoogleGeocoder: true },
           {
             enableCollision: true, // required for CLAMP_TO_3D_TILE pins and camera collision
             maximumScreenSpaceError: this.options.lowPower ? 24 : 16,

@@ -122,6 +122,14 @@ export class PinLayer {
     this.viewer.scene.requestRender();
   }
 
+  /** Hide every pin, label and cluster (e.g. inside a Street View panorama). */
+  setVisible(show: boolean): void {
+    this.pinCollection.show = show;
+    this.labelCollection.show = show;
+    this.clusterCollection.show = show;
+    this.viewer.scene.requestRender();
+  }
+
   setVisibleShops(shops: readonly Shop[]): void {
     this.visible = new Set(shops.map((s) => s.slug));
     this.index = new Supercluster<{ slug: string }>({ radius: 64, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
