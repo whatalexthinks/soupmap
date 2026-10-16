@@ -3,10 +3,129 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Soupmap</title>
+    <title>Soupmap · Japan's best soup shops in 3D</title>
+    <meta name="description" content="A photorealistic 3D map of Japan's best soup shops: ramen, udon, soba and oden. Fly from Sapporo miso to Fukuoka tonkotsu and land on the street outside." />
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta name="theme-color" content="#0d0c1e" />
+    <meta name="color-scheme" content="dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Soupmap" />
+    <meta property="og:title" content="Soupmap · Japan's best soup shops in 3D" />
+    <meta property="og:description" content="Pick a broth or a city and fly down to street level onto the shop. Ramen, udon, soba and oden across Japan." />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Soupmap wordmark over a night map of Japan with steaming bowls." />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Soupmap · Japan's best soup shops in 3D" />
+    <meta name="twitter:description" content="Pick a broth or a city and fly down to street level onto the shop." />
+    <meta name="twitter:image" content="%SITE_URL%/og.png" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Soupmap",
+        "url": "%SITE_URL%/",
+        "description": "A photorealistic 3D map of Japan's best soup shops: ramen, udon, soba and oden."
+      }
+    </script>
   </head>
   <body>
-    <div id="cesium"></div>
+    <a class="skip-link" href="#shop-search">Skip to shop search</a>
+
+    <main class="app" id="app">
+      <div class="map" id="map" role="region" aria-label="3D map of soup shops in Japan">
+        <div class="map__canvas" id="cesium"></div>
+        <div class="loader" id="loader" role="status">
+          <svg class="loader__bowl" viewBox="0 0 92 92" aria-hidden="true">
+            <g class="loader__steam">
+              <path d="M34 36c-5-7 5-11 0-18s5-11 0-16" />
+              <path d="M46 36c-5-7 5-11 0-18s5-11 0-16" />
+              <path d="M58 36c-5-7 5-11 0-18s5-11 0-16" />
+            </g>
+            <path d="M12 46h68c0 18-15 32-34 32S12 64 12 46Z" fill="#17142c" stroke="#f3efe6" stroke-width="2.5" />
+            <ellipse cx="46" cy="46" rx="34" ry="8" fill="#f2a541" stroke="#f3efe6" stroke-width="2.5" />
+            <path d="M36 78h20l-3 6H39z" fill="#17142c" stroke="#f3efe6" stroke-width="2" />
+          </svg>
+          <p class="loader__text" id="loader-text">Warming up the broth…</p>
+        </div>
+      </div>
+
+      <section class="panel glass" id="panel" aria-labelledby="panel-title">
+        <button type="button" class="panel__handle" id="sheet-handle" aria-controls="panel-body" aria-expanded="false">
+          <span class="sr-only">Expand the shop list</span>
+        </button>
+        <header class="panel__header">
+          <h1 class="wordmark" id="panel-title">
+            <a href="/" aria-label="Soupmap home">soup<span class="wordmark__map">map</span></a>
+          </h1>
+          <p class="tagline">Japan's best soup shops, in 3D.</p>
+        </header>
+        <div class="search" role="search">
+          <label for="shop-search" class="sr-only">Search shops</label>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
+          <input id="shop-search" type="search" placeholder="Search shops, cities, bowls" autocomplete="off" spellcheck="false" enterkeyhint="search" />
+        </div>
+        <div class="panel__body" id="panel-body">
+          <h2 class="section-label" id="broth-label">Broth</h2>
+          <div class="chips" id="broth-chips" role="group" aria-labelledby="broth-label"><!--soupmap:chips--></div>
+
+          <h2 class="section-label" id="city-label">Jump to a city</h2>
+          <nav class="cities" id="city-buttons" aria-labelledby="city-label"><!--soupmap:cities--></nav>
+
+          <button type="button" class="trail-btn" id="trail-btn" aria-pressed="false">
+            <span class="trail-btn__icon" id="trail-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor" /></svg></span>
+            <span><strong id="trail-title">Tonkotsu Trail</strong><span id="trail-sub">A guided tour of Fukuoka's pork-bone bowls</span></span>
+          </button>
+
+          <p class="result-count" id="result-count" aria-live="polite"><!--soupmap:count--></p>
+          <ul class="shop-list" id="shop-list" aria-label="Soup shops"><!--soupmap:list--></ul>
+        </div>
+        <footer class="panel__footer">
+          <a href="/credits/">Data &amp; credits</a>
+          <span>Shop details unverified</span>
+        </footer>
+      </section>
+
+      <article class="card glass" id="card" aria-labelledby="card-title" hidden></article>
+
+      <div class="controls" id="controls">
+        <div class="status-chip glass" id="status-chip" role="status" hidden></div>
+        <div class="segmented glass" id="fallback-style" role="group" aria-label="Fallback map style" hidden>
+          <button type="button" data-style="photo" aria-pressed="true">Aerial</button>
+          <button type="button" data-style="map" aria-pressed="false">Map</button>
+        </div>
+        <div class="controls__row">
+          <button type="button" class="icon-btn" id="building-toggle" aria-pressed="false" aria-label="Building info" title="Building info" hidden>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20.5V5.5l8-2v17M13 8.5l6 2v10M3 20.5h18M8 8h2M8 11.5h2M8 15h2M16 13h1M16 16h1" /></svg>
+          </button>
+          <button type="button" class="icon-btn" id="overview-btn" aria-label="Show all of Japan" title="Show all of Japan">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5Z" /></svg>
+          </button>
+        </div>
+      </div>
+
+      <section class="building glass" id="building-panel" aria-live="polite" aria-labelledby="building-title" hidden></section>
+
+      <div class="pano glass" id="pano-bar" hidden>
+        <span class="pano__label" id="pano-label"></span>
+        <button type="button" class="btn btn--primary" id="pano-back">Back to map</button>
+      </div>
+    </main>
+
+    <div class="credit-viewport" id="credit-viewport"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <noscript><p class="noscript">Soupmap's 3D map needs JavaScript. The shop list still links to every shop.</p></noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

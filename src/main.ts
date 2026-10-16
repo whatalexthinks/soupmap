@@ -1,7 +1,8 @@
-// Scaffold entry: lazy-load Cesium after first paint. Replaced by the app shell in later steps.
-window.CESIUM_BASE_URL = __CESIUM_BASE_URL__;
+// Fonts: Google Fonts (OFL), self-hosted via Fontsource. Only the subsets a page uses are downloaded.
+import "@fontsource-variable/fraunces/soft.css";
+import "@fontsource-variable/instrument-sans";
+import "@fontsource/noto-sans-jp/400.css";
+import "./styles/main.css";
+import { App } from "./app";
 
-requestAnimationFrame(async () => {
-  const { Viewer } = await import("cesium");
-  new Viewer("cesium", { baseLayer: false, geocoder: false });
-});
+new App().start();
