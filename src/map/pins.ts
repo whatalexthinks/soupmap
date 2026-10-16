@@ -42,7 +42,9 @@ const LABEL_DISTANCE = 4500;
 
 /** Rough Web-Mercator-style zoom from camera height, to drive Supercluster. */
 export function heightToZoom(height: number): number {
-  return Math.log2(3.5e7 / Math.max(height, 1));
+  // Calibrated so the country overview (~2,000 km up) clusters by region
+  // and city views (< ~25 km) show every shop.
+  return Math.log2(1.4e8 / Math.max(height, 1));
 }
 
 export class PinLayer {
@@ -50,7 +52,7 @@ export class PinLayer {
   private readonly pinCollection: BillboardCollection;
   private readonly labelCollection: LabelCollection;
   private readonly clusterCollection: BillboardCollection;
-  private index = new Supercluster<{ slug: string }>({ radius: 64, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
+  private index = new Supercluster<{ slug: string }>({ radius: 56, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
   private visible = new Set<string>();
   private selected: string | null = null;
 
@@ -128,7 +130,7 @@ export class PinLayer {
 
   setVisibleShops(shops: readonly Shop[]): void {
     this.visible = new Set(shops.map((s) => s.slug));
-    this.index = new Supercluster<{ slug: string }>({ radius: 64, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
+    this.index = new Supercluster<{ slug: string }>({ radius: 56, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
     this.index.load(
       shops.map((s) => ({
         type: "Feature" as const,

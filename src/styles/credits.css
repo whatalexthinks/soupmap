@@ -1,0 +1,182 @@
+/* The /credits page: a calm, readable document in the Soupmap palette. */
+@import "@fontsource-variable/fraunces/soft.css";
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource/noto-sans-jp/400.css";
+@import "./tokens.css";
+
+body {
+  background:
+    radial-gradient(80% 40% at 80% 0%, rgba(242, 165, 65, 0.1), transparent 70%),
+    radial-gradient(60% 40% at 0% 30%, rgba(70, 60, 160, 0.16), transparent 70%),
+    var(--ink-0);
+  background-attachment: fixed;
+  line-height: 1.6;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 28px 20px 0;
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: -0.03em;
+  font-variation-settings: "SOFT" 100;
+}
+
+.wordmark a {
+  color: var(--steam);
+  text-decoration: none;
+}
+
+.wordmark__map {
+  color: var(--lantern);
+}
+
+.back {
+  font-size: 15px;
+}
+
+.page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+h1 {
+  margin: 12px 0 8px;
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100;
+  font-size: clamp(34px, 6vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  max-width: 62ch;
+  color: var(--steam-2);
+  font-size: 17px;
+}
+
+.block {
+  margin-top: 40px;
+}
+
+.block > h2 {
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100;
+  font-size: 24px;
+}
+
+.block > p {
+  max-width: 70ch;
+  color: var(--steam-2);
+}
+
+.source {
+  margin: 0 0 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(13, 12, 30, 0.72);
+}
+
+.source header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.source h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.source h3 a {
+  color: var(--steam);
+}
+
+.source h3 .ja {
+  margin-left: 8px;
+  color: var(--steam-3);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.provider {
+  margin: 2px 0 10px;
+  color: var(--steam-3);
+  font-size: 14px;
+}
+
+.status {
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--steam-2);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.status--live {
+  border-color: var(--lantern);
+  color: var(--steam);
+}
+
+.source dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.source dt {
+  color: var(--steam-3);
+}
+
+.source dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.notes {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--steam-2);
+  font-size: 14px;
+  overflow-wrap: anywhere; /* long URLs in notes */
+}
+
+.foot {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+  border-top: 1px solid var(--line);
+  color: var(--steam-3);
+  font-size: 14px;
+}
+
+@media (max-width: 560px) {
+  .source dl {
+    grid-template-columns: 1fr;
+  }
+
+  .source dt {
+    margin-top: 6px;
+  }
+}
