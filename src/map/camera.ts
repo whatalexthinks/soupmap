@@ -129,20 +129,48 @@ export class CameraDirector {
    * Three-quarter street view of a shop: flyToBoundingSphere with pitch ≈ -35°,
    * range ≈ 600 m, ≈ 3 s. We first aim at the city's rough ground height, then
    * nudge to the real surface once the tiles under the shop have rendered.
+   *
+   * `bottomInset` (0–1) is the share of the screen covered from below (the mobile
+   * card). The camera keeps its position but tilts so the shop sits in the middle
+   * of the part of the map that's still visible.
    */
-  async shop(shop: Shop, duration?: number): Promise<void> {
+  async shop(shop: Shop, duration?: number, bottomInset = 0): Promise<void> {
     const city = cityByName.get(shop.city);
     const heading = CesiumMath.toRadians(city?.heading ?? 0);
-    const offset = new HeadingPitchRange(heading, CesiumMath.toRadians(SHOP_PITCH), SHOP_RANGE);
     const guess = city?.groundHeight ?? 40;
-    const sphere = new BoundingSphere(Cartesian3.fromDegrees(shop.lng, shop.lat, guess), 25);
-    await this.flyToSphere(sphere, offset, this.duration(duration, SHOP_DURATION));
+    await this.flyToSphere(
+      ...this.shopFraming(shop, guess, heading, bottomInset),
+      this.duration(duration, SHOP_DURATION),
+    );
 
     const actual = this.sampleGroundHeight(shop);
     if (actual !== undefined && Math.abs(actual - guess) > 20) {
-      const refined = new BoundingSphere(Cartesian3.fromDegrees(shop.lng, shop.lat, actual), 25);
-      await this.flyToSphere(refined, offset, this.duration(undefined, 0.9));
+      await this.flyToSphere(...this.shopFraming(shop, actual, heading, bottomInset), this.duration(undefined, 0.9));
     }
+  }
+
+  private shopFraming(shop: Shop, height: number, heading: number, bottomInset: number): [BoundingSphere, HeadingPitchRange] {
+    const pitch = CesiumMath.toRadians(-SHOP_PITCH);
+    // Angle between screen centre and the centre of the visible area above the inset.
+    const canvas = this.viewer.scene.canvas;
+    const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
+    const fov = (this.viewer.camera.frustum as { fov?: number }).fov ?? CesiumMath.toRadians(60);
+    const fovY = aspect >= 1 ? 2 * Math.atan(Math.tan(fov / 2) / aspect) : fov;
+    const tilt = Math.atan(Math.min(Math.max(bottomInset, 0), 0.8) * Math.tan(fovY / 2));
+
+    // Same camera position as the centred framing, looking at a point nearer the camera.
+    const horizontal = SHOP_RANGE * Math.cos(pitch);
+    const vertical = SHOP_RANGE * Math.sin(pitch);
+    const steeper = pitch + tilt;
+    const shift = horizontal - vertical / Math.tan(steeper);
+    const metresPerDegLat = 111_320;
+    const lat = shop.lat - (Math.cos(heading) * shift) / metresPerDegLat;
+    const lng = shop.lng - (Math.sin(heading) * shift) / (metresPerDegLat * Math.cos(CesiumMath.toRadians(shop.lat)));
+
+    return [
+      new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height), 25),
+      new HeadingPitchRange(heading, -steeper, vertical / Math.sin(steeper)),
+    ];
   }
 
   private sampleGroundHeight(shop: Shop): number | undefined {

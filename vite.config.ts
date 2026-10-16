@@ -2,20 +2,30 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import { ORDERED_SHOPS } from "./src/data/shops";
+import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "./src/render/templates";
 
 const cesiumVersion: string = JSON.parse(readFileSync("node_modules/cesium/package.json", "utf8")).version;
 // Versioned path, so /cesium/<version>/ can be cached as immutable forever.
 const CESIUM_DIR = `cesium/${cesiumVersion}`;
 const CESIUM_BUILD = "node_modules/cesium/Build/Cesium";
 
-/** Env-driven HTML: site URL placeholders and the optional analytics beacon. */
+/**
+ * HTML transforms: prerender the shop panel (crawlable, instant first paint),
+ * fill site-URL placeholders, and add the analytics beacon only if a token is set.
+ */
 function soupmapHtml(env: Record<string, string>): Plugin {
   const siteUrl = (env.VITE_SITE_URL || "https://soupmap.com").replace(/\/+$/, "");
   const analyticsToken = (env.VITE_CF_ANALYTICS_TOKEN || "").trim();
   return {
     name: "soupmap-html",
     transformIndexHtml(html) {
-      let out = html.replaceAll("%SITE_URL%", siteUrl);
+      let out = html
+        .replaceAll("%SITE_URL%", siteUrl)
+        .replace("<!--soupmap:chips-->", brothChipsHtml(ORDERED_SHOPS))
+        .replace("<!--soupmap:cities-->", cityButtonsHtml(ORDERED_SHOPS))
+        .replace("<!--soupmap:count-->", resultCountText(ORDERED_SHOPS.length))
+        .replace("<!--soupmap:list-->", shopListHtml(ORDERED_SHOPS));
       if (analyticsToken) {
         const beacon = JSON.stringify({ token: analyticsToken });
         out = out.replace(

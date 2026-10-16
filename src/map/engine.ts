@@ -249,7 +249,7 @@ export class MapEngineImpl implements MapEngine {
   }
 
   flyToShop(shop: Shop, options?: FlyOptions): Promise<void> {
-    return this.director.shop(shop, options?.duration);
+    return this.director.shop(shop, options?.duration, options?.bottomInset);
   }
 
   flyToCity(city: City, options?: FlyOptions): Promise<void> {

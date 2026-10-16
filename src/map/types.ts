@@ -15,6 +15,8 @@ export type EngineStatus =
 export interface FlyOptions {
   /** Seconds. Ignored (0) when the visitor prefers reduced motion. */
   duration?: number;
+  /** Share of the screen (0–1) covered from below by UI, e.g. the mobile card. */
+  bottomInset?: number;
 }
 
 export interface MapEngine {
