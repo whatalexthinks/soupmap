@@ -264,3 +264,16 @@ test('phone landscape uses the same mobile layout rather than the desktop sideba
   assert.equal(el('#panel').getAttribute('data-snap'),'half');
   assert.ok(parseFloat(el('#panel').style.getPropertyValue('--sheet-h'))<390);
 });
+
+test('the logo returns home inside the app without restarting the page',()=>{
+  (el('#shop-search') as HTMLInputElement).value='miso';
+  el('#shop-search').dispatchEvent(new window.Event('input'));
+  const event=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0});
+  el('.brand').dispatchEvent(event);
+  assert.equal(event.defaultPrevented,true);
+  assert.equal((el('#shop-search') as HTMLInputElement).value,'');
+  assert.equal(el('#map-city').textContent,'Earth');
+  const newTab=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0,ctrlKey:true});
+  el('.brand').dispatchEvent(newTab);
+  assert.equal(newTab.defaultPrevented,false);
+});

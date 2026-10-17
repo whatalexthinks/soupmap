@@ -4,9 +4,11 @@
 
 - Soupmap is a worldwide soup atlas, not a Japan-only brand. Current listings are explicitly a **Japan pilot**; do not claim overseas coverage before importing real, attributed records.
 - Keep the Soupmap name with the positioning **“Find your next bowl. Anywhere.”**
-- Startup shows the whole planet, pauses, and flies into the explicitly configured Tokyo test destination. It does not infer that the visitor is in Tokyo or request geolocation on startup.
+- The first eligible load per tab shows the planet, pauses, and flies into the explicitly configured Tokyo test destination. The attempt is recorded before WebGL starts; reloads, deep links and unavailable session storage open directly at the destination instead. It does not infer the visitor's location or request geolocation on startup.
 - The planet uses bundled Natural Earth II imagery; Google 3D remains the city-scale view and GSI remains the regional Japan fallback. The overview control returns to the whole planet.
 - New camera input cancels the intro. Respect reduced motion, and preserve shop deep links rather than forcing every link to Tokyo.
+- The logo navigates inside the app rather than reloading the document. Hidden tabs interrupt camera motion. A lost graphics context pauses 3D and leaves shop search available; it does not trigger a reload.
+- Google city meshes do not stream at planet scale. Mobile rendering has a bounded base **and overflow** cache, a lower pixel ratio, and no hidden/flight preloading.
 
 - Keep the imported Vite/TypeScript app in its existing structure.
 - Use Node.js 22 (the current dependencies require it).

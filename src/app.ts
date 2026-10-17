@@ -8,7 +8,7 @@ import { CITIES, cityBySlug } from "./data/cities.ts";
 import plateauData from "./data/plateau-tilesets.json" with { type: "json" };
 import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops.ts";
 import { TRAILS } from "./data/trails.ts";
-import { STARTUP_CITY_SLUG } from "./startup.ts";
+import { STARTUP_CITY_SLUG, claimOpening } from "./startup.ts";
 import { t } from "./i18n.ts";
 import type { MapEngineImpl } from "./map/engine.ts";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
@@ -87,6 +87,11 @@ export class App {
   });
 
   constructor() {
+    $(".brand").addEventListener("click",event=>{
+      if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      this.resetFilters();
+    });
     restoreNameLanguage();
     if (this.googleKey) this.streetView = new StreetView(this.googleKey);
     this.panel = new Panel(ORDERED_SHOPS, {
@@ -554,6 +559,11 @@ export class App {
       return;
     }
     this.lowPower = matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
+    const firstOpening=claimOpening();
+    const initialShop=this.selected ? shopBySlug.get(this.selected) : undefined;
+    const initialCity=cityBySlug.get(this.city);
+    const playOpening=firstOpening && !initialShop && !!initialCity
+      && !matchMedia("(prefers-reduced-motion: reduce)").matches;
     try {
       window.CESIUM_BASE_URL = __CESIUM_BASE_URL__;
       const { createMapEngine } = await import("./map/engine.ts");
@@ -562,12 +572,16 @@ export class App {
         creditViewport: $("#credit-viewport"),
         googleKey: this.googleKey,
         shops: ORDERED_SHOPS,
+        initialShop,
+        initialCity,
+        playOpening,
         initialLocation: (this.selected ? shopBySlug.get(this.selected) : undefined)
           ?? cityBySlug.get(this.city) ?? cityBySlug.get(STARTUP_CITY_SLUG),
         reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
         lowPower: this.lowPower,
         onStatus: status => {
           this.controls.setStatus(status);
+          if(status.kind==="error") toast(status.message,8000);
           if (status.kind === 'ready' && status.mode === 'fallback' && this.engine && this.autoBuildings) {
             const anchor = this.selected ? shopBySlug.get(this.selected) : ORDERED_SHOPS.find(s => s.city === cityBySlug.get(this.city)?.name && PLATEAU_INDEX.has(s.cityCode));
             if (anchor) void this.turnOnBuilding(anchor);
@@ -596,12 +610,12 @@ export class App {
       }
       if (shop) {
         const revision = this.navigationRevision;
-        await engine.flyToShop(shop, { duration: 5.5, bottomInset: this.bottomInset() });
+        await engine.flyToShop(shop, { duration: 0, bottomInset: this.bottomInset() });
         if (revision === this.navigationRevision) void this.syncBuilding(shop);
       } else {
         const city = cityBySlug.get(this.city);
         const revision = this.navigationRevision;
-        if (city) {
+        if (city && playOpening) {
           $('#map-city').textContent = 'Earth';
           $('#map-city-ja').textContent = '';
           $('#map-coordinates').textContent = 'A WORLD OF SOUPS';
@@ -609,6 +623,7 @@ export class App {
           await engine.playIntro(city);
           this.updateLocation();
         }
+        else if(city) await engine.flyToCity(city,{duration:0});
         else await engine.flyToOverview({ duration: 0 });
         const anchor = ORDERED_SHOPS.find(s => s.city === city?.name && PLATEAU_INDEX.has(s.cityCode));
         if (revision === this.navigationRevision && anchor && engine.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);

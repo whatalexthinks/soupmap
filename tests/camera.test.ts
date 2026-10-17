@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Cartographic, Math as CesiumMath, type Viewer } from "cesium";
-import { CameraDirector, PLANET_HEIGHT, INTRO_HOLD_MS, INTRO_FLIGHT_SECONDS } from "../src/map/camera.ts";
+import { CameraDirector, PLANET_HEIGHT, INTRO_HOLD_MS, INTRO_FLIGHT_SECONDS, INTRO_APPROACH_SECONDS, INTRO_APPROACH_HEIGHT } from "../src/map/camera.ts";
 import { cityBySlug } from "../src/data/cities.ts";
 import { STARTUP_CITY_SLUG } from "../src/startup.ts";
 
@@ -39,9 +39,11 @@ test("opening starts with the entire planet, holds it, then flies into Tokyo",as
   assert.equal(mock.flights.length,0);
   context.mock.timers.tick(INTRO_HOLD_MS);
   await opening;
-  assert.equal(mock.flights.length,1);
-  assert.equal(mock.flights[0].duration,INTRO_FLIGHT_SECONDS);
-  const destination=Cartographic.fromCartesian(mock.flights[0].sphere.center);
+  assert.equal(mock.flights.length,2);
+  assert.equal(mock.flights[0].duration,INTRO_APPROACH_SECONDS);
+  assert.ok(Math.abs(Cartographic.fromCartesian(mock.flights[0].destination).height-INTRO_APPROACH_HEIGHT)<1);
+  assert.equal(mock.flights[1].duration,INTRO_FLIGHT_SECONDS-INTRO_APPROACH_SECONDS);
+  const destination=Cartographic.fromCartesian(mock.flights[1].sphere.center);
   assert.ok(Math.abs(CesiumMath.toDegrees(destination.latitude)-tokyo.lat)<0.00001);
 });
 
@@ -82,4 +84,19 @@ test("the overview control returns to the planet rather than a Japan-only frame"
   const point=Cartographic.fromCartesian(mock.views[0].destination);
   assert.ok(point.height>20_000_000);
   assert.equal(mock.flights.length,0);
+});
+
+test("interrupting the regional approach cannot start a second city flight",async context=>{
+  context.mock.timers.enable({apis:["setTimeout"]});
+  const mock=mockViewer();
+  let finish:()=>void=()=>{};
+  mock.viewer.camera.flyTo=((options:any)=>{mock.flights.push(options);finish=options.cancel;}) as any;
+  const director=new CameraDirector(mock.viewer,false);
+  const opening=director.intro(tokyo);
+  context.mock.timers.tick(INTRO_HOLD_MS);
+  await Promise.resolve();
+  assert.equal(mock.flights.length,1);
+  director.cancel();finish();
+  await opening;
+  assert.equal(mock.flights.length,1);
 });

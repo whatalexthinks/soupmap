@@ -24,6 +24,8 @@ interface View {
 export const PLANET_HEIGHT = 22_000_000;
 export const INTRO_HOLD_MS = 1200;
 export const INTRO_FLIGHT_SECONDS = 5.5;
+export const INTRO_APPROACH_HEIGHT = 120_000;
+export const INTRO_APPROACH_SECONDS = 3.5;
 
 function planetView(center: {lat:number;lng:number}): View {
   return {lng:center.lng,lat:Math.max(-45,Math.min(45,center.lat)),height:PLANET_HEIGHT,heading:0,pitch:-90};
@@ -130,7 +132,11 @@ export class CameraDirector {
       this.introHold={timer,resolve};
     });
     if (revision !== this.revision) return;
-    await this.city(city,INTRO_FLIGHT_SECONDS);
+    await this.flyTo({
+      lng:city.lng,lat:city.lat,height:INTRO_APPROACH_HEIGHT,heading:0,pitch:-90,
+    },INTRO_APPROACH_SECONDS,{maximumHeight:PLANET_HEIGHT});
+    if (revision !== this.revision) return;
+    await this.city(city,INTRO_FLIGHT_SECONDS-INTRO_APPROACH_SECONDS);
   }
 
   city(city: City, duration?: number): Promise<void> {

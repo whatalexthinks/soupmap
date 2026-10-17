@@ -37,6 +37,7 @@ import type { City } from "../data/cities.ts";
 import type { Shop } from "../data/shops.ts";
 import { creditHtml, getSource } from "../sources.ts";
 import { CameraDirector } from "./camera.ts";
+import { citySurfaceActive, renderBudget } from "./render-policy.ts";
 import { PinLayer, type PickId } from "./pins.ts";
 import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types.ts";
 
@@ -47,6 +48,9 @@ export interface EngineOptions {
   googleKey: string;
   shops: readonly Shop[];
   initialLocation?: {lat:number;lng:number};
+  initialCity?: City;
+  initialShop?: Shop;
+  playOpening: boolean;
   reducedMotion: boolean;
   /** Phones and low-end devices: fewer, coarser tiles. */
   lowPower: boolean;
@@ -96,6 +100,7 @@ export class MapEngineImpl implements MapEngine {
   readonly pins: PinLayer;
   readonly director: CameraDirector;
   private googleSurfaceReady = false;
+  private citySurface = false;
   googleTileset: Cesium3DTileset | undefined;
 
   private _mode: MapMode = "google";
@@ -130,7 +135,8 @@ export class MapEngineImpl implements MapEngine {
     // Cesium's default backing buffer is 1× CSS pixels, which softens text and
     // billboards on retina displays. Cap the multiplier to keep mobile GPUs cool.
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
-    this.viewer.resolutionScale = Math.min(dpr, 2) / dpr;
+    this.viewer.resolutionScale = Math.min(dpr, options.lowPower ? 1.5 : 2) / dpr;
+    this.viewer.targetFrameRate = options.lowPower ? 30 : 60;
 
     const scene = this.viewer.scene;
     scene.globe.baseColor = Color.fromCssColorString("#dfe3d8");
@@ -142,7 +148,9 @@ export class MapEngineImpl implements MapEngine {
 
     this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE);
     this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives, options.initialLocation);
-    this.director.showPlanet();
+    if (options.playOpening || (!options.initialCity && !options.initialShop)) this.director.showPlanet();
+    else if (options.initialShop) void this.director.shop(options.initialShop,0);
+    else if (options.initialCity) void this.director.city(options.initialCity,0);
     this.viewer.camera.changed.addEventListener(()=>this.syncGlobeVisibility());
     this.installInput();
   }
@@ -173,8 +181,7 @@ export class MapEngineImpl implements MapEngine {
           { key, onlyUsingWithGoogleGeocoder: true },
           {
             enableCollision: true, // required for CLAMP_TO_3D_TILE pins and camera collision
-            maximumScreenSpaceError: this.options.lowPower ? 24 : 16,
-            cacheBytes: (this.options.lowPower ? 256 : 512) * 1024 * 1024,
+            ...renderBudget(this.options.lowPower),
           },
         ),
         GOOGLE_TIMEOUT_MS,
@@ -185,13 +192,16 @@ export class MapEngineImpl implements MapEngine {
         return;
       }
       this.googleTileset = this.viewer.scene.primitives.add(tileset);
+      this.syncGlobeVisibility();
       this.watchGoogleTiles(tileset);
-      tileset.initialTilesLoaded.addEventListener(() => {
-        if (this._mode !== "google") return;
+      const surfaceReady = () => {
+        if (this._mode !== "google" || !this.citySurface || this.googleSurfaceReady) return;
         this.googleSurfaceReady = true;
         this.syncGlobeVisibility();
         this.viewer.scene.requestRender();
-      });
+      };
+      tileset.initialTilesLoaded.addEventListener(surfaceReady);
+      tileset.allTilesLoaded.addEventListener(surfaceReady);
       this.options.onStatus({ kind: "ready", mode: "google" });
     } catch (error) {
       console.warn("[soupmap] Google 3D tiles unavailable, using GSI fallback.", error);
@@ -200,8 +210,10 @@ export class MapEngineImpl implements MapEngine {
   }
 
   private syncGlobeVisibility(): void {
-    const show = this._mode !== "google" || !this.googleSurfaceReady
-      || this.viewer.camera.positionCartographic.height > 400_000;
+    this.citySurface=citySurfaceActive(this.viewer.camera.positionCartographic.height,this.citySurface);
+    if(!this.citySurface) this.googleSurfaceReady=false;
+    if(this.googleTileset) this.googleTileset.show=this.citySurface;
+    const show = this._mode !== "google" || !this.citySurface || !this.googleSurfaceReady;
     if (this.viewer.scene.globe.show !== show) {
       this.viewer.scene.globe.show = show;
       this.viewer.scene.requestRender();
@@ -269,6 +281,15 @@ export class MapEngineImpl implements MapEngine {
 
   private installInput(): void {
     const canvas = this.viewer.scene.canvas;
+    document.addEventListener("visibilitychange",()=>{
+      if(document.hidden) this.director.cancel();
+    });
+    canvas.addEventListener("webglcontextlost",(event)=>{
+      event.preventDefault();
+      this.director.cancel();
+      this.viewer.useDefaultRenderLoop=false;
+      this.options.onStatus({kind:"error",message:"The 3D map paused. Shop search, saved places and directions are still available."});
+    });
     const notify = () => {
       this.director.cancel();
       this.interactionHandlers.forEach((h) => h());
