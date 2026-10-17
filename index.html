@@ -124,7 +124,13 @@
 
           <div class="results-toolbar"><p class="result-count" id="result-count" aria-live="polite"><!--soupmap:count--></p></div>
           <button id="clear-filters" class="clear-filters" hidden>Reset filters ×</button>
-          <p id="saved-note" class="saved-note" hidden>Your personal shortlist. Saved on this device.</p>
+          <p id="saved-note" class="saved-note" hidden>Your personal shortlist. Saved on this device. Sharing is optional.</p>
+          <button type="button" id="share-shortlist" class="clear-filters" hidden>Choose saved shops to share</button>
+          <section id="shortlist-share" aria-label="Choose shops to share" hidden></section>
+          <section id="shared-shortlist" aria-label="Shared shortlist" hidden>
+            <h2>Shared soup shortlist</h2>
+            <p id="shared-note" class="saved-note" role="status"></p>
+          </section>
           <ul class="shop-list" id="shop-list" aria-label="Soup shops"><!--soupmap:list--></ul>
           <button type="button" class="trail-btn" id="trail-btn" aria-pressed="false">
             <span class="trail-btn__icon" id="trail-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor" /></svg></span>

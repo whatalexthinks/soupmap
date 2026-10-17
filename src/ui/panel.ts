@@ -8,6 +8,9 @@ import { t } from "../i18n.ts";
 import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "../render/templates.ts";
 import { $ } from "./dom.ts";
 import { icon } from "./icons.ts";
+import { ShortlistShare } from "./shortlist-share.ts";
+import { router } from "../router.ts";
+import type { SharedShortlist } from "../shortlist.ts";
 
 export interface PanelHandlers {
   onQuery(query: string): void;
@@ -17,6 +20,7 @@ export interface PanelHandlers {
   onTrail(): void;
   onSave(slug: string): void;
   onSavedOnly(savedOnly: boolean): void;
+  onShared(): void;
   onSort(sort: SortOrder): void;
   onCuisine(cuisine: CuisineId | "all"): void;
   onNameLanguage(language: NameLanguage): void;
@@ -40,8 +44,24 @@ export class Panel {
   private lastSaved: ReadonlySet<string> = new Set();
   private lastSavedOnly = false;
   private currentNameLanguage: NameLanguage = getNameLanguage();
+  private readonly share: ShortlistShare;
+  private readonly sharedTab: HTMLButtonElement;
+  private sharedActive = false;
 
   constructor(allShops: readonly Shop[], handlers: PanelHandlers) {
+    this.share = new ShortlistShare($('#shortlist-share'), ids => router.shortlistUrl(ids));
+    this.sharedTab = document.createElement('button');
+    this.sharedTab.type = 'button';
+    this.sharedTab.id = 'shared-tab';
+    this.sharedTab.textContent = 'Shared list';
+    this.sharedTab.hidden = true;
+    this.sharedTab.setAttribute('aria-pressed', 'false');
+    $('#saved-tab').after(this.sharedTab);
+    this.sharedTab.addEventListener('click', () => handlers.onShared());
+    $('#share-shortlist').addEventListener('click', () => {
+      $('#share-shortlist').focus();
+      this.share.open(allShops.filter(s => this.lastSaved.has(s.slug)));
+    });
     const coverage = document.createElement("p");
     coverage.className = "catalog-note";
     const openCount = allShops.filter(s => s.slug.startsWith("open-")).length;
@@ -107,8 +127,12 @@ export class Panel {
     this.drawList();
     $('#saved-count').textContent = String(saved.size);
     $('#saved-tab').setAttribute('aria-pressed', String(savedOnly));
-    $('#explore-tab').setAttribute('aria-pressed', String(!savedOnly));
+    $('#explore-tab').setAttribute('aria-pressed', String(!savedOnly && !this.sharedActive));
     $('#saved-note').hidden = !savedOnly;
+    $('#share-shortlist').hidden = !savedOnly;
+    $<HTMLButtonElement>('#share-shortlist').disabled = !saved.size;
+    this.share.updateSaved(saved);
+    if (!savedOnly) $('#shortlist-share').hidden = true;
     $<HTMLButtonElement>('#surprise-btn').disabled = !shops.length;
     this.count.textContent = resultCountText(shops.length);
   }
@@ -118,6 +142,26 @@ export class Panel {
     const selected = index >= this.pageLimit ? this.lastShops[index] : undefined;
     const ordered = selected ? [selected, ...this.lastShops.filter(s => s.slug !== selected.slug)] : this.lastShops;
     this.list.innerHTML = shopListHtml(ordered, this.lastSelected, this.lastSaved, this.lastSavedOnly, this.pageLimit, this.currentNameLanguage);
+    if (this.sharedActive && !ordered.length) {
+      this.list.innerHTML = '<li class="empty-state">No available shops match this shared list. Check the link notice above or reset your filters.</li>';
+    }
+    if (this.sharedActive && location.hash.startsWith('#shortlist=')) {
+      for (const row of this.list.querySelectorAll<HTMLAnchorElement>('.shop-row')) {
+        const params = new URLSearchParams(location.hash.slice(1));
+        params.set('shop', row.dataset.slug!);
+        row.href = `#${params}`;
+      }
+    }
+  }
+
+  setShared(shared: SharedShortlist | null, active: boolean): void {
+    this.sharedActive = active;
+    this.sharedTab.hidden = !shared;
+    this.sharedTab.setAttribute('aria-pressed', String(active));
+    $('#shared-shortlist').hidden = !active;
+    $('#shared-note').textContent = shared?.error ?? (shared
+      ? `${shared.ids.length} available shops. ${shared.missing ? `${shared.missing} shops are no longer available. ` : ''}Save shops individually to your own places; your existing saves stay unchanged.`
+      : '');
   }
 
   setBrothPressed(pressed: ReadonlySet<BrothId>): void {
@@ -150,6 +194,7 @@ export class Panel {
   setNameLanguage(language: NameLanguage): void {
     this.currentNameLanguage = language;
     this.nameLanguage.value = language;
+    this.share.setNameLanguage(language);
     this.drawList();
   }
 

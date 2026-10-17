@@ -25,6 +25,7 @@ import { Loader, toast } from "./ui/feedback.ts";
 import { Panel } from "./ui/panel.ts";
 import { BottomSheet } from "./ui/sheet.ts";
 import { SplatModal } from "./ui/splat-modal.ts";
+import type { SharedShortlist } from "./shortlist.ts";
 
 /** PLATEAU building tilesets by municipality code (from scripts/fetch-plateau-catalog.ts). */
 const PLATEAU_INDEX: ReadonlyMap<string, PlateauTilesetRef> = new Map(
@@ -53,6 +54,9 @@ export class App {
   private origin: {lat:number;lng:number} | null = null;
   private locationRequest = 0;
   private savedOnly = false;
+  private shared: SharedShortlist | null = null;
+  private sharedActive = false;
+  private sharedHash = '';
   private readonly saved = this.readSaved();
   private inspectBuildings = false;
   private autoBuildings = true;
@@ -90,6 +94,8 @@ export class App {
     $(".brand").addEventListener("click",event=>{
       if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
+      this.sharedActive = false;
+      router.clearShortlist();
       this.resetFilters();
     });
     restoreNameLanguage();
@@ -116,11 +122,14 @@ export class App {
       onSave: slug => this.toggleSaved(slug),
       onSavedOnly: savedOnly => {
         this.trail.stop();
+        this.sharedActive = false;
+        router.clearShortlist();
         this.savedOnly = savedOnly;
         this.resetFilters();
         this.closeCard();
         this.sheet.ensureOpen();
       },
+      onShared: () => this.showShared(),
       onSort: sort => { void this.changeSort(sort); },
       onCuisine: cuisine => {
         this.trail.stop();
@@ -174,12 +183,29 @@ export class App {
   }
 
   start(): void {
+    this.shared = router.shortlist();
+    if (this.shared) this.sharedHash = location.hash;
+    this.sharedActive = !!this.shared;
+    if (this.shared) this.city = 'all';
     const initial = router.initial();
-    if (initial) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
+    if (initial && !this.shared) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
     this.refresh();
     this.updateLocation();
     if (initial) this.select(initial, { fly: false, focus: false });
-    router.onChange((slug) => (slug ? this.select(slug, { fly: true, focus: false }) : this.closeCard()));
+    if (this.shared) this.sheet.ensureOpen();
+    router.onChange((slug) => {
+      const shared = router.shortlist();
+      if (shared) {
+        this.shared = shared;
+        this.sharedHash = location.hash;
+        this.showShared(false);
+      } else if (this.sharedActive) {
+        this.sharedActive = false;
+        this.resetFilters();
+      }
+      if (slug) this.select(slug, { fly: true, focus: false });
+      else this.closeCard();
+    });
 
     document.addEventListener("keydown", (e) => {
       const typing = (e.target as HTMLElement).matches('input, textarea, select, [contenteditable]');
@@ -212,19 +238,34 @@ export class App {
   }
 
   private filtered(): readonly Shop[] {
-    return discover(ORDERED_SHOPS, { query: this.query, city: this.city, sort: this.sort,
+    const source = this.sharedActive ? (this.shared?.ids ?? []).flatMap(id => {
+      const shop = shopBySlug.get(id);
+      return shop ? [shop] : [];
+    }) : ORDERED_SHOPS;
+    return discover(source, { query: this.query, city: this.city, sort: this.sort,
       broths: this.broths, savedOnly: this.savedOnly, saved: this.saved,
       cuisine: this.cuisine, origin: this.origin });
   }
 
   private refresh(): void {
     const shops = this.filtered();
+    this.panel.setShared(this.shared, this.sharedActive);
     this.panel.renderList(shops, this.selected, this.saved, this.savedOnly);
     this.panel.setCity(this.city);
     this.panel.setCuisine(this.cuisine);
     $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && this.cuisine === 'all';
     this.engine?.setShops(shops);
     if (this.selected && !shops.some(shop => shop.slug === this.selected)) this.closeCard();
+  }
+
+  private showShared(updateUrl = true): void {
+    if (!this.shared) return;
+    if (updateUrl) history.replaceState(null, '', `${location.pathname}${location.search}${this.sharedHash}`);
+    this.sharedActive = true;
+    this.savedOnly = false;
+    this.closeCard();
+    this.resetFilters();
+    this.sheet.ensureOpen();
   }
 
   private changeNameLanguage(language: NameLanguage): void {
@@ -290,7 +331,8 @@ export class App {
     $('#map-coordinates').textContent = city
       ? `${Math.abs(city.lat).toFixed(4)}° ${city.lat < 0 ? 'S' : 'N'} · ${Math.abs(city.lng).toFixed(4)}° ${city.lng < 0 ? 'W' : 'E'}`
       : 'A WORLD OF SOUPS';
-    $('#map-summary').textContent = this.savedOnly ? 'Your saved places, one bowl at a time.'
+    $('#map-summary').textContent = this.sharedActive ? 'A shared soup shortlist · Save only the shops you want.'
+      : this.savedOnly ? 'Your saved places, one bowl at a time.'
       : city ? `Japan pilot · ${city.slug === STARTUP_CITY_SLUG ? 'Tokyo test destination' : city.name}` : 'Worldwide atlas · Current listings: Japan pilot';
   }
 
@@ -303,6 +345,10 @@ export class App {
     if (!shop) return;
     // Deep links and trail stops must remain visible in the current discovery state.
     if (!this.filtered().some(s => s.slug === slug)) {
+      if (this.sharedActive && !this.shared?.ids.includes(slug)) {
+        this.sharedActive = false;
+        router.clearShortlist();
+      }
       this.query = ''; this.broths.clear(); this.savedOnly = false; this.cuisine = 'all';
       this.city = CITIES.find(c => c.name === shop.city)?.slug ?? 'all';
       this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
@@ -388,6 +434,8 @@ export class App {
     }
     const trail = TRAILS[0];
     if (!trail) return;
+    this.sharedActive = false;
+    router.clearShortlist();
     // Show the trail's broth on the map while touring.
     this.query = "";
     this.savedOnly = false;

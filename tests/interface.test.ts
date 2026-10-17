@@ -10,12 +10,17 @@ import {ShopCard} from '../src/ui/card.ts';
 import {OPEN_SHOPS} from '../src/data/shops.ts';
 import {displayName} from '../src/names.ts';
 import {cuisineOf} from '../src/cuisines.ts';
+import {shortlistHash} from '../src/shortlist.ts';
 let window: Window;
 let app: App;
-beforeEach(()=>{
-  window=new Window({url:'https://soupmap.example/'});
+beforeEach((context)=>{
+  const initialShared = context.name.startsWith('initial shared link');
+  window=new Window({url:initialShared
+    ? 'https://soupmap.example/' + shortlistHash(['afuri-ebisu','ichiran-nakasu'])
+    : 'https://soupmap.example/'});
+  if (initialShared) window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(['ginza-kagari']));
   window.document.write(readFileSync(new URL('../index.html',import.meta.url),'utf8'));
-  for (const key of ['document','location','history','localStorage','CSS','HTMLElement','Element','HTMLButtonElement','navigator']) {
+  for (const key of ['document','location','history','localStorage','CSS','HTMLElement','Element','HTMLInputElement','HTMLButtonElement','navigator']) {
     Object.defineProperty(globalThis,key,{value:(window as unknown as Record<string,unknown>)[key],configurable:true});
   }
   Object.defineProperty(globalThis,'window',{value:window,configurable:true});
@@ -204,6 +209,127 @@ test('mobile search dock expands on focus, cycles its handle and restores deskto
   assert.equal(el('#panel').style.getPropertyValue('--sheet-h'),'');
 });
 
+function openShared(ids: string[]): void {
+  window.history.replaceState(null, '', '/' + shortlistHash(ids));
+  window.dispatchEvent(new window.HashChangeEvent('hashchange'));
+}
+function chooseShared(id: string): void {
+  const input = el(`[data-shortlist-shop][value="${id}"]`) as HTMLInputElement;
+  input.checked = !input.checked;
+  input.dispatchEvent(new window.Event('change', {bubbles:true}));
+}
+
+test('initial shared link opens the shortlist without importing or replacing saves', () => {
+  assert.equal(el('#shared-shortlist').hidden, false);
+  assert.deepEqual(rows().map(r => r.dataset.slug), ['afuri-ebisu', 'ichiran-nakasu']);
+  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari']);
+  assert.equal(el('#saved-count').textContent, '1');
+  assert.equal(el('#map-city').textContent, 'Earth');
+  assert.ok(el('#card').hidden);
+});
+
+test('sharing is opt-in and includes only the selected saved shops', () => {
+  click('[data-save="afuri-ebisu"]');
+  click('[data-save="ginza-kagari"]');
+  assert.equal(el('#share-shortlist').hidden, true);
+  click('#saved-tab');
+  click('#share-shortlist');
+  assert.equal(window.document.querySelectorAll('[data-shortlist-shop]:checked').length, 0);
+  assert.equal((el('[data-shortlist-generate]') as HTMLButtonElement).disabled, true);
+  chooseShared('afuri-ebisu');
+  click('[data-shortlist-generate]');
+  const link = (el('[data-shortlist-url]') as HTMLInputElement).value;
+  const params = new URLSearchParams(new URL(link).hash.slice(1));
+  assert.deepEqual(params.getAll('id'), ['afuri-ebisu']);
+  assert.ok(!link.includes('ginza-kagari'));
+  assert.equal(window.location.hash, '');
+  chooseShared('ginza-kagari');
+  assert.equal((el('[data-shortlist-url]') as HTMLInputElement).value, '');
+  click('[data-shortlist-close]');
+  assert.equal(el('#shortlist-share').hidden, true);
+  assert.equal(window.document.activeElement?.id, 'share-shortlist');
+});
+
+test('shared view spans cities and adds individual saves without replacing existing ones', () => {
+  click('[data-save="ginza-kagari"]');
+  openShared(['afuri-ebisu', 'ichiran-nakasu']);
+  assert.deepEqual(rows().map(r => r.dataset.slug), ['afuri-ebisu', 'ichiran-nakasu']);
+  assert.equal(el('#shared-tab').getAttribute('aria-pressed'), 'true');
+  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari']);
+  click('[data-save="afuri-ebisu"]');
+  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari', 'afuri-ebisu']);
+  assert.equal(rows().length, 2);
+  click('[data-slug="ichiran-nakasu"]');
+  assert.ok(window.location.hash.startsWith('#shortlist='));
+  assert.equal(router.initial(), 'ichiran-nakasu');
+  assert.match(rows()[0].href, /shortlist=/);
+  click('[data-action="close"]');
+  assert.ok(window.location.hash.startsWith('#shortlist='));
+  click('#saved-tab');
+  assert.equal(rows().length, 2);
+  assert.equal(window.location.hash, '');
+  click('#shared-tab');
+  assert.deepEqual(rows().map(r => r.dataset.slug), ['afuri-ebisu', 'ichiran-nakasu']);
+  click('[data-save="afuri-ebisu"]');
+  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari']);
+});
+
+test('shared view handles missing shops, invalid payloads and preserves the missing notice on return', () => {
+  openShared(['gone-shop', 'afuri-ebisu']);
+  assert.equal(rows().length, 1);
+  assert.match(el('#shared-note').textContent!, /1 shops are no longer available/);
+  click('#explore-tab');
+  click('#shared-tab');
+  assert.match(el('#shared-note').textContent!, /1 shops are no longer available/);
+  openShared(['gone-shop']);
+  assert.equal(rows().length, 0);
+  assert.match(el('#shared-note').textContent!, /0 available/);
+  window.history.replaceState(null, '', '/#shortlist=v1' + '&id=afuri-ebisu'.repeat(21));
+  window.dispatchEvent(new window.HashChangeEvent('hashchange'));
+  assert.equal(rows().length, 0);
+  assert.match(el('#shared-note').textContent!, /too many/);
+  click('#explore-tab');
+  assert.equal(rows().length, 100);
+});
+
+test('share chooser stays bounded, caps selection and follows language and cross-tab removals', () => {
+  const ids = ORDERED_SHOPS.slice(0, 220).map(s => s.slug);
+  window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(ids));
+  window.dispatchEvent(new window.StorageEvent('storage', {key:'soupmap:saved:v1'}));
+  click('#saved-tab');
+  click('#share-shortlist');
+  assert.equal(window.document.querySelectorAll('[data-shortlist-shop]').length, 100);
+  for (const id of ids.slice(0,20)) chooseShared(id);
+  assert.equal(window.document.querySelectorAll('[data-shortlist-shop]:checked').length, 20);
+  assert.equal((el(`[data-shortlist-shop][value="${ids[20]}"]`) as HTMLInputElement).disabled, true);
+  click('[data-shortlist-next]');
+  assert.equal(window.document.querySelectorAll('[data-shortlist-shop]').length, 100);
+  click('[data-shortlist-generate]');
+  assert.equal(new URLSearchParams(new URL((el('[data-shortlist-url]') as HTMLInputElement).value).hash.slice(1)).getAll('id').length, 20);
+  const language = el('#name-language') as HTMLSelectElement;
+  language.value = 'ja';
+  language.dispatchEvent(new window.Event('change', {bubbles:true}));
+  assert.ok(el('#shortlist-share').textContent!.includes(ORDERED_SHOPS[100].nameJa));
+  window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(ids.slice(1)));
+  window.dispatchEvent(new window.StorageEvent('storage', {key:'soupmap:saved:v1'}));
+  assert.equal((el('[data-shortlist-url]') as HTMLInputElement).value, '');
+  assert.equal(el('[data-shortlist-count]').textContent, '19');
+});
+
+test('shortlist copy reports clipboard failure and leaves a selectable link', async () => {
+  click('[data-save="afuri-ebisu"]');
+  click('#saved-tab');
+  click('#share-shortlist');
+  chooseShared('afuri-ebisu');
+  click('[data-shortlist-generate]');
+  Object.defineProperty(globalThis, 'navigator', {value:{clipboard:{writeText:async()=>{throw new Error('denied');}}}, configurable:true});
+  click('[data-shortlist-copy]');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.match(el('[data-shortlist-status]').textContent!, /copy it manually/);
+  const input = el('[data-shortlist-url]') as HTMLInputElement;
+  assert.equal(input.selectionEnd, input.value.length);
+});
+
 test('mobile keyboard keeps search usable and collapsing does not reopen the sheet',()=>{
   window.happyDOM.setWindowSize({width:402,height:874});
   const viewport={height:874,offsetTop:0,scale:1};
@@ -266,6 +392,7 @@ test('phone landscape uses the same mobile layout rather than the desktop sideba
 });
 
 test('the logo returns home inside the app without restarting the page',()=>{
+  openShared(['afuri-ebisu']);
   (el('#shop-search') as HTMLInputElement).value='miso';
   el('#shop-search').dispatchEvent(new window.Event('input'));
   const event=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0});
@@ -273,6 +400,8 @@ test('the logo returns home inside the app without restarting the page',()=>{
   assert.equal(event.defaultPrevented,true);
   assert.equal((el('#shop-search') as HTMLInputElement).value,'');
   assert.equal(el('#map-city').textContent,'Earth');
+  assert.equal(el('#shared-shortlist').hidden,true);
+  assert.equal(window.location.hash,'');
   const newTab=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0,ctrlKey:true});
   el('.brand').dispatchEvent(newTab);
   assert.equal(newTab.defaultPrevented,false);

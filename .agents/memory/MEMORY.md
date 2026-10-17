@@ -4,3 +4,4 @@
 - [Map interaction policy](map-ui-policy.md) — compact mobile search, no backdrop blur, navigable Street View and English-first shop names.
 - [Worldwide scope](worldwide-scope.md) — Soupmap is a global soup atlas; Japan is a starting region, not the brand's boundary.
 - [Browser touch checks](browser-touch-verification.md) — explicit CDP touch events avoid a false scrolling failure from synthetic scroll gestures.
+- [Shortlist privacy](shortlist-sharing.md) — sharing is an opt-in snapshot; bearer links cannot be revoked and must never replace recipients' saves.
