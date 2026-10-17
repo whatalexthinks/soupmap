@@ -2,8 +2,8 @@
  * The contract between the UI and the 3D map. Nothing here imports Cesium,
  * so the UI can load and run before (or without) the map chunk.
  */
-import type { City } from "../data/cities";
-import type { Shop } from "../data/shops";
+import type { City } from "../data/cities.ts";
+import type { Shop } from "../data/shops.ts";
 
 export type MapMode = "google" | "fallback";
 export type FallbackStyle = "photo" | "map";

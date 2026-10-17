@@ -10,7 +10,10 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import {
   Color,
   Credit,
+  CustomHeightmapTerrainProvider,
+  EllipsoidTerrainProvider,
   GoogleMaps,
+  HeightReference,
   ImageryLayer,
   Rectangle,
   ScreenSpaceEventHandler,
@@ -22,12 +25,12 @@ import {
   type Cartesian2,
   type Cesium3DTileset,
 } from "cesium";
-import type { City } from "../data/cities";
-import type { Shop } from "../data/shops";
-import { creditHtml, getSource } from "../sources";
-import { CameraDirector } from "./camera";
-import { PinLayer, type PickId } from "./pins";
-import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types";
+import type { City } from "../data/cities.ts";
+import type { Shop } from "../data/shops.ts";
+import { creditHtml, getSource } from "../sources.ts";
+import { CameraDirector } from "./camera.ts";
+import { PinLayer, type PickId } from "./pins.ts";
+import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types.ts";
 
 export interface EngineOptions {
   container: HTMLElement;
@@ -87,6 +90,7 @@ export class MapEngineImpl implements MapEngine {
   private _mode: MapMode = "google";
   private fallbackStyle: FallbackStyle = "photo";
   private fallbackLayer: ImageryLayer | undefined;
+  private flatGround: number | null = null;
   private readonly pickHandlers: Array<(slug: string) => void> = [];
   private readonly interactionHandlers: Array<() => void> = [];
   private readonly clickHandlers: MapClickHandler[] = [];
@@ -120,7 +124,7 @@ export class MapEngineImpl implements MapEngine {
     controller.minimumZoomDistance = 25;
     controller.maximumZoomDistance = 2.0e7;
 
-    this.pins = new PinLayer(this.viewer, options.shops, true);
+    this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE);
     this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives);
     this.installInput();
   }
@@ -140,7 +144,8 @@ export class MapEngineImpl implements MapEngine {
       GoogleMaps.defaultApiKey = key;
       const tileset = await timeout(
         createGooglePhotorealistic3DTileset(
-          { key },
+          // We run with no geocoder at all, which satisfies Google's "Google geocoder only" rule.
+          { key, onlyUsingWithGoogleGeocoder: true },
           {
             enableCollision: true, // required for CLAMP_TO_3D_TILE pins and camera collision
             maximumScreenSpaceError: this.options.lowPower ? 24 : 16,
@@ -189,7 +194,7 @@ export class MapEngineImpl implements MapEngine {
       this.googleTileset = undefined;
     }
     this.viewer.scene.globe.show = true;
-    this.pins.setClampTo3dTiles(false);
+    this.syncPinHeights();
     this.applyFallbackLayer();
     this.options.onStatus({ kind: "ready", mode: "fallback", reason });
   }
@@ -199,6 +204,27 @@ export class MapEngineImpl implements MapEngine {
     if (this.fallbackLayer) layers.remove(this.fallbackLayer, true);
     this.fallbackLayer = layers.addImageryProvider(gsiProvider(this.fallbackStyle));
     this.viewer.scene.requestRender();
+  }
+
+  /**
+   * A flat ground at `height` metres (ellipsoidal), or back to the plain ellipsoid with null.
+   * PLATEAU's data view uses it so imagery lies at the buildings' base height
+   * without moving the buildings (moving a tileset after load breaks picking).
+   */
+  setFlatGround(height: number | null): void {
+    if (height === this.flatGround) return;
+    this.flatGround = height;
+    this.viewer.scene.terrainProvider =
+      height === null
+        ? new EllipsoidTerrainProvider()
+        : new CustomHeightmapTerrainProvider({ width: 2, height: 2, callback: () => new Float32Array(4).fill(height) });
+    this.syncPinHeights();
+    this.viewer.scene.requestRender();
+  }
+
+  private syncPinHeights(): void {
+    const onGoogleTiles = this._mode === "google" && this.flatGround === null;
+    this.pins.setHeightReference(onGoogleTiles ? HeightReference.CLAMP_TO_3D_TILE : HeightReference.CLAMP_TO_GROUND);
   }
 
   setFallbackStyle(style: FallbackStyle): void {

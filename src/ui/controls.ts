@@ -1,7 +1,7 @@
 /** Floating map controls: status chip, fallback style switch, building info, overview. */
-import type { EngineStatus, FallbackStyle } from "../map/types";
-import { t } from "../i18n";
-import { $, esc } from "./dom";
+import type { EngineStatus, FallbackStyle } from "../map/types.ts";
+import { t } from "../i18n.ts";
+import { $, esc } from "./dom.ts";
 
 export interface ControlHandlers {
   onOverview(): void;

@@ -8,10 +8,11 @@ import {
   EasingFunction,
   HeadingPitchRange,
   Math as CesiumMath,
+  Matrix4,
   type Viewer,
 } from "cesium";
-import { cityByName, type City } from "../data/cities";
-import type { Shop } from "../data/shops";
+import { cityByName, type City } from "../data/cities.ts";
+import type { Shop } from "../data/shops.ts";
 
 interface View {
   lng: number;
@@ -21,8 +22,13 @@ interface View {
   pitch: number;
 }
 
-/** High over the Pacific, looking north across the whole archipelago. */
-export const OVERVIEW: View = { lng: 137.4, lat: 24.6, height: 2_300_000, heading: -6, pitch: -55 };
+/**
+ * The whole archipelago. Japan runs south-west to north-east, so landscape screens look
+ * north-west (islands left to right, clear of the sidebar) and portrait screens look
+ * north-east (islands bottom to top, above the bottom sheet).
+ */
+const OVERVIEW_LANDSCAPE = { lng: 134.4, lat: 34.4, heading: -32, pitch: -58, range: 2_450_000 };
+const OVERVIEW_PORTRAIT = { lng: 136.0, lat: 34.2, heading: 38, pitch: -60, range: 3_300_000 };
 const INTRO_START: View = { lng: 136.6, lat: 17.0, height: 4_600_000, heading: -4, pitch: -50 };
 /** South of central Tokyo, looking north over the city. */
 const INTRO_END: View = { lng: 139.745, lat: 35.575, height: 9_000, heading: 6, pitch: -32 };
@@ -88,19 +94,31 @@ export class CameraDirector {
     });
   }
 
+  private overviewFraming(): [BoundingSphere, HeadingPitchRange] {
+    const canvas = this.viewer.scene.canvas;
+    const o = canvas.clientWidth >= canvas.clientHeight ? OVERVIEW_LANDSCAPE : OVERVIEW_PORTRAIT;
+    return [
+      new BoundingSphere(Cartesian3.fromDegrees(o.lng, o.lat, 0), 1),
+      new HeadingPitchRange(CesiumMath.toRadians(o.heading), CesiumMath.toRadians(o.pitch), o.range),
+    ];
+  }
+
   overview(duration?: number): Promise<void> {
+    const [sphere, offset] = this.overviewFraming();
     const d = this.duration(duration, 2.5);
     if (d === 0) {
-      this.setView(OVERVIEW);
+      this.viewer.camera.viewBoundingSphere(sphere, offset);
+      this.viewer.camera.lookAtTransform(Matrix4.IDENTITY);
+      this.viewer.scene.requestRender();
       return Promise.resolve();
     }
-    return this.flyTo(OVERVIEW, d);
+    return this.flyToSphere(sphere, offset, d);
   }
 
   /** High over the archipelago, easing toward Tokyo. */
   async intro(): Promise<void> {
     if (this.reducedMotion) {
-      this.setView(OVERVIEW);
+      await this.overview(0);
       return;
     }
     this.setView(INTRO_START);
@@ -143,8 +161,10 @@ export class CameraDirector {
       this.duration(duration, SHOP_DURATION),
     );
 
+    // Only trust a sampled height inside a plausible band around the city's ground;
+    // a bad depth readback must never send the camera underground.
     const actual = this.sampleGroundHeight(shop);
-    if (actual !== undefined && Math.abs(actual - guess) > 20) {
+    if (actual !== undefined && actual > guess - 150 && actual < guess + 400 && Math.abs(actual - guess) > 20) {
       await this.flyToSphere(...this.shopFraming(shop, actual, heading, bottomInset), this.duration(undefined, 0.9));
     }
   }

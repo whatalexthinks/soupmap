@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "validate": "tsx scripts/validate-shops.ts",
     "data:plateau": "tsx scripts/fetch-plateau-catalog.ts",
-    "discover": "tsx scripts/discover-shops.ts"
+    "discover": "tsx scripts/discover-shops.ts",
+    "licenses": "tsx scripts/print-licenses.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "5.3.0",

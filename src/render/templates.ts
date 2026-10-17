@@ -4,11 +4,11 @@
  * and the client re-renders with the same functions when filters change.
  * Phase 2's prerendered /shop/<slug> and /city/<slug> pages should reuse them.
  */
-import { BROTHS, BROTH_IDS, type BrothId } from "../data/broths";
-import { CITIES } from "../data/cities";
-import type { Shop } from "../data/schema";
-import { t } from "../i18n";
-import { esc } from "../ui/dom";
+import { BROTHS, BROTH_IDS, type BrothId } from "../data/broths.ts";
+import { CITIES } from "../data/cities.ts";
+import type { Shop } from "../data/schema.ts";
+import { t } from "../i18n.ts";
+import { esc } from "../ui/dom.ts";
 
 export function bowlIcon(broth: BrothId): string {
   return `<span class="bowl" style="--broth:${BROTHS[broth].color}" aria-hidden="true"></span>`;

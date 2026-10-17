@@ -1,0 +1,14 @@
+# Cloudflare Pages response headers.
+# Hashed bundles and the versioned Cesium folder never change: cache forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/cesium/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  # Keeps the origin on cross-origin requests: Google key referrer restrictions depend on it.
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()

@@ -1,6 +1,6 @@
 /** Loader (steam), and a small toast for confirmations. */
-import { t } from "../i18n";
-import { $ } from "./dom";
+import { t } from "../i18n.ts";
+import { $ } from "./dom.ts";
 
 export class Loader {
   private readonly el = $("#loader");

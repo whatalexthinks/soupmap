@@ -1,8 +1,8 @@
-import { CITIES } from "./cities";
-import type { Shop } from "./schema";
-import raw from "./shops.json";
+import { CITIES } from "./cities.ts";
+import type { Shop } from "./schema.ts";
+import raw from "./shops.json" with { type: "json" };
 
-export type { Shop } from "./schema";
+export type { Shop } from "./schema.ts";
 
 /** Validated at build time by scripts/validate-shops.ts. */
 export const SHOPS = raw as unknown as readonly Shop[];

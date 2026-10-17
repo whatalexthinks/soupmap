@@ -1,0 +1,14 @@
+{
+  "name": "Soupmap",
+  "short_name": "Soupmap",
+  "description": "A photorealistic 3D map of Japan's best soup shops.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0d0c1e",
+  "background_color": "#07060f",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

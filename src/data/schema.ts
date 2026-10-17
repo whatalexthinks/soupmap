@@ -3,7 +3,7 @@
  * The app imports only the inferred types, so Zod never ships to the browser.
  */
 import { z } from "zod";
-import { BROTH_IDS } from "./broths";
+import { BROTH_IDS } from "./broths.ts";
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "lowercase-kebab-case");
 
@@ -38,7 +38,10 @@ export const ShopSchema = z.strictObject({
   blurb: z.string().min(20).max(320),
   videoUrl: z.url().nullable(),
   photo: PhotoSchema,
-  /** .spz / .ply / .splat / .ksplat / .sog. Absolute URL (e.g. Cloudflare R2) or a site-relative path. */
+  /**
+   * .spz / .ply / .splat / .ksplat / .sog: an absolute URL (e.g. Cloudflare R2) or a site-relative path.
+   * "procedural:ramen-bowl" renders the built-in placeholder scene (no external asset).
+   */
   splatUrl: z.string().min(1).nullable(),
   googleMapsUrl: z.url(),
   dataSource: z.enum(["manual", "overture", "osm"]),

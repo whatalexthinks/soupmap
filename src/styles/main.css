@@ -1,143 +1,9 @@
-/* Soupmap — late-night ramen alley.
-   Deep indigo-black, one lantern-amber accent, steam-white text. */
-
-:root {
-  color-scheme: dark;
-
-  --ink-0: #07060f;
-  --ink-1: #0d0c1e;
-  --ink-2: #15132d;
-  --ink-3: #221f44;
-  --line: rgba(243, 239, 230, 0.12);
-  --line-strong: rgba(243, 239, 230, 0.24);
-
-  --steam: #f3efe6;
-  --steam-2: #d4cfdf;
-  --steam-3: #aaa4bf;
-
-  --lantern: #f2a541;
-  --lantern-hi: #ffc070;
-  --lantern-ink: #1d1204;
-  --lantern-glow: rgba(242, 165, 65, 0.32);
-
-  --panel-bg: rgba(13, 12, 30, 0.86);
-  --panel-solid: #111027;
-  --blur: blur(18px) saturate(140%);
-
-  --radius-lg: 20px;
-  --radius-md: 14px;
-  --radius-sm: 9px;
-  --shadow: 0 22px 60px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.35);
-
-  --font-display: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
-  --font-body: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-ja: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
-
-  --gap: 16px;
-  /* Height of Cesium's credit bar; kept in sync at runtime so panels never cover attribution. */
-  --credit-h: 34px;
-  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-[hidden] {
-  display: none !important;
-}
-
-html,
-body {
-  margin: 0;
-  height: 100%;
-}
+/* Soupmap map app: full-screen map with floating panels. */
+@import "./tokens.css";
 
 body {
-  background: var(--ink-0);
-  color: var(--steam);
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
   overflow: hidden;
   overscroll-behavior: none;
-}
-
-:lang(ja),
-.ja {
-  font-family: var(--font-ja);
-}
-
-button,
-input,
-select {
-  font: inherit;
-  color: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-a {
-  color: var(--lantern);
-  text-underline-offset: 3px;
-}
-
-a:hover {
-  color: var(--lantern-hi);
-}
-
-/* Visible keyboard focus everywhere */
-:focus-visible {
-  outline: 2px solid var(--lantern);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-
-.sr-only {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.skip-link {
-  position: fixed;
-  left: 12px;
-  top: -60px;
-  z-index: 100;
-  padding: 10px 16px;
-  border-radius: var(--radius-sm);
-  background: var(--lantern);
-  color: var(--lantern-ink);
-  font-weight: 650;
-  text-decoration: none;
-  transition: top 0.2s var(--ease);
-}
-
-.skip-link:focus {
-  top: 12px;
-  color: var(--lantern-ink);
-}
-
-.icon {
-  width: 18px;
-  height: 18px;
-  flex: none;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
@@ -173,20 +39,6 @@ a:hover {
 
 .credit-viewport > * {
   pointer-events: auto;
-}
-
-.glass {
-  background: var(--panel-bg);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass {
-    background: var(--panel-solid);
-  }
 }
 
 /* ── Loader: a steaming bowl ─────────────────────────────────────────────── */
@@ -925,7 +777,7 @@ a:hover {
   position: absolute;
   z-index: 26;
   left: 50%;
-  top: var(--gap);
+  bottom: calc(var(--credit-h) + 12px);
   transform: translateX(-50%);
   width: min(360px, calc(100vw - 32px));
   padding: 14px 16px;
@@ -1220,14 +1072,8 @@ body.is-pano .building {
     max-width: calc(100vw - 80px);
   }
 
-  .building {
-    top: auto;
-    bottom: calc(var(--credit-h) + 12px);
-  }
-
   body.has-card .building {
     bottom: calc(var(--credit-h) + min(56dvh, 100dvh - 72px) + 8px);
-    top: auto;
   }
 
   .toast {

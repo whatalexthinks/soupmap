@@ -1,7 +1,8 @@
 /**
  * Shop pins and clusters.
- * - Pins are billboards clamped to the 3D tiles (CLAMP_TO_3D_TILE, verified against
- *   Cesium 1.146 docs) when Google 3D is active, and sit on the ellipsoid in fallback mode.
+ * - Pins are billboards clamped to the 3D tiles (CLAMP_TO_3D_TILE: tiles only, verified
+ *   against the Cesium 1.146 docs) when Google 3D is active, and CLAMP_TO_GROUND
+ *   (terrain and tiles) on the GSI globe and in PLATEAU's data view.
  * - disableDepthTestDistance keeps buildings from hiding pins.
  * - Supercluster groups pins at country/region zoom.
  */
@@ -23,8 +24,8 @@ import {
   type Viewer,
 } from "cesium";
 import Supercluster from "supercluster";
-import type { Shop } from "../data/shops";
-import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, pinGlyph } from "./glyph";
+import type { Shop } from "../data/shops.ts";
+import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, pinGlyph } from "./glyph.ts";
 
 export type PickId = { kind: "shop"; slug: string } | { kind: "cluster"; clusterId: number };
 
@@ -41,7 +42,9 @@ const LABEL_DISTANCE = 4500;
 
 /** Rough Web-Mercator-style zoom from camera height, to drive Supercluster. */
 export function heightToZoom(height: number): number {
-  return Math.log2(3.5e7 / Math.max(height, 1));
+  // Calibrated so the country overview (~2,000 km up) clusters by region
+  // and city views (< ~25 km) show every shop.
+  return Math.log2(1.4e8 / Math.max(height, 1));
 }
 
 export class PinLayer {
@@ -49,18 +52,16 @@ export class PinLayer {
   private readonly pinCollection: BillboardCollection;
   private readonly labelCollection: LabelCollection;
   private readonly clusterCollection: BillboardCollection;
-  private index = new Supercluster<{ slug: string }>({ radius: 64, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
+  private index = new Supercluster<{ slug: string }>({ radius: 56, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
   private visible = new Set<string>();
   private selected: string | null = null;
-  private clamp: boolean;
 
   constructor(
     private readonly viewer: Viewer,
     shops: readonly Shop[],
-    clampTo3dTiles: boolean,
+    private heightRef: HeightReference,
   ) {
     const scene = viewer.scene;
-    this.clamp = clampTo3dTiles;
     this.pinCollection = scene.primitives.add(new BillboardCollection({ scene }));
     this.labelCollection = scene.primitives.add(new LabelCollection({ scene }));
     this.clusterCollection = scene.primitives.add(new BillboardCollection({ scene }));
@@ -73,7 +74,7 @@ export class PinLayer {
         width: PIN_SIZE.width,
         height: PIN_SIZE.height,
         verticalOrigin: VerticalOrigin.BOTTOM,
-        heightReference: this.heightReference(),
+        heightReference: this.heightRef,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
         scaleByDistance: new NearFarScalar(800, 1.15, 3.0e6, 0.75),
         id: { kind: "shop", slug: shop.slug } satisfies PickId,
@@ -93,7 +94,7 @@ export class PinLayer {
         horizontalOrigin: HorizontalOrigin.CENTER,
         verticalOrigin: VerticalOrigin.BOTTOM,
         pixelOffset: new Cartesian2(0, -(PIN_SIZE.height + 6)),
-        heightReference: this.heightReference(),
+        heightReference: this.heightRef,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
         distanceDisplayCondition: new DistanceDisplayCondition(0, LABEL_DISTANCE),
         id: { kind: "shop", slug: shop.slug } satisfies PickId,
@@ -108,23 +109,28 @@ export class PinLayer {
     camera.moveEnd.addEventListener(() => this.refresh());
   }
 
-  private heightReference(): HeightReference {
-    return this.clamp ? HeightReference.CLAMP_TO_3D_TILE : HeightReference.NONE;
+  /** Switch clamping, e.g. when the map falls back from Google 3D to the GSI globe. */
+  setHeightReference(heightRef: HeightReference): void {
+    if (heightRef === this.heightRef) return;
+    this.heightRef = heightRef;
+    for (const { billboard, label } of this.pins.values()) {
+      billboard.heightReference = heightRef;
+      label.heightReference = heightRef;
+    }
+    this.viewer.scene.requestRender();
   }
 
-  /** Switch clamping when the map falls back from Google 3D to the GSI globe. */
-  setClampTo3dTiles(clamp: boolean): void {
-    this.clamp = clamp;
-    for (const { billboard, label } of this.pins.values()) {
-      billboard.heightReference = this.heightReference();
-      label.heightReference = this.heightReference();
-    }
+  /** Hide every pin, label and cluster (e.g. inside a Street View panorama). */
+  setVisible(show: boolean): void {
+    this.pinCollection.show = show;
+    this.labelCollection.show = show;
+    this.clusterCollection.show = show;
     this.viewer.scene.requestRender();
   }
 
   setVisibleShops(shops: readonly Shop[]): void {
     this.visible = new Set(shops.map((s) => s.slug));
-    this.index = new Supercluster<{ slug: string }>({ radius: 64, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
+    this.index = new Supercluster<{ slug: string }>({ radius: 56, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
     this.index.load(
       shops.map((s) => ({
         type: "Feature" as const,
