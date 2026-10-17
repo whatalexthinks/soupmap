@@ -9,6 +9,13 @@
 - No credentials are required for the GSI map imagery and PLATEAU building mode. Google photorealistic tiles and Street View require the optional `VITE_GOOGLE_MAPS_KEY` with the relevant Google APIs enabled.
 - Vite reads optional `VITE_*` settings at startup/build time. Use workspace Secrets rather than committing credentials.
 
+## Publishing
+
+- Autoscale build: `npm ci --no-audit --no-fund && npm run build`.
+- Production run: `npm start`, which serves `dist/` on `0.0.0.0` using sirv, with `PORT` or default port 5000, not Vite's development server.
+- `VITE_GOOGLE_MAPS_KEY` must be available during the production build. The Google key is intentionally browser-visible; restrict it to the required APIs and exact allowed website origins.
+- After publishing, add the actual published origin to the key's website restrictions. Do not assume the development Preview origin covers the published site.
+
 ## Open-data catalog
 
 - The downloadable source-attributed catalog is `public/data/open-shops.json.gz`; keep it compressed in Git. Raw extracts belong in `/tmp`, not the repository.
