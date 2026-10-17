@@ -57,7 +57,7 @@ export class BottomSheet {
   private startDrag(down: PointerEvent): void {
     if (!isMobileLayout() || down.button !== 0) return;
     const target = down.target as Element;
-    if (target.closest("a, input")) return;
+    if (target.closest("a, input, select") || (target.closest("button") && !target.closest("#sheet-handle"))) return;
     const startY = down.clientY;
     const startH = this.panel.getBoundingClientRect().height;
     const h = this.heights();

@@ -1,11 +1,21 @@
 # Soupmap
 
-![Soupmap](public/og.png)
+A field guide to Japan, one bowl at a time. Explore a Tokyo-first 3D map, discover soup
+shops across seven cities, and build a personal collection of places worth a detour.
 
-A photorealistic 3D map of Japan's best soup shops: ramen, udon, soba and oden. You land on a
-flyover of Japan, pick a broth or a city, and the camera flies down to street level onto the shop.
-Each shop has a card with its broth style, signature bowl, a "Stand outside" Street View moment,
-PLATEAU building data and directions.
+The Atlas interface pairs warm paper, vermilion, editorial typography, and original vector
+bowl illustrations with a dedicated map viewport. Shop details replace the desktop sidebar;
+mobile uses a draggable sheet. Illustrations are not restaurant photos.
+
+- City, broth, and English/Japanese search filters work together and update map pins.
+- Save places in this browser, revisit them in **Saved**, and synchronize across tabs.
+- Sort by guide order, name, or city; **Find me a bowl** chooses within the current results.
+- Zoom, face north, switch between overhead and tilted views, or return to all Japan.
+- Press `/` to search, Enter to open the first current result, and Escape to dismiss.
+- With no Google key, supported selected areas load PLATEAU buildings automatically. The
+  committed catalog contains 11 municipality/ward tilesets; Tokyo's three manifests were
+  checked successfully. Coverage follows the selected ward, not every building in Japan.
+- Google photorealistic tiles and Street View still require a valid configured Google key.
 
 **Phase 1 status:** a static site (Vite + TypeScript + CesiumJS) for Cloudflare Pages with 15
 seeded shops. Every shop is `"verified": false` until someone checks it by hand (see
@@ -36,8 +46,9 @@ cp .env.example .env.local      # then fill in VITE_GOOGLE_MAPS_KEY (optional)
 npm run dev                     # http://localhost:5173
 ```
 
-Without a Google key the app still works: it shows the GSI fallback globe with a small
-"3D unavailable" note.
+Without a Google key the app uses GSI imagery and automatically loads PLATEAU buildings
+where the catalog supports the current city or selected shop. The status chip reports whether
+buildings have actually loaded. Map and aerial imagery switches remain usable in that view.
 
 | Command | What it does |
 |---|---|
@@ -46,6 +57,7 @@ Without a Google key the app still works: it shows the GSI fallback globe with a
 | `npm run preview` | Serves `dist/` locally, the closest thing to production. |
 | `npm run validate` | Zod validation of `src/data/shops.json`; lists unverified shops. |
 | `npm run typecheck` | TypeScript only. |
+| `npm test` | Discovery rules and DOM integration regression tests (no WebGL). |
 | `npm run data:plateau` | Fetch the PLATEAU catalog → `src/data/plateau-tilesets.json` ([§4](#41-fetch-plateau-catalog)). |
 | `npm run discover` | Open-data shop leads → `data/candidates/` ([§4](#42-discover-shops)). |
 | `npm run licenses` | Prints the licensing table below from `src/sources.ts`. |
@@ -301,7 +313,7 @@ _20 sources across 7 kinds. Generated from src/sources.ts._
 - **PLATEAU**: the building data is multi-licensed (CC BY 4.0 / ODbL / ODC-BY). We use
   **CC BY 4.0** with the credit **出典：国土交通省 Project PLATEAU**, linked to
   <https://www.mlit.go.jp/plateau/>, shown on screen whenever buildings are. We restyle the
-  buildings (near-invisible, amber highlight), and the credits page discloses that modification.
+  buildings (near-invisible, vermilion highlight), and the credits page discloses that modification.
   The streaming service is a trial with no SLA, so every call times out after 8 s and fails quietly.
 - **GSI** (国土地理院): no application is needed to stream the tiles, but the credit **国土地理院**
   (linked to <https://maps.gsi.go.jp/development/ichiran.html>) is required. **If the map ever
@@ -368,7 +380,7 @@ src/
   main.ts              fonts + styles + App
   app.ts               UI state, deep links, lazy map loading, feature wiring
   sources.ts           the registry of every external source and license
-  i18n.ts              all UI strings (EN now; JA/RU are extra dictionaries)
+  i18n.ts              legacy localized strings (Atlas labels currently use English)
   router.ts            /#slug deep links (also understands /shop/<slug>)
   trail.ts             broth-trail player
   data/                shops.json (+ Zod schema), cities, broths, trails, PLATEAU index
@@ -403,7 +415,23 @@ no MSAA, and request-render mode (frames are drawn only when something changes).
 
 ## 8. What's tested, and known limits
 
-Tested in headless Chromium (software WebGL) during development:
+### Current Atlas refresh verification
+
+- `npm test`: 13 passing tests covering real DOM interactions, saved collections, cross-tab
+  updates, combined filters, Japanese search, Enter/debounce behavior, sort, random discovery,
+  safe template escaping, malformed hash/storage input, and trail cancellation.
+- `npm run typecheck`, `npm run build`, and shop data validation pass.
+- Tokyo's Chiyoda, Chuo, and Shibuya PLATEAU root manifests returned HTTP 200 with valid roots.
+- Browser rendering, mobile visual layout, and live WebGL tile streaming were **not** verified
+  for this refresh because browser automation was unavailable. Review on a real browser before
+  merging; manifest availability alone does not verify complete geometry rendering.
+- The 15 seed shops still have unverified details and no licensed restaurant photographs or
+  verified prices/hours. Saves are device-local, not accounts or cloud sync.
+
+### Historical verification (before the Atlas redesign)
+
+These results belong to the earlier interface and are not current scores for this refresh.
+The previous implementation documented headless Chromium (software WebGL) checks:
 
 - No key → GSI fallback globe, pins, clusters, fly-to, deep links, filters, search, copy link,
   Escape, 375 px layout with no horizontal scroll, **zero console errors from the app**.

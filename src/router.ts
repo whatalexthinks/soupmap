@@ -5,7 +5,8 @@
 import { shopBySlug } from "./data/shops.ts";
 
 function slugFromLocation(): string | null {
-  const hash = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
+  let hash = '';
+  try { hash = decodeURIComponent(location.hash.replace(/^#\/?/, '')); } catch { return null; }
   if (hash && shopBySlug.has(hash)) return hash;
   const match = location.pathname.match(/^\/shop\/([a-z0-9-]+)\/?$/);
   if (match?.[1] && shopBySlug.has(match[1])) return match[1];

@@ -72,7 +72,7 @@ out of Google Maps or Tabelog. All starting coordinates came from Overture 2026-
   - [ ] The panel shows usage, year, height, storeys and any hazard lines in plain English.
   - [ ] Compare the console's "PLATEAU feature properties" with `src/map/plateau-attributes.ts`;
         add any property names it misses.
-  - [ ] The amber highlight is visible on the picked roof over Google's tiles; if it isn't,
+  - [ ] The vermilion highlight is visible on the picked roof over Google's tiles; if it isn't,
         "Data view" still shows it (and tell me: the lift may need tuning).
   - [ ] A shop in a ward without PLATEAU data simply doesn't show the button.
 - [ ] **GSI**: confirm the tile URLs, zoom ranges and credit on
@@ -109,7 +109,7 @@ out of Google Maps or Tabelog. All starting coordinates came from Overture 2026-
 
 - [ ] Lighthouse **mobile** on `/` and `/credits/`: Accessibility, Best Practices and SEO ≥ 90.
 - [ ] Chrome (desktop + Android), **Safari** (iOS + macOS), **Firefox**:
-  - [ ] intro flyover plays and stops on any tap/key; with "Reduce motion" on, it starts static
+  - [ ] Tokyo starts framed immediately; city/shop flights respect "Reduce motion"
   - [ ] pins cluster when zoomed out and split up when zoomed in
   - [ ] list click → fly-to → card; `/#ichiran-nakasu` opens directly; copy link works
   - [ ] bottom sheet drags and snaps on a phone; nothing covers the Google/Cesium credits

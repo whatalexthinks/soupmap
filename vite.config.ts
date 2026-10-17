@@ -26,8 +26,8 @@ function soupmapHtml(env: Record<string, string>): Plugin {
         .replaceAll("%SITE_URL%", siteUrl)
         .replace("<!--soupmap:chips-->", brothChipsHtml(ORDERED_SHOPS))
         .replace("<!--soupmap:cities-->", cityButtonsHtml(ORDERED_SHOPS))
-        .replace("<!--soupmap:count-->", resultCountText(ORDERED_SHOPS.length))
-        .replace("<!--soupmap:list-->", shopListHtml(ORDERED_SHOPS))
+        .replace("<!--soupmap:count-->", resultCountText(ORDERED_SHOPS.filter(s => s.city === "Tokyo").length))
+        .replace("<!--soupmap:list-->", shopListHtml(ORDERED_SHOPS.filter(s => s.city === "Tokyo")))
         .replace("<!--soupmap:credits-->", creditsHtml(ORDERED_SHOPS));
       if (analyticsToken) {
         const beacon = JSON.stringify({ token: analyticsToken });

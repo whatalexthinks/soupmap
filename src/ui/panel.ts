@@ -1,4 +1,5 @@
 /** Sidebar (desktop) / bottom sheet (mobile): search, broth chips, cities, trail, shop list. */
+import type { SortOrder } from "../discovery.ts";
 import type { BrothId } from "../data/broths.ts";
 import type { Shop } from "../data/shops.ts";
 import { t } from "../i18n.ts";
@@ -12,6 +13,11 @@ export interface PanelHandlers {
   onCity(citySlug: string | "all"): void;
   onSelect(slug: string): void;
   onTrail(): void;
+  onSave(slug: string): void;
+  onSavedOnly(savedOnly: boolean): void;
+  onSort(sort: SortOrder): void;
+  onReset(): void;
+  onSurprise(): void;
 }
 
 export class Panel {
@@ -34,12 +40,16 @@ export class Panel {
     });
     this.search.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
+        clearTimeout(timer);
+        handlers.onQuery(this.search.value.trim());
         const first = this.list.querySelector<HTMLAnchorElement>(".shop-row");
         if (first?.dataset.slug) handlers.onSelect(first.dataset.slug);
       }
     });
 
     this.list.addEventListener("click", (e) => {
+      const save = (e.target as Element).closest<HTMLButtonElement>('[data-save]');
+      if (save?.dataset.save) { handlers.onSave(save.dataset.save); return; }
       const row = (e.target as Element).closest<HTMLAnchorElement>(".shop-row");
       if (!row?.dataset.slug) return;
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // let "open in new tab" work
@@ -58,14 +68,25 @@ export class Panel {
     });
 
     this.trail.addEventListener("click", () => handlers.onTrail());
+    $('#explore-tab').addEventListener('click', () => handlers.onSavedOnly(false));
+    $('#saved-tab').addEventListener('click', () => handlers.onSavedOnly(true));
+    $('#clear-filters').addEventListener('click', () => { clearTimeout(timer); handlers.onReset(); });
+    $('#surprise-btn').addEventListener('click', () => handlers.onSurprise());
+    $<HTMLSelectElement>('#shop-sort').addEventListener('change', e => handlers.onSort((e.target as HTMLSelectElement).value as SortOrder));
   }
 
-  renderList(shops: readonly Shop[], selected: string | null): void {
-    this.list.innerHTML = shopListHtml(shops, selected);
+  renderList(shops: readonly Shop[], selected: string | null, saved: ReadonlySet<string>, savedOnly: boolean): void {
+    this.list.innerHTML = shopListHtml(shops, selected, saved, savedOnly);
+    $('#saved-count').textContent = String(saved.size);
+    $('#saved-tab').setAttribute('aria-pressed', String(savedOnly));
+    $('#explore-tab').setAttribute('aria-pressed', String(!savedOnly));
+    $('#saved-note').hidden = !savedOnly;
+    $<HTMLButtonElement>('#surprise-btn').disabled = !shops.length;
     this.count.textContent = resultCountText(shops.length);
   }
 
   setBrothPressed(pressed: ReadonlySet<BrothId>): void {
+    $('#filter-count').textContent = pressed.size ? `${pressed.size} selected` : 'All styles';
     for (const chip of this.chips.querySelectorAll<HTMLButtonElement>(".chip")) {
       chip.setAttribute("aria-pressed", String(pressed.has(chip.dataset.broth as BrothId)));
     }
@@ -73,8 +94,15 @@ export class Panel {
 
   markSelected(slug: string | null): void {
     for (const row of this.list.querySelectorAll<HTMLAnchorElement>(".shop-row")) {
+      row.closest('li')?.classList.toggle('is-selected', row.dataset.slug === slug);
       if (row.dataset.slug === slug) row.setAttribute("aria-current", "true");
       else row.removeAttribute("aria-current");
+    }
+  }
+
+  setCity(slug: string): void {
+    for (const button of this.cities.querySelectorAll<HTMLButtonElement>('[data-city]')) {
+      button.setAttribute('aria-pressed', String(button.dataset.city === slug));
     }
   }
 

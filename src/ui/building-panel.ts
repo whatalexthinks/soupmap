@@ -45,7 +45,7 @@ export class BuildingPanel {
     return !this.el.hidden;
   }
 
-  show(state: BuildingPanelState, dataView: boolean): void {
+  show(state: BuildingPanelState, dataView: boolean, allowViewSwitch = true): void {
     const plateau = getSource("plateau-buildings");
     const body =
       state.kind === "loading"
@@ -58,7 +58,7 @@ export class BuildingPanel {
       <button type="button" class="icon-btn" data-action="close" aria-label="Turn off building info" title="${esc(t("close"))}">${icon("close")}</button>
       ${body}
       ${dataView ? `<p class="building__credit">${esc(t("buildingDataViewNote"))}</p>` : ""}
-      <div class="actions"><button type="button" class="btn" data-action="data-view" aria-pressed="${dataView}">${icon("building")}${esc(t("buildingDataView"))}</button></div>
+      ${allowViewSwitch ? `<div class="actions"><button type="button" class="btn" data-action="data-view" aria-pressed="${dataView}">${icon("building")}${esc(t("buildingDataView"))}</button></div>` : ''}
       <p class="building__credit"><a href="${plateau.attributionUrl}" target="_blank" rel="noopener" lang="ja">${esc(plateau.attribution)}</a> · ${esc(plateau.license)} · restyled by Soupmap</p>`;
     this.el.hidden = false;
   }
