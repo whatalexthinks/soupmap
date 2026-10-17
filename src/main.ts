@@ -3,8 +3,13 @@ import "@fontsource-variable/fraunces/soft.css";
 import "@fontsource-variable/instrument-sans";
 import "./styles/main.css";
 import "./styles/atlas.css";
-import { App } from "./app.ts";
+import "./styles/catalog.css";
+import "./styles/mobile-map.css";
 import { loadJapaneseFont } from "./fonts.ts";
 
-new App().start();
 loadJapaneseFont();
+void import("./app.ts").then(({ App }) => new App().start()).catch(() => {
+  const message = document.querySelector("#loader-text");
+  if (message) message.textContent = "The shop catalog could not load. Reload the page to try again.";
+  document.querySelector(".loader__steam")?.remove();
+});

@@ -4,6 +4,10 @@ import {readFileSync} from 'node:fs';
 import {Window} from 'happy-dom';
 import {App} from '../src/app.ts';
 import {router} from '../src/router.ts';
+import {ORDERED_SHOPS} from '../src/data/shops.ts';
+import {discover} from '../src/discovery.ts';
+import {ShopCard} from '../src/ui/card.ts';
+import {OPEN_SHOPS} from '../src/data/shops.ts';
 let window: Window;
 let app: App;
 beforeEach(()=>{
@@ -26,13 +30,14 @@ const click=(selector:string)=>el(selector).click();
 const rows=()=>[...window.document.querySelectorAll<HTMLAnchorElement>('.shop-row')];
 
 test('boots into Tokyo with working city filtering and disabled pending map controls',()=>{
-  assert.equal(rows().length,3);
+  assert.equal(rows().length,100);
+  assert.ok(el('[data-load-more]'));
   assert.equal(el('[data-city="tokyo"]').getAttribute('aria-pressed'),'true');
   assert.ok((el('#zoom-in') as HTMLButtonElement).disabled);
   click('[data-city="fukuoka"]');
-  assert.equal(rows().length,3);
+  assert.equal(rows().length,100);
   assert.equal(el('#map-city').textContent,'Fukuoka');
-  assert.ok(rows().every(r=>r.textContent?.includes('Tonkotsu')));
+  assert.ok(rows().every(r=>r.textContent?.includes('Fukuoka')));
 });
 test('bookmark survives tab changes, persists to storage, and can be removed',()=>{
   click('[data-save="afuri-ebisu"]');
@@ -50,7 +55,7 @@ test('search Enter flushes debounce before selecting and creates a shareable car
   input.value='Ginza';
   input.dispatchEvent(new window.Event('input',{bubbles:true}) as unknown as Event);
   input.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true}) as unknown as Event);
-  assert.equal(rows().length,1);
+  assert.ok(rows().length >= 1);
   assert.equal(el('#card-title').textContent,'Ginza Kagari Honten');
   assert.equal(window.location.hash,'#ginza-kagari');
   assert.ok(el('[data-action="save"]'));
@@ -63,7 +68,8 @@ test('changing flavor closes an excluded card, reset recovers all results',()=>{
   assert.equal(rows().length,0);
   assert.ok(el('#card').hidden);
   click('#clear-filters');
-  assert.equal(rows().length,15);
+  assert.equal(rows().length,100);
+  assert.ok(el('[data-load-more]'));
   assert.equal(el('#filter-count').textContent,'All styles');
 });
 test('card bookmark remains synchronized with collection and cross-tab updates',()=>{
@@ -87,8 +93,66 @@ test('surprise respects visible results and sort order changes without losing sa
   const select=el('#shop-sort') as HTMLSelectElement;
   select.value='name';
   select.dispatchEvent(new window.Event('change',{bubbles:true}) as unknown as Event);
-  assert.equal(rows()[0]?.dataset.slug,'afuri-ebisu');
+  const expected = discover(ORDERED_SHOPS, {query:'',city:'tokyo',broths:new Set(),saved:new Set(),savedOnly:false,sort:'name'});
+  assert.equal(rows()[0]?.dataset.slug,expected[0]?.slug);
   click('[data-broth="shio"]');
   click('#surprise-btn');
   assert.equal(el('#card-title').textContent,'AFURI Ebisu');
+});
+
+test('pagination expands results and resets when switching cities',()=>{
+  assert.equal(rows().length,100);
+  click('[data-load-more]');
+  assert.equal(rows().length,200);
+  click('[data-city="fukuoka"]');
+  assert.equal(rows().length,100);
+});
+
+test('Street View remains discoverable with useful states and an external fallback',()=>{
+  click('[data-slug="afuri-ebisu"]');
+  const button=el('[data-action="stand-outside"]') as HTMLButtonElement;
+  assert.equal(button.hidden,false);
+  assert.ok(button.disabled);
+  const external=window.document.querySelector<HTMLAnchorElement>('a[href*="map_action=pano"]');
+  assert.ok(external?.href.includes('viewpoint=35.648296,139.710861'));
+  const card=new ShopCard({onClose(){},onSave(){},onStandOutside(){},onBuildingInfo(){},onStepInside(){},onCopyLink(){}});
+  card.setStreetView('available');
+  assert.equal(button.disabled,false);
+  card.setStreetView('loading');
+  assert.equal(button.getAttribute('aria-busy'),'true');
+  card.setStreetView('unavailable','Google denied Street View access.');
+  assert.equal(button.hidden,false);
+  assert.ok(button.disabled);
+  assert.match(el('#street-view-status').textContent ?? '',/Google denied/);
+});
+
+test('selecting a nationwide source record reveals its row without rendering the full catalog',()=>{
+  const shop=OPEN_SHOPS.find(s=>s.city==='八重山郡竹富町')!;
+  app.select(shop.slug,{fly:false,focus:false});
+  assert.equal(el('#card-title').textContent,shop.name);
+  assert.ok(rows().some(r=>r.dataset.slug===shop.slug));
+  assert.equal(rows().length,100);
+  assert.match(el('#card').textContent ?? '',/CDLA-Permissive-2.0/);
+  assert.match(el('#card').textContent ?? '',/Menu not verified/);
+});
+
+test('mobile search dock expands on focus, cycles its handle and restores desktop layout',()=>{
+  window.happyDOM.setWindowSize({width:402,height:874});
+  window.dispatchEvent(new window.Event('resize'));
+  assert.equal(el('#panel').getAttribute('data-snap'),'peek');
+  assert.equal(el('#sheet-handle').getAttribute('aria-expanded'),'false');
+  assert.equal(el('#panel').style.getPropertyValue('--sheet-h'),'72px');
+  (el('#shop-search') as HTMLInputElement).focus();
+  assert.equal(el('#panel').getAttribute('data-snap'),'half');
+  assert.equal(el('#sheet-handle').getAttribute('aria-expanded'),'true');
+  click('#sheet-handle');
+  assert.equal(el('#panel').getAttribute('data-snap'),'full');
+  click('#sheet-handle');
+  assert.equal(el('#panel').getAttribute('data-snap'),'peek');
+  click('#saved-tab');
+  assert.equal(el('#panel').getAttribute('data-snap'),'half');
+  window.happyDOM.setWindowSize({width:1280,height:900});
+  window.dispatchEvent(new window.Event('resize'));
+  assert.equal(el('#panel').hasAttribute('data-snap'),false);
+  assert.equal(el('#panel').style.getPropertyValue('--sheet-h'),'');
 });

@@ -47,6 +47,7 @@ export const ShopSchema = z.strictObject({
   dataSource: z.enum(["manual", "overture", "osm"]),
   /** ID in the upstream dataset (Overture GERS ID / OSM element), for provenance. */
   sourceId: z.string().min(1).nullable().optional(),
+  sourceLicenses: z.array(z.string().min(1)).optional(),
   verified: z.boolean(),
 });
 

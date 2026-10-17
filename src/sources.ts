@@ -215,7 +215,7 @@ export const SOURCES = [
     kind: "poi",
     status: "leads",
     usedFor:
-      "Lead generation (scripts/discover-shops.ts) and the starting coordinates of the seeded shops (release 2026-09-23.1, records sourced from Meta and Overture).",
+      "Japan-wide soup and noodle-shop catalog and discovery leads (release 2026-09-23.1). Open-data records are not independently verified recommendations.",
     url: "https://docs.overturemaps.org/guides/places/",
     license: "CDLA Permissive 2.0 (seeded records); some Places sources use other licenses, e.g. Apache 2.0",
     licenseUrl: "https://cdla.dev/permissive-2-0/",
@@ -234,7 +234,7 @@ export const SOURCES = [
     provider: "OpenStreetMap contributors",
     kind: "poi",
     status: "leads",
-    usedFor: "Secondary lead source for the review queue. Nothing from OSM is in shops.json today.",
+    usedFor: "Secondary lead source for the review queue. The expanded published catalog uses Overture, not OSM.",
     url: "https://wiki.openstreetmap.org/wiki/Overpass_API",
     license: "ODbL 1.0",
     licenseUrl: "https://opendatacommons.org/licenses/odbl/1-0/",

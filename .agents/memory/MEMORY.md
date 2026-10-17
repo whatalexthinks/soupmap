@@ -1,1 +1,4 @@
 - [Git synchronization](git-synchronization.md) — finish interrupted Git operations before changing the Replit runtime.
+- [Catalog policy](catalog-policy.md) — expand Japan coverage with open data, not live Google Places discovery.
+- [Catalog transport](catalog-transport.md) — browsers may already decode gzip; support both decoded JSON and raw compressed files.
+- [Mobile map presentation](map-ui-policy.md) — compact search, no permanent editorial bottom bar or backdrop blur over the map.

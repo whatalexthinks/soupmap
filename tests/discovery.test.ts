@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { discover, parseSaved, type DiscoveryState } from '../src/discovery.ts';
-import { ORDERED_SHOPS } from '../src/data/shops.ts';
+import { CURATED_SHOPS as ORDERED_SHOPS } from '../src/data/shops.ts';
 import { shopListHtml } from '../src/render/templates.ts';
 import { TrailPlayer } from '../src/trail.ts';
 import { TRAILS } from '../src/data/trails.ts';

@@ -336,21 +336,27 @@ export class App {
   /** Show "Stand outside" only if an outdoor panorama exists near the shop. */
   private async checkStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) {
-      this.card.setStreetView("unavailable");
+      this.card.setStreetView("unavailable", this.googleKey
+        ? "In-app Street View needs the Google 3D map to finish loading. You can also open it in Google Maps."
+        : "In-app Street View needs a Google Maps key. You can still open it in Google Maps.");
       return;
     }
     this.card.setStreetView("unknown");
     const info = await this.streetView.find(shop);
     if (this.card.current?.slug !== shop.slug) return;
-    this.card.setStreetView(info ? "available" : "unavailable");
+    this.card.setStreetView(info ? "available" : "unavailable", this.streetView.unavailableReason(shop));
   }
 
   private async openStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) return;
     this.card.setStreetView("loading");
     const info = await this.streetView.open(shop);
+    if (this.card.current?.slug !== shop.slug) {
+      this.streetView.close();
+      return;
+    }
     if (!info) {
-      this.card.setStreetView("unavailable");
+      this.card.setStreetView("unavailable", this.streetView.unavailableReason(shop));
       toast(t("streetViewFailed"));
       return;
     }

@@ -38,6 +38,7 @@ function shopDataHtml(shops: readonly Shop[]): string {
     : `<p>No shop record is derived from OpenStreetMap. OSM data (ODbL) is used only as review leads.</p>`;
   return `<section class="block" aria-labelledby="shops-heading">
     <h2 id="shops-heading">Where shop data comes from</h2>
+    <p><a href="/data/open-shops.json.gz" download>Download the open-data catalog (gzip JSON)</a>. Each record includes its Overture ID and source licenses. This is a catalog of reported locations, not a complete or independently verified directory.</p>
     <p>We list ${shops.length} shops. Locations: ${overture} seeded from <a href="#overture-places">Overture Maps Places</a>, ${osm} from <a href="#osm-overpass">OpenStreetMap</a>, ${manual} entered by hand. ${unverified === shops.length ? "None" : shops.length - unverified} ${shops.length - unverified === 1 ? "has" : "have"} been verified on the ground so far, and every card says so.</p>
     ${odbl}
     <p>Shop selection is editorial. We sometimes consult well-known guides to decide which names to include, but we never copy their text, ratings, photos or data, and we don't scrape Tabelog or Google Maps. Blurbs are written by us. Broth-style background is paraphrased from <a href="#wikipedia-ramen">Wikipedia</a>.</p>

@@ -1,6 +1,5 @@
 /**
- * Mobile bottom sheet for the panel: three snap heights (peek, half, full),
- * draggable by the handle and header, togglable with the keyboard.
+ * Mobile search dock and browse sheet with three useful snap heights.
  */
 import { $, isMobileLayout } from "./dom.ts";
 
@@ -11,6 +10,7 @@ export class BottomSheet {
   private readonly handle = $<HTMLButtonElement>("#sheet-handle");
   private snap: Snap = "peek";
   private suppressClick = false;
+  private wasMobile = isMobileLayout();
 
   constructor() {
     const grips = [this.handle, $(".panel__header", this.panel)];
@@ -23,13 +23,18 @@ export class BottomSheet {
       }
       this.setSnap(this.snap === "peek" ? "half" : this.snap === "half" ? "full" : "peek");
     });
-    window.addEventListener("resize", () => this.apply());
+    window.addEventListener("resize", () => {
+      const mobile = isMobileLayout();
+      if (mobile && !this.wasMobile) this.snap = "peek";
+      this.wasMobile = mobile;
+      this.apply();
+    });
     this.apply();
   }
 
   private heights(): Record<Snap, number> {
     const credit = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--credit-h")) || 34;
-    const peek = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sheet-peek")) || 172;
+    const peek = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sheet-peek")) || 72;
     const vh = window.innerHeight;
     return { peek, half: Math.round(vh * 0.52), full: vh - 64 - credit };
   }
@@ -47,11 +52,18 @@ export class BottomSheet {
   private apply(): void {
     if (!isMobileLayout()) {
       this.panel.style.removeProperty("--sheet-h");
+      this.panel.removeAttribute("data-snap");
       this.handle.setAttribute("aria-expanded", "true");
+      this.handle.setAttribute("aria-label", "Shop list");
+      this.handle.querySelector(".sr-only")!.textContent = "Shop list";
       return;
     }
     this.panel.style.setProperty("--sheet-h", `${this.heights()[this.snap]}px`);
+    this.panel.setAttribute("data-snap", this.snap);
     this.handle.setAttribute("aria-expanded", String(this.snap !== "peek"));
+    const label = this.snap === "peek" ? "Expand shop search and list" : this.snap === "full" ? "Collapse shop list" : "Show full shop list";
+    this.handle.setAttribute("aria-label", label);
+    this.handle.querySelector(".sr-only")!.textContent = label;
   }
 
   private startDrag(down: PointerEvent): void {

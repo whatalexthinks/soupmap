@@ -27,8 +27,18 @@ export class Panel {
   private readonly cities = $("#city-buttons");
   private readonly search = $<HTMLInputElement>("#shop-search");
   private readonly trail = $<HTMLButtonElement>("#trail-btn");
+  private pageLimit = 100;
+  private lastShops: readonly Shop[] = [];
+  private lastSelected: string | null = null;
+  private lastSaved: ReadonlySet<string> = new Set();
+  private lastSavedOnly = false;
 
   constructor(allShops: readonly Shop[], handlers: PanelHandlers) {
+    const coverage = document.createElement("p");
+    coverage.className = "catalog-note";
+    const openCount = allShops.filter(s => s.slug.startsWith("open-")).length;
+    coverage.textContent = `${allShops.length.toLocaleString()} locations across Japan · ${openCount.toLocaleString()} open-data listings. Coverage and shop details are unverified. Choose All Japan to search nationwide.`;
+    this.search.parentElement?.insertAdjacentElement("afterend", coverage);
     // Prerendered at build time; render here too so dev and prod behave the same.
     if (!this.chips.querySelector(".chip")) this.chips.innerHTML = brothChipsHtml(allShops);
     if (!this.cities.querySelector(".city-btn")) this.cities.innerHTML = cityButtonsHtml(allShops);
@@ -48,6 +58,11 @@ export class Panel {
     });
 
     this.list.addEventListener("click", (e) => {
+      if ((e.target as Element).closest("[data-load-more]")) {
+        this.pageLimit += 100;
+        this.drawList();
+        return;
+      }
       const save = (e.target as Element).closest<HTMLButtonElement>('[data-save]');
       if (save?.dataset.save) { handlers.onSave(save.dataset.save); return; }
       const row = (e.target as Element).closest<HTMLAnchorElement>(".shop-row");
@@ -76,13 +91,22 @@ export class Panel {
   }
 
   renderList(shops: readonly Shop[], selected: string | null, saved: ReadonlySet<string>, savedOnly: boolean): void {
-    this.list.innerHTML = shopListHtml(shops, selected, saved, savedOnly);
+    if (shops.length !== this.lastShops.length || shops.some((s, i) => s.slug !== this.lastShops[i]?.slug)) this.pageLimit = 100;
+    this.lastShops = shops; this.lastSelected = selected; this.lastSaved = saved; this.lastSavedOnly = savedOnly;
+    this.drawList();
     $('#saved-count').textContent = String(saved.size);
     $('#saved-tab').setAttribute('aria-pressed', String(savedOnly));
     $('#explore-tab').setAttribute('aria-pressed', String(!savedOnly));
     $('#saved-note').hidden = !savedOnly;
     $<HTMLButtonElement>('#surprise-btn').disabled = !shops.length;
     this.count.textContent = resultCountText(shops.length);
+  }
+
+  private drawList(): void {
+    const index = this.lastSelected ? this.lastShops.findIndex(s => s.slug === this.lastSelected) : -1;
+    const selected = index >= this.pageLimit ? this.lastShops[index] : undefined;
+    const ordered = selected ? [selected, ...this.lastShops.filter(s => s.slug !== selected.slug)] : this.lastShops;
+    this.list.innerHTML = shopListHtml(ordered, this.lastSelected, this.lastSaved, this.lastSavedOnly, this.pageLimit);
   }
 
   setBrothPressed(pressed: ReadonlySet<BrothId>): void {
@@ -93,6 +117,8 @@ export class Panel {
   }
 
   markSelected(slug: string | null): void {
+    this.lastSelected = slug;
+    if (slug && this.lastShops.findIndex(s => s.slug === slug) >= this.pageLimit) this.drawList();
     for (const row of this.list.querySelectorAll<HTMLAnchorElement>(".shop-row")) {
       row.closest('li')?.classList.toggle('is-selected', row.dataset.slug === slug);
       if (row.dataset.slug === slug) row.setAttribute("aria-current", "true");

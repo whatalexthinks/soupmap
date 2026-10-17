@@ -39,7 +39,7 @@ interface MetadataResponse {
 }
 
 const METADATA_URL = "https://maps.googleapis.com/maps/api/streetview/metadata";
-const SEARCH_RADIUS_M = 50;
+const SEARCH_RADIUS_M = 100;
 const MIN_FOV = CesiumMath.toRadians(20);
 const MAX_FOV = CesiumMath.toRadians(100);
 
@@ -61,6 +61,7 @@ interface ActiveView {
 }
 
 export class StreetView {
+  private readonly errors = new Map<string, string>();
   private readonly cache = new Map<string, Promise<PanoInfo | null>>();
   private provider: Promise<GoogleStreetViewCubeMapPanoramaProvider> | undefined;
   private active: ActiveView | null = null;
@@ -74,17 +75,25 @@ export class StreetView {
     return this.active !== null;
   }
 
-  /** Nearest outdoor panorama within 50 m, or null. Cached per shop. */
+  unavailableReason(shop: Shop): string | undefined {
+    return this.errors.get(shop.slug);
+  }
+
+  /** Nearest outdoor panorama within 100 m. Cache successful imagery only. */
   find(shop: Shop): Promise<PanoInfo | null> {
     let pending = this.cache.get(shop.slug);
     if (!pending) {
-      pending = this.lookup(shop);
+      pending = this.lookup(shop).then(info => {
+        if (!info) this.cache.delete(shop.slug);
+        return info;
+      });
       this.cache.set(shop.slug, pending);
     }
     return pending;
   }
 
   private async lookup(shop: Shop): Promise<PanoInfo | null> {
+    this.errors.delete(shop.slug);
     const params = new URLSearchParams({
       location: `${shop.lat},${shop.lng}`,
       radius: String(SEARCH_RADIUS_M),
@@ -93,9 +102,18 @@ export class StreetView {
     });
     try {
       const response = await fetch(`${METADATA_URL}?${params}`, { signal: AbortSignal.timeout(8000) });
-      if (!response.ok) return null;
+      if (!response.ok) {
+        this.errors.set(shop.slug, "Google's imagery check failed. Try Street View in Google Maps.");
+        return null;
+      }
       const data = (await response.json()) as MetadataResponse;
-      if (data.status !== "OK" || !data.pano_id || !data.location) return null;
+      if (data.status !== "OK" || !data.pano_id || !data.location) {
+        this.errors.set(shop.slug, data.status === "REQUEST_DENIED"
+          ? "Google denied Street View access. Check Street View Static API, billing and website restrictions for this key."
+          : data.status === "OVER_QUERY_LIMIT" ? "Google's Street View request limit was reached. Try Google Maps."
+          : "No outdoor Street View imagery was found within 100 m. Try Google Maps for nearby coverage.");
+        return null;
+      }
       return {
         panoId: data.pano_id,
         lat: data.location.lat,
@@ -104,6 +122,7 @@ export class StreetView {
         date: data.date ?? null,
       };
     } catch {
+      this.errors.set(shop.slug, "The Street View availability check could not connect. Try the Google Maps link.");
       return null;
     }
   }
@@ -121,7 +140,9 @@ export class StreetView {
       this.enter(panorama, info, shop);
       return info;
     } catch (error) {
-      console.warn("[soupmap] Street View panorama failed to load", error);
+      this.provider = undefined;
+      this.errors.set(shop.slug, "The panorama could not load. Check Map Tiles API access or use Street View in Google Maps.");
+      console.warn("[soupmap] Street View panorama failed to load");
       return null;
     }
   }

@@ -45,7 +45,7 @@ function mediaHtml(shop: Shop): string {
 function provenanceHtml(shop: Shop): string {
   if (shop.dataSource === "overture") {
     const s = getSource("overture-places");
-    return `Location: <a href="${s.attributionUrl}" target="_blank" rel="noopener">${esc(s.attribution)}</a> · `;
+    return `Location: <a href="${s.attributionUrl}" target="_blank" rel="noopener">${esc(s.attribution)}</a>${shop.sourceLicenses?.length ? ` · ${esc(shop.sourceLicenses.join(", "))}` : ""} · `;
   }
   if (shop.dataSource === "osm") {
     const s = getSource("osm-overpass");
@@ -106,8 +106,13 @@ export class ShopCard {
         </div>
         <div class="card__body">
           <h2 class="card__title" id="card-title" tabindex="-1">${esc(shop.name)}</h2>
-          <p class="card__ja" lang="ja">${esc(shop.nameJa)}</p>
+          ${shop.nameJa !== shop.name ? `<p class="card__ja" lang="ja">${esc(shop.nameJa)}</p>` : ""}
           <p class="card__where">${esc(shop.neighborhood)}, ${esc(shop.city)}</p>
+          <div class="street-view-actions">
+            <button type="button" class="btn btn--primary" data-action="stand-outside" disabled aria-describedby="street-view-status">${icon("person")}Street View · look outside</button>
+            <a class="street-view-link" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=${shop.lat},${shop.lng}" target="_blank" rel="noopener">Open Street View in Google Maps ↗</a>
+            <p id="street-view-status" class="card__fine" role="status">Checking nearby outdoor imagery…</p>
+          </div>
           <span class="broth-chip"><span class="swatch" style="--broth:${broth.ink}" aria-hidden="true"></span>${esc(broth.label)} <span class="ja" lang="ja">${esc(broth.labelJa)}</span></span>
           <dl class="facts">
             <dt>${esc(t("signatureBowl"))}</dt><dd>${esc(shop.signatureBowl)}</dd>
@@ -117,7 +122,6 @@ export class ShopCard {
           <p class="blurb">${esc(shop.blurb)}</p>
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
           <div class="actions">
-            <button type="button" class="btn btn--primary" data-action="stand-outside" hidden>${icon("person")}${esc(t("standOutside"))}</button>
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
             ${shop.splatUrl ? `<button type="button" class="btn" data-action="step-inside">${icon("cube")}${shop.splatUrl?.startsWith("procedural:") ? "View bowl demo" : esc(t("stepInside"))}</button>` : ""}
             <a class="btn" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">${icon("external")}${esc(t("openInGoogleMaps"))}</a>
@@ -146,12 +150,17 @@ export class ShopCard {
     button?.setAttribute('aria-label', saved ? 'Unsave this place' : 'Save this place');
   }
 
-  setStreetView(state: StreetViewState): void {
+  setStreetView(state: StreetViewState, reason?: string): void {
     const btn = this.el.querySelector<HTMLButtonElement>('[data-action="stand-outside"]');
     if (!btn) return;
-    btn.hidden = state === "unknown" || state === "unavailable";
+    btn.hidden = false;
     btn.setAttribute("aria-busy", String(state === "loading"));
-    btn.disabled = state === "loading";
+    btn.disabled = state !== "available";
+    const status = this.el.querySelector<HTMLElement>("#street-view-status");
+    if (status) status.textContent = state === "unknown" ? "Checking nearby outdoor imagery…"
+      : state === "loading" ? "Opening Street View…"
+      : state === "available" ? "Look around outside this shop. Imagery may not show its exact entrance."
+      : reason ?? "In-app imagery is unavailable here. Try Street View in Google Maps.";
   }
 
   setBuildingInfo(visible: boolean, pressed: boolean): void {

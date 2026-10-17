@@ -7,15 +7,15 @@
 import { readFileSync } from "node:fs";
 import { CITIES } from "../src/data/cities.ts";
 import { ShopsSchema, type Shop } from "../src/data/schema.ts";
+import { SHOPS } from "../src/data/shops.ts";
 
-const SHOPS_PATH = new URL("../src/data/shops.json", import.meta.url);
 const PLATEAU_PATH = new URL("../src/data/plateau-tilesets.json", import.meta.url);
 
 const yellow = (s: string) => `\x1b[33m${s}\x1b[0m`;
 const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
 
-const raw: unknown = JSON.parse(readFileSync(SHOPS_PATH, "utf8"));
+const raw: unknown = SHOPS;
 const parsed = ShopsSchema.safeParse(raw);
 
 if (!parsed.success) {
@@ -38,9 +38,9 @@ for (const s of shops) {
   seen.add(s.slug);
 
   const city = CITIES.find((c) => c.name === s.city);
-  if (!city) {
+  if (!city && !s.slug.startsWith("open-")) {
     errors.push(`${s.slug}: city "${s.city}" is not in src/data/cities.ts`);
-  } else {
+  } else if (city) {
     const [w, south, e, n] = city.bbox;
     if (s.lng < w || s.lng > e || s.lat < south || s.lat > n) {
       warnings.push(`${s.slug}: coordinates fall outside the ${city.name} bounding box`);
@@ -74,9 +74,10 @@ console.log(`✔ shops.json: ${shops.length} shops valid`);
 const unverified = shops.filter((s) => !s.verified);
 if (unverified.length) {
   console.warn(yellow(`⚠ ${unverified.length} unverified shop(s). Verify coordinates, names and details by hand before launch:`));
-  for (const s of unverified) console.warn(yellow(`  • ${s.slug} ${dim(`(${s.city}, ${s.lat}, ${s.lng})`)}`));
+  for (const s of unverified.slice(0, 15)) console.warn(yellow(`  • ${s.slug} ${dim(`(${s.city}, ${s.lat}, ${s.lng})`)}`));
+  if (unverified.length > 15) console.warn(yellow(`  …and ${(unverified.length - 15).toLocaleString()} more unverified open-data listings.`));
 }
 for (const w of warnings) console.warn(yellow(`⚠ ${w}`));
 if (noPlateau.length) {
-  console.log(dim(`ℹ no PLATEAU building tileset for: ${noPlateau.map((s) => s.slug).join(", ")}`));
+  console.log(dim(`ℹ ${noPlateau.length.toLocaleString()} shops have no mapped PLATEAU municipality code. Google 3D and shop pins remain available.`));
 }

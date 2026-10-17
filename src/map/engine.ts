@@ -7,6 +7,7 @@
  * used when there's no key or Google tiles fail. Never a blank screen.
  */
 import "cesium/Build/Cesium/Widgets/widgets.css";
+import "../styles/map-polish.css";
 import {
   Color,
   Cartesian2 as ScreenPoint,
@@ -118,9 +119,14 @@ export class MapEngineImpl implements MapEngine {
       // Render only when something changes: saves battery on phones.
       requestRenderMode: true,
       maximumRenderTimeChange: Number.POSITIVE_INFINITY,
+      useBrowserRecommendedResolution: false,
       msaaSamples: options.lowPower ? 1 : 4,
       creditViewport: options.creditViewport,
     });
+    // Cesium's default backing buffer is 1× CSS pixels, which softens text and
+    // billboards on retina displays. Cap the multiplier to keep mobile GPUs cool.
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    this.viewer.resolutionScale = Math.min(dpr, 2) / dpr;
 
     const scene = this.viewer.scene;
     scene.globe.baseColor = Color.fromCssColorString("#dfe3d8");
