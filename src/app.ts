@@ -2,8 +2,8 @@
  * App orchestration: UI state, deep links, and the lazily loaded 3D map.
  * The UI works on its own; the map attaches when its chunk arrives.
  */
+import { discover, parseSaved, SAVED_KEY, type SortOrder } from "./discovery.ts";
 import type { BrothId } from "./data/broths.ts";
-import { BROTHS } from "./data/broths.ts";
 import { CITIES, cityBySlug } from "./data/cities.ts";
 import plateauData from "./data/plateau-tilesets.json" with { type: "json" };
 import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops.ts";
@@ -12,7 +12,6 @@ import { t } from "./i18n.ts";
 import type { MapEngineImpl } from "./map/engine.ts";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
 import type { StreetView } from "./map/streetview.ts";
-import type { MapEngine } from "./map/types.ts";
 import { router } from "./router.ts";
 import { TrailPlayer } from "./trail.ts";
 import { BuildingPanel } from "./ui/building-panel.ts";
@@ -29,20 +28,6 @@ const PLATEAU_INDEX: ReadonlyMap<string, PlateauTilesetRef> = new Map(
   (plateauData as { tilesets: PlateauTilesetRef[] }).tilesets.map((t) => [t.cityCode, t]),
 );
 
-function matches(shop: Shop, query: string, broths: ReadonlySet<BrothId>): boolean {
-  if (broths.size && !broths.has(shop.broth)) return false;
-  if (!query) return true;
-  const city = CITIES.find((c) => c.name === shop.city);
-  const broth = BROTHS[shop.broth];
-  const haystack = [shop.name, shop.nameJa, shop.city, city?.nameJa, shop.neighborhood, shop.signatureBowl, broth.label, broth.labelJa]
-    .join(" ")
-    .toLowerCase();
-  return query
-    .toLowerCase()
-    .split(/\s+/)
-    .every((term) => haystack.includes(term));
-}
-
 function webglAvailable(): boolean {
   try {
     const canvas = document.createElement("canvas");
@@ -58,13 +43,26 @@ function afterFirstPaint(fn: () => void): void {
 
 export class App {
   private query = "";
+  private city = 'tokyo';
+  private sort: SortOrder = 'guide';
+  private savedOnly = false;
+  private readonly saved = this.readSaved();
+  private inspectBuildings = false;
+  private autoBuildings = true;
+  private aerialImagery = true;
+  private buildingRequest = 0;
+  private mapStarted = false;
+  private readSaved(): Set<string> {
+    try { return parseSaved(localStorage.getItem(SAVED_KEY), new Set(shopBySlug.keys())); }
+    catch { return new Set(); }
+  }
   private readonly broths = new Set<BrothId>();
   private selected: string | null = null;
   private engine: MapEngineImpl | null = null;
   private streetView: StreetView | null = null;
   private buildingInfo: BuildingInfo | null = null;
   private lowPower = false;
-  private readonly googleKey = (import.meta.env.VITE_GOOGLE_MAPS_KEY ?? "").trim();
+  private readonly googleKey = (import.meta.env?.VITE_GOOGLE_MAPS_KEY ?? "").trim();
 
   private readonly loader = new Loader();
   private readonly sheet = new BottomSheet();
@@ -83,10 +81,12 @@ export class App {
   constructor() {
     this.panel = new Panel(ORDERED_SHOPS, {
       onQuery: (q) => {
+        this.trail.stop();
         this.query = q;
         this.refresh();
       },
       onToggleBroth: (id) => {
+        this.trail.stop();
         if (this.broths.has(id)) this.broths.delete(id);
         else this.broths.add(id);
         this.panel.setBrothPressed(this.broths);
@@ -98,9 +98,25 @@ export class App {
         this.select(slug, { fly: true, focus: true });
       },
       onTrail: () => this.toggleTrail(),
+      onSave: slug => this.toggleSaved(slug),
+      onSavedOnly: savedOnly => {
+        this.trail.stop();
+        this.savedOnly = savedOnly;
+        this.resetFilters();
+        this.closeCard();
+        this.sheet.ensureOpen();
+      },
+      onSort: sort => { this.sort = sort; this.refresh(); },
+      onReset: () => this.resetFilters(),
+      onSurprise: () => {
+        const choices = this.filtered().filter(s => s.slug !== this.selected);
+        const shop = choices[Math.floor(Math.random() * choices.length)] ?? this.filtered()[0];
+        if (shop) { this.trail.stop(); this.select(shop.slug, { fly: true, focus: true }); }
+      },
     });
 
     this.card = new ShopCard({
+      onSave: shop => this.toggleSaved(shop.slug),
       onClose: () => {
         this.trail.stop();
         this.closeCard();
@@ -115,9 +131,16 @@ export class App {
     });
 
     this.controls = new MapControls({
-      onOverview: () => void this.engine?.flyToOverview(),
+      onOverview: () => this.jumpToCity('all'),
+      onZoom: direction => this.engine?.zoom(direction),
+      onTilt: () => this.engine?.togglePerspective(),
+      onNorth: () => this.engine?.faceNorth(),
       onBuildingToggle: () => void this.toggleBuilding(),
-      onFallbackStyle: (style) => this.engine?.setFallbackStyle(style),
+      onFallbackStyle: style => {
+        this.aerialImagery = style === 'photo';
+        this.engine?.setFallbackStyle(style);
+        this.buildingInfo?.setAerialImagery(this.aerialImagery);
+      },
     });
 
     this.buildingPanel = new BuildingPanel({
@@ -129,28 +152,74 @@ export class App {
   }
 
   start(): void {
-    this.refresh();
     const initial = router.initial();
+    if (initial) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
+    this.refresh();
+    this.updateLocation();
     if (initial) this.select(initial, { fly: false, focus: false });
     router.onChange((slug) => (slug ? this.select(slug, { fly: true, focus: false }) : this.closeCard()));
 
     document.addEventListener("keydown", (e) => {
+      const typing = (e.target as HTMLElement).matches('input, textarea, select, [contenteditable]');
+      if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault(); this.closeCard(); this.panel.searchInput.focus();
+      }
       if (e.key === "Escape" && !e.defaultPrevented) this.onEscape();
     });
     this.panel.searchInput.addEventListener("focus", () => this.sheet.ensureOpen());
     $("#pano-back").addEventListener("click", () => this.closeStreetView());
 
+    window.addEventListener('storage', e => {
+      if (e.key !== SAVED_KEY && e.key !== null) return;
+      const saved = this.readSaved();
+      this.saved.clear(); saved.forEach(slug => this.saved.add(slug));
+      this.refresh(); this.card.setSaved(!!this.selected && this.saved.has(this.selected));
+    });
     afterFirstPaint(() => void this.loadMap());
   }
 
   private filtered(): readonly Shop[] {
-    return ORDERED_SHOPS.filter((s) => matches(s, this.query, this.broths));
+    return discover(ORDERED_SHOPS, { query: this.query, city: this.city, sort: this.sort,
+      broths: this.broths, savedOnly: this.savedOnly, saved: this.saved });
   }
 
   private refresh(): void {
     const shops = this.filtered();
-    this.panel.renderList(shops, this.selected);
+    this.panel.renderList(shops, this.selected, this.saved, this.savedOnly);
+    this.panel.setCity(this.city);
+    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all';
     this.engine?.setShops(shops);
+    if (this.selected && !shops.some(shop => shop.slug === this.selected)) this.closeCard();
+  }
+
+  private toggleSaved(slug: string): void {
+    if (!shopBySlug.has(slug)) return;
+    if (this.saved.has(slug)) this.saved.delete(slug); else this.saved.add(slug);
+    let persistent = true;
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify([...this.saved])); }
+    catch { persistent = false; }
+    this.refresh();
+    if (this.selected === slug) this.card.setSaved(this.saved.has(slug));
+    const saveButton = [...document.querySelectorAll<HTMLButtonElement>('[data-save]')].find(b => b.dataset.save === slug);
+    if (!document.body.classList.contains('has-card')) saveButton?.focus({ preventScroll: true });
+    toast(persistent ? (this.saved.has(slug) ? 'Added to your saved places' : 'Removed from saved places') : 'Saved for this session. Browser storage is unavailable.');
+  }
+
+  private resetFilters(): void {
+    this.trail.stop();
+    this.query = ''; this.city = 'all'; this.broths.clear();
+    this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
+    this.refresh(); this.updateLocation();
+    this.turnOffBuilding();
+    void this.engine?.flyToOverview();
+  }
+
+  private updateLocation(): void {
+    const city = cityBySlug.get(this.city);
+    $('#map-city').textContent = city?.name ?? 'Japan';
+    $('#map-city-ja').textContent = city?.nameJa ?? '日本';
+    $('#map-coordinates').textContent = city ? `${city.lat.toFixed(4)}° N · ${city.lng.toFixed(4)}° E` : 'HOKKAIDO TO KYUSHU';
+    $('#map-summary').textContent = this.savedOnly ? 'Your personal collection of places worth a detour.' : 'A city best discovered one bowl at a time.';
   }
 
   // ── Selection ────────────────────────────────────────────────────────────
@@ -158,8 +227,15 @@ export class App {
   select(slug: string, options: { fly: boolean; focus: boolean }): void {
     const shop = shopBySlug.get(slug);
     if (!shop) return;
+    // Deep links and trail stops must remain visible in the current discovery state.
+    if (!this.filtered().some(s => s.slug === slug)) {
+      this.query = ''; this.broths.clear(); this.savedOnly = false;
+      this.city = CITIES.find(c => c.name === shop.city)?.slug ?? 'all';
+      this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
+      this.refresh(); this.updateLocation();
+    }
     this.selected = slug;
-    this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop) });
+    this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug) });
     this.panel.markSelected(slug);
     router.set(slug);
     this.engine?.setSelected(slug);
@@ -172,8 +248,9 @@ export class App {
   private bottomInset(): number {
     if (!isMobileLayout() || !this.selected) return 0;
     const card = document.getElementById("card");
-    const covered = card && !card.hidden ? window.innerHeight - card.getBoundingClientRect().top : 0;
-    return Math.min(Math.max(covered / window.innerHeight, 0), 0.8);
+    const map = $('#map').getBoundingClientRect();
+    const covered = card && !card.hidden ? map.bottom - card.getBoundingClientRect().top : 0;
+    return Math.min(Math.max(covered / Math.max(map.height, 1), 0), 0.8);
   }
 
   closeCard(): void {
@@ -196,13 +273,20 @@ export class App {
   }
 
   private jumpToCity(slug: string): void {
-    if (isMobileLayout()) this.sheet.setSnap("peek");
-    if (slug === "all") {
+    this.trail.stop();
+    this.city = slug;
+    this.closeCard(); this.refresh(); this.updateLocation();
+    if (isMobileLayout()) this.sheet.setSnap('peek');
+    if (slug === 'all') {
+      this.turnOffBuilding();
       void this.engine?.flyToOverview();
       return;
     }
     const city = cityBySlug.get(slug);
     if (city) void this.engine?.flyToCity(city);
+    const anchor = ORDERED_SHOPS.find(shop => shop.city === city?.name && PLATEAU_INDEX.has(shop.cityCode));
+    if (anchor && this.engine?.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);
+    else this.turnOffBuilding();
   }
 
   private async copyLink(shop: Shop): Promise<void> {
@@ -225,6 +309,8 @@ export class App {
     if (!trail) return;
     // Show the trail's broth on the map while touring.
     this.query = "";
+    this.savedOnly = false;
+    this.city = 'fukuoka'; this.updateLocation();
     this.panel.searchInput.value = "";
     this.broths.clear();
     this.broths.add(trail.broth);
@@ -292,7 +378,7 @@ export class App {
 
   private updateBuildingToggles(shop: Shop | undefined): void {
     const active = !!this.buildingInfo?.active;
-    const available = !!shop && this.buildingAvailable(shop);
+    const available = shop ? this.buildingAvailable(shop) : ORDERED_SHOPS.some(s => s.city === cityBySlug.get(this.city)?.name && PLATEAU_INDEX.has(s.cityCode));
     this.card.setBuildingInfo(available, active);
     this.controls.setBuildingToggle(available || active, active);
   }
@@ -301,7 +387,11 @@ export class App {
   private async syncBuilding(shop: Shop): Promise<void> {
     this.updateBuildingToggles(shop);
     const info = this.buildingInfo;
-    if (!info?.active || info.activeCityCode === shop.cityCode) return;
+    if (!info?.active) {
+      if (this.engine?.mode === 'fallback' && this.autoBuildings && this.buildingAvailable(shop)) await this.turnOnBuilding(shop);
+      return;
+    }
+    if (info.activeCityCode === shop.cityCode) return;
     if (this.buildingAvailable(shop)) await this.turnOnBuilding(shop);
     else {
       this.turnOffBuilding();
@@ -311,26 +401,35 @@ export class App {
 
   private async toggleBuilding(): Promise<void> {
     if (this.buildingInfo?.active) {
+      this.autoBuildings = false;
       this.turnOffBuilding();
       return;
     }
-    const shop = this.selected ? shopBySlug.get(this.selected) : undefined;
+    const shop = this.selected ? shopBySlug.get(this.selected) : ORDERED_SHOPS.find(s => s.city === cityBySlug.get(this.city)?.name && PLATEAU_INDEX.has(s.cityCode));
+    this.autoBuildings = true;
+    this.inspectBuildings = true;
     if (shop) await this.turnOnBuilding(shop);
   }
 
   private async turnOnBuilding(shop: Shop): Promise<void> {
     const engine = this.engine;
     if (!engine || !PLATEAU_INDEX.has(shop.cityCode)) return;
+    const request = ++this.buildingRequest;
     if (!this.buildingInfo) {
       const { BuildingInfo } = await import("./map/plateau.ts");
-      this.buildingInfo = new BuildingInfo(engine, PLATEAU_INDEX, this.lowPower, (e) => this.onBuildingEvent(e));
+      if (request !== this.buildingRequest) return;
+      this.buildingInfo ??= new BuildingInfo(engine, PLATEAU_INDEX, this.lowPower, (e) => this.onBuildingEvent(e));
     }
     const city = CITIES.find((c) => c.name === shop.city);
+    this.buildingInfo.setAerialImagery(this.aerialImagery);
     await this.buildingInfo.enable(shop.cityCode, city?.groundHeight ?? 40, { lat: shop.lat, lng: shop.lng });
   }
 
   private turnOffBuilding(): void {
+    this.buildingRequest++;
+    this.inspectBuildings = false;
     this.buildingInfo?.disable();
+    this.controls.setBuildingsReady(false);
     this.buildingPanel.hide();
     this.updateBuildingToggles(this.selected ? shopBySlug.get(this.selected) : undefined);
   }
@@ -339,16 +438,25 @@ export class App {
     const dataView = !!this.buildingInfo?.isDataView;
     switch (event.kind) {
       case "loading":
-        this.buildingPanel.show({ kind: "loading" }, dataView);
+        this.controls.setBuildingsReady(false);
+        if (!this.inspectBuildings) break;
+        this.buildingPanel.show({ kind: "loading" }, dataView, this.engine?.mode === "google");
         break;
       case "ready":
+        this.controls.setBuildingsReady(true);
+        if (!this.inspectBuildings) break;
+        this.buildingPanel.show({ kind: "hint" }, dataView, this.engine?.mode === "google");
+        break;
       case "missed":
-        this.buildingPanel.show({ kind: "hint" }, dataView);
+        if (!this.inspectBuildings) break;
+        this.buildingPanel.show({ kind: "hint" }, dataView, this.engine?.mode === "google");
         break;
       case "picked":
-        this.buildingPanel.show({ kind: "facts", facts: event.facts }, dataView);
+        this.inspectBuildings = true;
+        this.buildingPanel.show({ kind: "facts", facts: event.facts }, dataView, this.engine?.mode === "google");
         break;
       case "unavailable":
+        this.controls.setBuildingsReady(false);
         this.buildingPanel.hide();
         this.controls.flash(t("buildingUnavailable"));
         break;
@@ -359,6 +467,8 @@ export class App {
   // ── Map ──────────────────────────────────────────────────────────────────
 
   private async loadMap(): Promise<void> {
+    if (this.mapStarted) return;
+    this.mapStarted = true;
     if (!webglAvailable()) {
       this.loader.fail(t("mapUnavailable"));
       return;
@@ -374,9 +484,16 @@ export class App {
         shops: ORDERED_SHOPS,
         reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
         lowPower: this.lowPower,
-        onStatus: (status) => this.controls.setStatus(status),
+        onStatus: status => {
+          this.controls.setStatus(status);
+          if (status.kind === 'ready' && status.mode === 'fallback' && this.engine && this.autoBuildings) {
+            const anchor = this.selected ? shopBySlug.get(this.selected) : ORDERED_SHOPS.find(s => s.city === cityBySlug.get(this.city)?.name && PLATEAU_INDEX.has(s.cityCode));
+            if (anchor) void this.turnOnBuilding(anchor);
+          }
+        },
       });
       this.engine = engine;
+      this.controls.setEnabled(true);
       // ?debug exposes the engine for inspection in the console and in browser tests.
       if (new URLSearchParams(location.search).has("debug")) Object.assign(window, { soupmap: engine });
       this.trackCreditBar();
@@ -399,24 +516,19 @@ export class App {
         this.updateBuildingToggles(shop);
       }
       if (shop) {
-        await engine.flyToOverview({ duration: 0 });
-        await engine.flyToShop(shop, { bottomInset: this.bottomInset() });
+        await engine.flyToShop(shop, { duration: 0, bottomInset: this.bottomInset() });
+        void this.syncBuilding(shop);
       } else {
-        await this.playIntro(engine);
+        const city = cityBySlug.get(this.city);
+        if (city) await engine.flyToCity(city, { duration: 0 });
+        else await engine.flyToOverview({ duration: 0 });
+        const anchor = ORDERED_SHOPS.find(s => s.city === city?.name && PLATEAU_INDEX.has(s.cityCode));
+        if (anchor && engine.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);
       }
     } catch (error) {
       console.warn("[soupmap] 3D map unavailable", error);
       this.loader.fail(t("mapUnavailable"));
     }
-  }
-
-  /** Intro flyover, skippable on any interaction. */
-  private async playIntro(engine: MapEngine): Promise<void> {
-    const events = ["pointerdown", "wheel", "keydown", "touchstart"] as const;
-    const skip = () => engine.cancelFlight();
-    for (const type of events) window.addEventListener(type, skip, { capture: true, passive: true, once: true });
-    await engine.playIntro();
-    for (const type of events) window.removeEventListener(type, skip, { capture: true });
   }
 
   /** Keep panels clear of Cesium's credit bar so attribution is never covered. */

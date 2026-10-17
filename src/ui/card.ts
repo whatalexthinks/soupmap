@@ -1,4 +1,5 @@
 /** The shop card: names, broth, signature bowl, facts, blurb, media and actions. */
+import { bowlArt } from "../render/bowl.ts";
 import { BROTHS } from "../data/broths.ts";
 import type { Shop } from "../data/shops.ts";
 import { getSource } from "../sources.ts";
@@ -8,6 +9,7 @@ import { icon } from "./icons.ts";
 
 export interface CardHandlers {
   onClose(): void;
+  onSave(shop: Shop): void;
   onStandOutside(shop: Shop): void;
   onBuildingInfo(shop: Shop): void;
   onStepInside(shop: Shop): void;
@@ -37,12 +39,7 @@ function mediaHtml(shop: Shop): string {
     return `<img src="${esc(shop.photo.url)}" alt="${esc(`${shop.signatureBowl} at ${shop.name}`)}" loading="lazy" decoding="async" />
       <p class="card__credit">${esc(t("photoBy", { credit: shop.photo.credit ?? "", license: shop.photo.license ?? "" }))}</p>`;
   }
-  // No photo yet: an illustrated bowl in the shop's broth colour.
-  return `<svg class="card__media-bowl" viewBox="0 0 92 92" aria-hidden="true">
-      <g class="loader__steam"><path d="M34 36c-5-7 5-11 0-18s5-11 0-16"/><path d="M46 36c-5-7 5-11 0-18s5-11 0-16"/><path d="M58 36c-5-7 5-11 0-18s5-11 0-16"/></g>
-      <path d="M12 46h68c0 18-15 32-34 32S12 64 12 46Z" fill="#17142c" stroke="#f3efe6" stroke-width="2.5"/>
-      <ellipse cx="46" cy="46" rx="34" ry="8" fill="${BROTHS[shop.broth].color}" stroke="#f3efe6" stroke-width="2.5"/>
-      <path d="M36 78h20l-3 6H39z" fill="#17142c" stroke="#f3efe6" stroke-width="2"/></svg>`;
+  return `<span class="card__media-kanji" lang="ja">${esc(BROTHS[shop.broth].labelJa)}</span>${bowlArt(shop.broth)}<span class="card__media-label">Broth illustration / ${esc(BROTHS[shop.broth].label)}</span>`;
 }
 
 function provenanceHtml(shop: Shop): string {
@@ -67,6 +64,9 @@ export class ShopCard {
       if (!button || !this.shop) return;
       const shop = this.shop;
       switch (button.dataset.action) {
+        case "save":
+          handlers.onSave(shop);
+          break;
         case "close":
           handlers.onClose();
           break;
@@ -90,7 +90,7 @@ export class ShopCard {
     return this.shop;
   }
 
-  open(shop: Shop, options: { focus: boolean; buildingAvailable: boolean }): void {
+  open(shop: Shop, options: { focus: boolean; buildingAvailable: boolean; saved: boolean }): void {
     this.shop = shop;
     const broth = BROTHS[shop.broth];
     this.el.style.setProperty("--broth", broth.color);
@@ -100,7 +100,7 @@ export class ShopCard {
         <div class="card__media">
           ${mediaHtml(shop)}
           <div class="card__topbar">
-            <span></span>
+            <button type="button" class="icon-btn" data-action="save" aria-pressed="${options.saved}" aria-label="${options.saved ? 'Unsave this place' : 'Save this place'}" title="Save this place">${icon('bookmark')}</button>
             <button type="button" class="icon-btn" data-action="close" aria-label="${esc(t("close"))}" title="${esc(t("close"))}">${icon("close")}</button>
           </div>
         </div>
@@ -119,9 +119,9 @@ export class ShopCard {
           <div class="actions">
             <button type="button" class="btn btn--primary" data-action="stand-outside" hidden>${icon("person")}${esc(t("standOutside"))}</button>
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
-            ${shop.splatUrl ? `<button type="button" class="btn" data-action="step-inside">${icon("cube")}${esc(t("stepInside"))}</button>` : ""}
+            ${shop.splatUrl ? `<button type="button" class="btn" data-action="step-inside">${icon("cube")}${shop.splatUrl?.startsWith("procedural:") ? "View bowl demo" : esc(t("stepInside"))}</button>` : ""}
             <a class="btn" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">${icon("external")}${esc(t("openInGoogleMaps"))}</a>
-            <a class="btn" href="${esc(directionsUrl(shop))}" target="_blank" rel="noopener">${icon("directions")}${esc(t("directions"))}</a>
+            <a class="btn btn--primary" href="${esc(directionsUrl(shop))}" target="_blank" rel="noopener">${icon("directions")}${esc(t("directions"))}</a>
             <button type="button" class="btn" data-action="copy">${icon("link")}${esc(t("copyLink"))}</button>
           </div>
           <p class="card__fine">${provenanceHtml(shop)}<a href="/credits/">${esc(t("credits"))}</a></p>
@@ -138,6 +138,12 @@ export class ShopCard {
     this.el.hidden = true;
     this.el.innerHTML = "";
     document.body.classList.remove("has-card");
+  }
+
+  setSaved(saved: boolean): void {
+    const button = this.el.querySelector<HTMLButtonElement>('[data-action="save"]');
+    button?.setAttribute('aria-pressed', String(saved));
+    button?.setAttribute('aria-label', saved ? 'Unsave this place' : 'Save this place');
   }
 
   setStreetView(state: StreetViewState): void {

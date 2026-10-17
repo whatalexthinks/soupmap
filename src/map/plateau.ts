@@ -50,15 +50,17 @@ export type BuildingEvent =
 
 const TIMEOUT_MS = 8000;
 const LIFT_M = 2;
-const AMBER = "#f2a541";
+const AMBER = "#b7442c";
 
 const debug = new URLSearchParams(location.search).get("debug") === "plateau";
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`PLATEAU timed out after ${ms} ms`)), ms)),
-  ]);
+function withTimeout<T extends { destroy(): void }>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; reject(new Error(`PLATEAU timed out after ${ms} ms`)); }, ms);
+    promise.then(value => { clearTimeout(timer); if (timedOut) value.destroy(); else resolve(value); },
+      error => { clearTimeout(timer); reject(error); });
+  });
 }
 
 /** Root bounding region of a PLATEAU tileset, if it has one (it normally does). */
@@ -81,6 +83,7 @@ export class BuildingInfo {
   private pickedId: string | null = null;
   private pickedFeature: Cesium3DTileFeature | undefined;
   private dataView = false;
+  private aerial = true;
   private orthoLayer: ImageryLayer | undefined;
   private removeClick: (() => void) | undefined;
   private generation = 0;
@@ -241,6 +244,12 @@ export class BuildingInfo {
     scene.requestRender();
   }
 
+  setAerialImagery(aerial: boolean): void {
+    this.aerial = aerial;
+    if (this.orthoLayer) this.orthoLayer.show = aerial;
+    this.engine.viewer.scene.requestRender();
+  }
+
   private addOrtho(): void {
     if (this.orthoLayer || !this.tileset) return;
     const source = getSource("plateau-ortho");
@@ -254,13 +263,14 @@ export class BuildingInfo {
     });
     provider.errorEvent.addEventListener(() => undefined);
     this.orthoLayer = this.engine.viewer.imageryLayers.addImageryProvider(provider);
+    this.orthoLayer.show = this.aerial;
   }
 
   /** Near-invisible (or architectural in data view), with the picked building in amber. */
   private applyStyle(): void {
     const tileset = this.tileset;
     if (!tileset) return;
-    const base = this.dataView ? "color('#ebe7f3', 1.0)" : "color('#ffffff', 0.03)";
+    const base = this.dataView ? "color('#e9e6dc', 1.0)" : "color('#ffffff', 0.03)";
     const highlight = this.dataView ? `color('${AMBER}', 1.0)` : `color('${AMBER}', 0.6)`;
     const conditions: Array<[string, string]> = [];
     if (this.pickedId !== null) conditions.push([`\${gml_id} === ${JSON.stringify(this.pickedId)}`, highlight]);

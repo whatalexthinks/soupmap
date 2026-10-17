@@ -9,6 +9,11 @@
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import {
   Color,
+  Cartesian2 as ScreenPoint,
+  Cartesian3,
+  BoundingSphere,
+  HeadingPitchRange,
+  Math as CesiumMath,
   Credit,
   CustomHeightmapTerrainProvider,
   EllipsoidTerrainProvider,
@@ -51,13 +56,14 @@ const GOOGLE_TIMEOUT_MS = 12_000;
 /** A map click that a feature module (e.g. PLATEAU) may claim. Return true to consume it. */
 export type MapClickHandler = (picked: unknown, position: Cartesian2) => boolean;
 
-function timeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+function timeout<T extends { destroy(): void }>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms} ms`)), ms);
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; reject(new Error(`${label} timed out after ${ms} ms`)); }, ms);
     promise.then(
       (value) => {
         clearTimeout(timer);
-        resolve(value);
+        if (timedOut) value.destroy(); else resolve(value);
       },
       (error: unknown) => {
         clearTimeout(timer);
@@ -117,8 +123,8 @@ export class MapEngineImpl implements MapEngine {
     });
 
     const scene = this.viewer.scene;
-    scene.globe.baseColor = Color.fromCssColorString("#141331");
-    scene.backgroundColor = Color.fromCssColorString("#07060f");
+    scene.globe.baseColor = Color.fromCssColorString("#dfe3d8");
+    scene.backgroundColor = Color.fromCssColorString("#cdd8ce");
     scene.globe.maximumScreenSpaceError = options.lowPower ? 3 : 2;
     const controller = scene.screenSpaceCameraController;
     controller.minimumZoomDistance = 25;
@@ -285,6 +291,35 @@ export class MapEngineImpl implements MapEngine {
   flyToOverview(options?: FlyOptions): Promise<void> {
     return this.director.overview(options?.duration);
   }
+
+  zoom(direction: 1 | -1): void {
+    this.cancelFlight();
+    const amount = Math.max(25, this.viewer.camera.positionCartographic.height * 0.35);
+    if (direction === 1) this.viewer.camera.zoomIn(amount); else this.viewer.camera.zoomOut(amount);
+    this.viewer.scene.requestRender();
+  }
+
+  /** Rotate around the visible map center instead of pointing away from the city. */
+  private reframe(heading: number, pitch: number): void {
+    const camera = this.viewer.camera;
+    const scene = this.viewer.scene;
+    const center = new ScreenPoint(scene.canvas.clientWidth / 2, scene.canvas.clientHeight / 2);
+    const ray = camera.getPickRay(center);
+    const target = ray ? scene.globe.pick(ray, scene) : undefined;
+    if (!target) return;
+    camera.flyToBoundingSphere(new BoundingSphere(target, 1), {
+      offset: new HeadingPitchRange(heading, pitch, Cartesian3.distance(camera.positionWC, target)),
+      duration: this.options.reducedMotion ? 0 : 0.7,
+    });
+  }
+
+  togglePerspective(): boolean {
+    const overhead = this.viewer.camera.pitch > CesiumMath.toRadians(-70);
+    this.reframe(this.viewer.camera.heading, CesiumMath.toRadians(overhead ? -89 : -42));
+    return overhead;
+  }
+
+  faceNorth(): void { this.reframe(0, this.viewer.camera.pitch); }
 
   playIntro(): Promise<void> {
     return this.director.intro();

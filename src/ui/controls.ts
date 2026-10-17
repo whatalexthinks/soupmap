@@ -5,16 +5,32 @@ import { $, esc } from "./dom.ts";
 
 export interface ControlHandlers {
   onOverview(): void;
+  onZoom(direction: 1 | -1): void;
+  onTilt(): boolean | undefined;
+  onNorth(): void;
   onBuildingToggle(): void;
   onFallbackStyle(style: FallbackStyle): void;
 }
 
 export class MapControls {
+  private status: EngineStatus | null = null;
+  private buildingsReady = false;
+  private flashTimer = 0;
   private readonly chip = $("#status-chip");
   private readonly styleSwitch = $("#fallback-style");
   private readonly building = $<HTMLButtonElement>("#building-toggle");
 
   constructor(handlers: ControlHandlers) {
+    this.setEnabled(false);
+    $('#zoom-in').addEventListener('click', () => handlers.onZoom(1));
+    $('#zoom-out').addEventListener('click', () => handlers.onZoom(-1));
+    $('#north-btn').addEventListener('click', () => handlers.onNorth());
+    $('#tilt-btn').addEventListener('click', () => {
+      const overhead = handlers.onTilt() ?? false;
+      $('#tilt-btn').setAttribute('aria-pressed', String(overhead));
+      $('#tilt-btn').textContent = overhead ? '3D' : '2D';
+      $('#tilt-btn').setAttribute('aria-label', overhead ? 'Switch to tilted view' : 'Switch to overhead view');
+    });
     $("#overview-btn").addEventListener("click", () => handlers.onOverview());
     this.building.addEventListener("click", () => handlers.onBuildingToggle());
     this.styleSwitch.addEventListener("click", (e) => {
@@ -30,27 +46,37 @@ export class MapControls {
     this.styleSwitch.setAttribute("aria-label", t("fallbackStyleLabel"));
   }
 
-  setStatus(status: EngineStatus): void {
-    if (status.kind === "ready" && status.mode === "fallback") {
-      this.chip.innerHTML = `<span class="dot" aria-hidden="true"></span><span><strong>${esc(t("fallbackTitle"))}</strong> · ${esc(t("fallbackBody"))}</span>`;
-      this.chip.title = status.reason ?? "";
-      this.chip.hidden = false;
-      this.styleSwitch.hidden = false;
-    } else {
-      this.chip.hidden = true;
-      this.styleSwitch.hidden = true;
-    }
+  setEnabled(enabled: boolean): void {
+    for (const button of document.querySelectorAll<HTMLButtonElement>('#controls button')) button.disabled = !enabled;
   }
 
-  /** A short-lived note in the chip (e.g. "Building data unavailable"). */
+  setStatus(status: EngineStatus): void {
+    this.status = status;
+    clearTimeout(this.flashTimer);
+    this.renderStatus();
+  }
+
+  setBuildingsReady(ready: boolean): void {
+    this.buildingsReady = ready;
+    clearTimeout(this.flashTimer);
+    this.renderStatus();
+  }
+
+  private renderStatus(): void {
+    const fallback = this.status?.kind === 'ready' && this.status.mode === 'fallback';
+    this.styleSwitch.hidden = !fallback;
+    this.chip.hidden = this.status === null;
+    const title = this.buildingsReady ? 'PLATEAU 3D' : fallback ? 'Aerial map' : 'Photorealistic 3D';
+    const description = this.buildingsReady ? 'Buildings ready to explore' : fallback ? 'GSI imagery · 3D where available' : 'Google 3D Tiles';
+    this.chip.innerHTML = `<span class="dot" aria-hidden="true"></span><span><strong>${esc(title)}</strong> · ${esc(description)}</span>`;
+    this.chip.title = fallback && this.status?.kind === 'ready' ? this.status.reason ?? '' : '';
+  }
+
   flash(message: string, ms = 4000): void {
-    const previous = { html: this.chip.innerHTML, hidden: this.chip.hidden };
+    clearTimeout(this.flashTimer);
     this.chip.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${esc(message)}</span>`;
     this.chip.hidden = false;
-    window.setTimeout(() => {
-      this.chip.innerHTML = previous.html;
-      this.chip.hidden = previous.hidden;
-    }, ms);
+    this.flashTimer = window.setTimeout(() => this.renderStatus(), ms);
   }
 
   setBuildingToggle(visible: boolean, pressed: boolean): void {
