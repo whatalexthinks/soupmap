@@ -620,6 +620,7 @@ export class App {
         creditViewport: $("#credit-viewport"),
         googleKey: this.googleKey,
         shops: ORDERED_SHOPS,
+        initialVisibleShops: this.filtered(),
         initialShop,
         initialCity,
         playOpening,

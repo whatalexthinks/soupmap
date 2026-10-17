@@ -37,7 +37,7 @@ import type { City } from "../data/cities.ts";
 import type { Shop } from "../data/shops.ts";
 import { creditHtml, getSource } from "../sources.ts";
 import { CameraDirector } from "./camera.ts";
-import { citySurfaceActive, renderBudget } from "./render-policy.ts";
+import { citySurfaceActive, movingScreenSpaceError, renderBudget } from "./render-policy.ts";
 import { PinLayer, type PickId } from "./pins.ts";
 import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types.ts";
 
@@ -47,6 +47,7 @@ export interface EngineOptions {
   creditViewport: HTMLElement;
   googleKey: string;
   shops: readonly Shop[];
+  initialVisibleShops?: readonly Shop[];
   initialLocation?: {lat:number;lng:number};
   initialCity?: City;
   initialShop?: Shop;
@@ -101,6 +102,8 @@ export class MapEngineImpl implements MapEngine {
   readonly director: CameraDirector;
   private googleSurfaceReady = false;
   private citySurface = false;
+  private graphicsLost = false;
+  private cameraMoving = false;
   googleTileset: Cesium3DTileset | undefined;
 
   private _mode: MapMode = "google";
@@ -135,10 +138,14 @@ export class MapEngineImpl implements MapEngine {
     // Cesium's default backing buffer is 1× CSS pixels, which softens text and
     // billboards on retina displays. Cap the multiplier to keep mobile GPUs cool.
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
-    this.viewer.resolutionScale = Math.min(dpr, options.lowPower ? 1.5 : 2) / dpr;
+    this.viewer.resolutionScale = Math.min(dpr, options.lowPower ? 1 : 2) / dpr;
     this.viewer.targetFrameRate = options.lowPower ? 30 : 60;
 
     const scene = this.viewer.scene;
+    if (options.lowPower) {
+      scene.highDynamicRange = false;
+      scene.postProcessStages.fxaa.enabled = false;
+    }
     scene.globe.baseColor = Color.fromCssColorString("#dfe3d8");
     scene.backgroundColor = Color.fromCssColorString("#cdd8ce");
     scene.globe.maximumScreenSpaceError = options.lowPower ? 3 : 2;
@@ -146,7 +153,7 @@ export class MapEngineImpl implements MapEngine {
     controller.minimumZoomDistance = 25;
     controller.maximumZoomDistance = 5.0e7;
 
-    this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE);
+    this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE, options.lowPower);
     this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives, options.initialLocation);
     if (options.playOpening || (!options.initialCity && !options.initialShop)) this.director.showPlanet();
     else if (options.initialShop) void this.director.shop(options.initialShop,0);
@@ -192,6 +199,7 @@ export class MapEngineImpl implements MapEngine {
         return;
       }
       this.googleTileset = this.viewer.scene.primitives.add(tileset);
+      tileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, this.cameraMoving);
       this.syncGlobeVisibility();
       this.watchGoogleTiles(tileset);
       const surfaceReady = () => {
@@ -283,13 +291,24 @@ export class MapEngineImpl implements MapEngine {
     const canvas = this.viewer.scene.canvas;
     document.addEventListener("visibilitychange",()=>{
       if(document.hidden) this.director.cancel();
+      this.viewer.useDefaultRenderLoop = !document.hidden && !this.graphicsLost;
     });
     canvas.addEventListener("webglcontextlost",(event)=>{
       event.preventDefault();
+      this.graphicsLost = true;
       this.director.cancel();
       this.viewer.useDefaultRenderLoop=false;
       this.options.onStatus({kind:"error",message:"The 3D map paused. Shop search, saved places and directions are still available."});
     });
+    const setMoving = (moving: boolean) => {
+      this.cameraMoving = moving;
+      if (this.googleTileset) {
+        this.googleTileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, moving);
+        this.viewer.scene.requestRender();
+      }
+    };
+    this.viewer.camera.moveStart.addEventListener(() => setMoving(true));
+    this.viewer.camera.moveEnd.addEventListener(() => setMoving(false));
     const notify = () => {
       this.director.cancel();
       this.interactionHandlers.forEach((h) => h());
@@ -393,7 +412,7 @@ export class MapEngineImpl implements MapEngine {
 
 export async function createMapEngine(options: EngineOptions): Promise<MapEngineImpl> {
   const engine = new MapEngineImpl(options);
-  engine.setShops(options.shops);
+  engine.setShops(options.initialVisibleShops ?? options.shops);
   await engine.start();
   return engine;
 }

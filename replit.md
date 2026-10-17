@@ -9,6 +9,7 @@
 - New camera input cancels the intro. Respect reduced motion, and preserve shop deep links rather than forcing every link to Tokyo.
 - The logo navigates inside the app rather than reloading the document. Hidden tabs interrupt camera motion. A lost graphics context pauses 3D and leaves shop search available; it does not trigger a reload.
 - Google city meshes do not stream at planet scale. Mobile rendering has a bounded base **and overflow** cache, a lower pixel ratio, and no hidden/flight preloading.
+- Phone maps query viewport-only clusters with bounded active markers. Large cluster badges use lower-bound counts (such as `100+`) to keep shared GPU textures bounded; search still includes every matching shop. Detail is reduced during gestures and restored once the camera stops; hidden tabs pause the render loop.
 
 - Keep the imported Vite/TypeScript app in its existing structure.
 - Use Node.js 22 (the current dependencies require it).

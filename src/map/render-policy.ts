@@ -6,10 +6,14 @@ export function citySurfaceActive(height:number,previous:boolean):boolean {
 export function renderBudget(lowPower:boolean) {
   const mib=1024*1024;
   return {
-    cacheBytes:(lowPower ? 96 : 256)*mib,
-    maximumCacheOverflowBytes:(lowPower ? 32 : 64)*mib,
+    cacheBytes:(lowPower ? 64 : 256)*mib,
+    maximumCacheOverflowBytes:(lowPower ? 16 : 64)*mib,
     maximumScreenSpaceError:lowPower ? 32 : 16,
     preloadWhenHidden:false,
     preloadFlightDestinations:false,
   };
+}
+
+export function movingScreenSpaceError(lowPower: boolean, moving: boolean): number {
+  return lowPower && moving ? 64 : renderBudget(lowPower).maximumScreenSpaceError;
 }

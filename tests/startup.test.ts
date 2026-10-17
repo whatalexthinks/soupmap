@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { claimOpening, OPENING_SESSION_KEY } from "../src/startup.ts";
-import { citySurfaceActive, renderBudget } from "../src/map/render-policy.ts";
+import { citySurfaceActive, movingScreenSpaceError, renderBudget } from "../src/map/render-policy.ts";
 
 test("the opening is claimed before playback and cannot repeat after a reload in the same tab",()=>{
   const values=new Map<string,string>();
@@ -28,8 +28,15 @@ test("planet scale does not stream city meshes and hysteresis avoids layer flick
 
 test("mobile 3D memory includes a bounded overflow and no hidden or flight preloading",()=>{
   const mobile=renderBudget(true),desktop=renderBudget(false);
-  assert.ok(mobile.cacheBytes+mobile.maximumCacheOverflowBytes<=128*1024*1024);
+  assert.ok(mobile.cacheBytes+mobile.maximumCacheOverflowBytes<=80*1024*1024);
   assert.ok(desktop.cacheBytes+desktop.maximumCacheOverflowBytes<=320*1024*1024);
   assert.equal(mobile.preloadWhenHidden,false);
   assert.equal(mobile.preloadFlightDestinations,false);
+});
+
+test("mobile reduces mesh detail during gestures and restores it when the camera settles",()=>{
+  assert.equal(movingScreenSpaceError(true,true),64);
+  assert.equal(movingScreenSpaceError(true,false),32);
+  assert.equal(movingScreenSpaceError(false,true),16);
+  assert.equal(movingScreenSpaceError(false,false),16);
 });

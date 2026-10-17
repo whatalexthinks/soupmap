@@ -2,6 +2,7 @@
 - [Catalog policy](catalog-policy.md) — expand Japan coverage with open data, not live Google Places discovery.
 - [Catalog transport](catalog-transport.md) — browsers may already decode gzip; support both decoded JSON and raw compressed files.
 - [Map interaction policy](map-ui-policy.md) — compact mobile search, no backdrop blur, navigable Street View and English-first shop names.
+- [Mobile map performance](mobile-map-performance.md) — bounded canvas caches do not prevent duplicate GPU textures; use stable billboard image IDs and cap active features.
 - [Worldwide scope](worldwide-scope.md) — Soupmap is a global soup atlas; Japan is a starting region, not the brand's boundary.
 - [Browser touch checks](browser-touch-verification.md) — explicit CDP touch events avoid a false scrolling failure from synthetic scroll gestures.
 - [Shortlist privacy](shortlist-sharing.md) — sharing is an opt-in snapshot; bearer links cannot be revoked and must never replace recipients' saves.

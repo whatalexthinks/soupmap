@@ -26,9 +26,9 @@ import {
   type Label,
   type Viewer,
 } from "cesium";
-import Supercluster from "supercluster";
+import { ShopPinIndex, type MapBounds } from "./pin-index.ts";
 import type { Shop } from "../data/shops.ts";
-import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, pinGlyph } from "./glyph.ts";
+import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, clusterLabel, pinGlyph } from "./glyph.ts";
 
 export type PickId = { kind: "shop"; slug: string } | { kind: "cluster"; clusterId: number };
 
@@ -39,8 +39,6 @@ interface Pin {
   lastSeen: number;
 }
 
-/** Above this zoom every shop is drawn individually. */
-const MAX_CLUSTER_ZOOM = 12;
 /** Keep shop names for close navigation, not as a city-wide layer. */
 const LABEL_DISTANCE = 2100;
 const SELECTED_LABEL_DISTANCE = 14_000;
@@ -60,7 +58,8 @@ export class PinLayer {
   private readonly pinCollection: BillboardCollection;
   private readonly labelCollection: LabelCollection;
   private readonly clusterCollection: BillboardCollection;
-  private index = new Supercluster<{ slug: string }>({ radius: 56, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
+  private readonly index: ShopPinIndex;
+  private refreshTimer: ReturnType<typeof setTimeout> | undefined;
   private visible = new Set<string>();
   private selected: string | null = null;
   private pinClock = 0;
@@ -69,7 +68,9 @@ export class PinLayer {
     private readonly viewer: Viewer,
     shops: readonly Shop[],
     private heightRef: HeightReference,
+    private readonly lowPower = false,
   ) {
+    this.index = new ShopPinIndex(lowPower);
     const scene = viewer.scene;
     this.pinCollection = scene.primitives.add(new BillboardCollection({ scene }));
     this.labelCollection = scene.primitives.add(new LabelCollection({ scene }));
@@ -81,8 +82,18 @@ export class PinLayer {
 
     const camera = viewer.camera;
     camera.percentageChanged = 0.05;
-    camera.changed.addEventListener(() => this.refresh());
-    camera.moveEnd.addEventListener(() => this.refresh());
+    camera.changed.addEventListener(() => {
+      if (this.refreshTimer !== undefined) return;
+      this.refreshTimer = setTimeout(() => {
+        this.refreshTimer = undefined;
+        this.refresh();
+      }, lowPower ? 120 : 60);
+    });
+    camera.moveEnd.addEventListener(() => {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = undefined;
+      this.refresh();
+    });
   }
 
   /** Switch clamping, e.g. when the map falls back from Google 3D to the GSI globe. */
@@ -110,16 +121,9 @@ export class PinLayer {
   }
 
   setVisibleShops(shops: readonly Shop[]): void {
+    if (!this.index.setShops(shops)) return;
     this.visible = new Set(shops.map((s) => s.slug));
     for (const shop of shops) this.catalog.set(shop.slug, shop);
-    this.index = new Supercluster<{ slug: string }>({ radius: 56, maxZoom: MAX_CLUSTER_ZOOM, minPoints: 2 });
-    this.index.load(
-      shops.map((s) => ({
-        type: "Feature" as const,
-        properties: { slug: s.slug },
-        geometry: { type: "Point" as const, coordinates: [s.lng, s.lat] },
-      })),
-    );
     this.refresh();
   }
 
@@ -139,7 +143,7 @@ export class PinLayer {
   }
 
   clusterSphere(clusterId: number): BoundingSphere | undefined {
-    const leaves = this.index.getLeaves(clusterId, Infinity);
+    const leaves = this.index.leaves(clusterId);
     if (!leaves.length) return undefined;
     const points = leaves.map((f) => {
       const [lng, lat] = f.geometry.coordinates as [number, number];
@@ -149,7 +153,7 @@ export class PinLayer {
   }
 
   private setPinSelected(pin: Pin, selected: boolean): void {
-    pin.billboard.image = pinGlyph(pin.shop.broth, selected) as unknown as string;
+    pin.billboard.setImage(`bowl:${pin.shop.broth}:${selected}`, pinGlyph(pin.shop.broth, selected));
     pin.label.distanceDisplayCondition = new DistanceDisplayCondition(
       0,
       selected ? SELECTED_LABEL_DISTANCE : LABEL_DISTANCE,
@@ -162,7 +166,6 @@ export class PinLayer {
     const selected = shop.slug === this.selected;
     const billboard = this.pinCollection.add({
       position,
-      image: pinGlyph(shop.broth, selected),
       width: PIN_SIZE.width,
       height: PIN_SIZE.height,
       verticalOrigin: VerticalOrigin.BOTTOM,
@@ -172,6 +175,8 @@ export class PinLayer {
       id: { kind: "shop", slug: shop.slug } satisfies PickId,
       show: true,
     });
+    // Canvas images otherwise get a new random atlas ID for every billboard.
+    billboard.setImage(`bowl:${shop.broth}:${selected}`, pinGlyph(shop.broth, selected));
     const label = this.labelCollection.add({
       position,
       text: displayName(shop),
@@ -214,12 +219,13 @@ export class PinLayer {
   }
 
   private trimPinCache(active: Set<string>): void {
-    if (this.pins.size <= MAX_CACHED_PINS) return;
+    const limit = this.lowPower ? 96 : MAX_CACHED_PINS;
+    if (this.pins.size <= limit) return;
     const stale = [...this.pins.entries()]
       .filter(([slug]) => !active.has(slug) && slug !== this.selected)
       .sort((a, b) => a[1].lastSeen - b[1].lastSeen);
     for (const [slug, pin] of stale) {
-      if (this.pins.size <= MAX_CACHED_PINS) break;
+      if (this.pins.size <= limit) break;
       this.pinCollection.remove(pin.billboard);
       this.labelCollection.remove(pin.label);
       this.pins.delete(slug);
@@ -229,34 +235,32 @@ export class PinLayer {
   refresh(): void {
     const height = this.viewer.camera.positionCartographic.height;
     const zoom = heightToZoom(height);
-    const showAll = zoom > MAX_CLUSTER_ZOOM;
-
     const individually = new Set<string>();
     const viewRectangle = this.viewer.camera.computeViewRectangle(this.viewer.scene.globe.ellipsoid);
+    const bounds: MapBounds | undefined = viewRectangle ? [
+      CesiumMath.toDegrees(viewRectangle.west), CesiumMath.toDegrees(viewRectangle.south),
+      CesiumMath.toDegrees(viewRectangle.east), CesiumMath.toDegrees(viewRectangle.north),
+    ] : undefined;
     this.clusterCollection.removeAll();
 
-    if (showAll) {
-      for (const slug of this.visible) individually.add(slug);
-    } else {
-      for (const feature of this.index.getClusters([-180, -85, 180, 85], Math.floor(zoom))) {
-        const props = feature.properties as { cluster?: boolean; cluster_id?: number; point_count?: number; slug?: string };
-        if (props.cluster && props.cluster_id !== undefined && props.point_count) {
-          const [lng, lat] = feature.geometry.coordinates as [number, number];
-          this.clusterCollection.add({
-            position: Cartesian3.fromDegrees(lng, lat, 0),
-            image: clusterGlyph(props.point_count),
-            width: CLUSTER_SIZE,
-            height: CLUSTER_SIZE,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            id: { kind: "cluster", clusterId: props.cluster_id } satisfies PickId,
-          });
-        } else if (props.slug) {
-          individually.add(props.slug);
-        }
+    for (const feature of this.index.query(bounds, zoom)) {
+      const props = feature.properties as { cluster?: boolean; cluster_id?: number; point_count?: number; slug?: string };
+      if (props.cluster && props.cluster_id !== undefined && props.point_count) {
+        const [lng, lat] = feature.geometry.coordinates as [number, number];
+        const billboard = this.clusterCollection.add({
+          position: Cartesian3.fromDegrees(lng, lat, 0),
+          width: CLUSTER_SIZE,
+          height: CLUSTER_SIZE,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          id: { kind: "cluster", clusterId: props.cluster_id } satisfies PickId,
+        });
+        billboard.setImage(`cluster:${clusterLabel(props.point_count)}`, clusterGlyph(props.point_count));
+      } else if (props.slug) {
+        individually.add(props.slug);
       }
-      // keep the selected shop visible even inside a cluster
-      if (this.selected && this.visible.has(this.selected)) individually.add(this.selected);
     }
+    // Keep the selected shop visible even inside a cluster.
+    if (this.selected && this.visible.has(this.selected)) individually.add(this.selected);
 
     const active = new Set<string>();
     for (const slug of individually) {
