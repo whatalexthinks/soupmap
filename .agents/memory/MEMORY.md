@@ -1,0 +1,1 @@
+- [Git synchronization](git-synchronization.md) — finish interrupted Git operations before changing the Replit runtime.

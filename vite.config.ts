@@ -62,6 +62,12 @@ ${pages.map((p) => `  <url><loc>${siteUrl}${p}</loc><lastmod>${today}</lastmod><
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "VITE_");
   return {
+    server: {
+      host: "0.0.0.0",
+      port: 5000,
+      strictPort: true,
+      allowedHosts: [".replit.dev", ".replit.app", ".repl.co"],
+    },
     define: {
       __CESIUM_BASE_URL__: JSON.stringify(`/${CESIUM_DIR}/`),
     },
