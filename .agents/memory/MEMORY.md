@@ -1,4 +1,6 @@
 - [Git synchronization](git-synchronization.md) — finish interrupted Git operations before changing the Replit runtime.
 - [Catalog policy](catalog-policy.md) — expand Japan coverage with open data, not live Google Places discovery.
 - [Catalog transport](catalog-transport.md) — browsers may already decode gzip; support both decoded JSON and raw compressed files.
-- [Mobile map presentation](map-ui-policy.md) — compact search, no permanent editorial bottom bar or backdrop blur over the map.
+- [Map interaction policy](map-ui-policy.md) — compact mobile search, no backdrop blur, navigable Street View and English-first shop names.
+- [Worldwide scope](worldwide-scope.md) — Soupmap is a global soup atlas; Japan is a starting region, not the brand's boundary.
+- [Browser touch checks](browser-touch-verification.md) — explicit CDP touch events avoid a false scrolling failure from synthetic scroll gestures.

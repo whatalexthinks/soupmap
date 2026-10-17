@@ -8,12 +8,14 @@ import {ORDERED_SHOPS} from '../src/data/shops.ts';
 import {discover} from '../src/discovery.ts';
 import {ShopCard} from '../src/ui/card.ts';
 import {OPEN_SHOPS} from '../src/data/shops.ts';
+import {displayName} from '../src/names.ts';
+import {cuisineOf} from '../src/cuisines.ts';
 let window: Window;
 let app: App;
 beforeEach(()=>{
   window=new Window({url:'https://soupmap.example/'});
   window.document.write(readFileSync(new URL('../index.html',import.meta.url),'utf8'));
-  for (const key of ['document','location','history','localStorage','CSS','HTMLElement','Element','HTMLButtonElement']) {
+  for (const key of ['document','location','history','localStorage','CSS','HTMLElement','Element','HTMLButtonElement','navigator']) {
     Object.defineProperty(globalThis,key,{value:(window as unknown as Record<string,unknown>)[key],configurable:true});
   }
   Object.defineProperty(globalThis,'window',{value:window,configurable:true});
@@ -127,13 +129,58 @@ test('Street View remains discoverable with useful states and an external fallba
 });
 
 test('selecting a nationwide source record reveals its row without rendering the full catalog',()=>{
-  const shop=OPEN_SHOPS.find(s=>s.city==='八重山郡竹富町')!;
+  const shop=OPEN_SHOPS.find(s=>s.neighborhood==='八重山郡竹富町')!;
   app.select(shop.slug,{fly:false,focus:false});
-  assert.equal(el('#card-title').textContent,shop.name);
+  assert.equal(el('#card-title').textContent,displayName(shop));
   assert.ok(rows().some(r=>r.dataset.slug===shop.slug));
   assert.equal(rows().length,100);
   assert.match(el('#card').textContent ?? '',/CDLA-Permissive-2.0/);
   assert.match(el('#card').textContent ?? '',/Menu not verified/);
+});
+
+test('main style filters real catalog results and reset clears it',()=>{
+  const select = el('#cuisine-filter') as HTMLSelectElement;
+  select.value='udon';
+  select.dispatchEvent(new window.Event('change',{bubbles:true}));
+  assert.ok(rows().length>0);
+  assert.ok(rows().every(r=>cuisineOf(ORDERED_SHOPS.find(s=>s.slug===r.dataset.slug)!)==='udon'));
+  click('#clear-filters');
+  assert.equal(select.value,'all');
+  assert.equal(rows().length,100);
+});
+
+test('shop-name language updates rows, cards and persisted preference',()=>{
+  const shop=OPEN_SHOPS.find(s=>s.nameRomanized && s.city==='Tokyo')!;
+  app.select(shop.slug,{fly:false,focus:false});
+  assert.equal(el('#card-title').textContent,shop.nameRomanized);
+  const select=el('#name-language') as HTMLSelectElement;
+  select.value='ja';
+  select.dispatchEvent(new window.Event('change',{bubbles:true}));
+  assert.equal(el('#card-title').textContent,shop.nameJa);
+  assert.equal(window.localStorage.getItem('soupmap:name-language:v1'),'ja');
+  select.value='en';
+  select.dispatchEvent(new window.Event('change',{bubbles:true}));
+  assert.equal(el('#card-title').textContent,shop.nameRomanized);
+});
+
+test('nearest-me sort changes only after location succeeds and handles denied permission',async()=>{
+  const select=el('#shop-sort') as HTMLSelectElement;
+  Object.defineProperty(globalThis,'navigator',{value:{geolocation:{
+    getCurrentPosition:(_resolve:unknown,reject:(e:unknown)=>void)=>reject({code:1}),
+  }},configurable:true});
+  select.value='distance';
+  select.dispatchEvent(new window.Event('change',{bubbles:true}));
+  await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(select.value,'guide');
+  Object.defineProperty(globalThis,'navigator',{value:{geolocation:{
+    getCurrentPosition:(resolve:(position:unknown)=>void)=>resolve({coords:{latitude:35.67,longitude:139.76}}),
+  }},configurable:true});
+  select.value='distance';
+  select.dispatchEvent(new window.Event('change',{bubbles:true}));
+  await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(select.value,'distance');
+  const expected=discover(ORDERED_SHOPS,{query:'',city:'tokyo',broths:new Set(),savedOnly:false,saved:new Set(),sort:'distance',origin:{lat:35.67,lng:139.76}});
+  assert.equal(rows()[0]?.dataset.slug,expected[0]?.slug);
 });
 
 test('mobile search dock expands on focus, cycles its handle and restores desktop layout',()=>{
@@ -155,4 +202,65 @@ test('mobile search dock expands on focus, cycles its handle and restores deskto
   window.dispatchEvent(new window.Event('resize'));
   assert.equal(el('#panel').hasAttribute('data-snap'),false);
   assert.equal(el('#panel').style.getPropertyValue('--sheet-h'),'');
+});
+
+test('mobile keyboard keeps search usable and collapsing does not reopen the sheet',()=>{
+  window.happyDOM.setWindowSize({width:402,height:874});
+  const viewport={height:874,offsetTop:0,scale:1};
+  Object.defineProperty(window,'visualViewport',{value:viewport,configurable:true});
+  window.dispatchEvent(new window.Event('resize'));
+  el('#shop-search').focus();
+  assert.equal(el('#panel').getAttribute('data-snap'),'half');
+  viewport.height=410;
+  window.dispatchEvent(new window.Event('resize'));
+  assert.equal(el('#panel').getAttribute('data-snap'),'full');
+  assert.equal(window.document.documentElement.style.getPropertyValue('--viewport-bottom'),'464px');
+  assert.ok(parseFloat(el('#panel').style.getPropertyValue('--sheet-h'))<=410);
+  viewport.height=874;
+  window.dispatchEvent(new window.Event('resize'));
+  assert.equal(el('#panel').getAttribute('data-snap'),'half');
+  viewport.height=410;
+  window.dispatchEvent(new window.Event('resize'));
+  click('#sheet-handle');
+  assert.notEqual(window.document.activeElement,el('#shop-search'));
+  viewport.height=874;
+  window.dispatchEvent(new window.Event('resize'));
+  assert.equal(el('#panel').getAttribute('data-snap'),'peek');
+});
+
+test('mobile card hides the underlying sheet and restores visible keyboard focus on close',()=>{
+  window.happyDOM.setWindowSize({width:402,height:874});
+  window.dispatchEvent(new window.Event('resize'));
+  el('#shop-search').focus();
+  rows()[0]!.click();
+  assert.equal(el('#panel').hasAttribute('data-covered'),true);
+  assert.equal(el('#panel').inert,true);
+  const close=el('#card [data-action="close"]');
+  close.focus();close.click();
+  assert.equal(el('#panel').hasAttribute('data-covered'),false);
+  assert.equal(el('#panel').inert,false);
+  assert.equal(window.document.activeElement,el('#sheet-handle'));
+});
+
+test('a cancelled sheet drag releases its state and ignores unrelated pointers',()=>{
+  window.happyDOM.setWindowSize({width:402,height:874});
+  window.dispatchEvent(new window.Event('resize'));
+  el('#sheet-handle').dispatchEvent(new window.PointerEvent('pointerdown',{pointerId:3,button:0,clientY:700,bubbles:true}));
+  assert.equal(el('#panel').hasAttribute('data-dragging'),true);
+  window.dispatchEvent(new window.PointerEvent('pointercancel',{pointerId:4}));
+  assert.equal(el('#panel').hasAttribute('data-dragging'),true);
+  window.dispatchEvent(new window.PointerEvent('pointercancel',{pointerId:3}));
+  assert.equal(el('#panel').hasAttribute('data-dragging'),false);
+  assert.equal(el('#panel').getAttribute('data-snap'),'peek');
+  click('#sheet-handle');
+  assert.equal(el('#panel').getAttribute('data-snap'),'half');
+});
+
+test('phone landscape uses the same mobile layout rather than the desktop sidebar',()=>{
+  window.happyDOM.setWindowSize({width:844,height:390});
+  window.dispatchEvent(new window.Event('resize'));
+  assert.equal(el('#panel').getAttribute('data-snap'),'peek');
+  click('#sheet-handle');
+  assert.equal(el('#panel').getAttribute('data-snap'),'half');
+  assert.ok(parseFloat(el('#panel').style.getPropertyValue('--sheet-h'))<390);
 });

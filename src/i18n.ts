@@ -4,12 +4,12 @@
  */
 
 const en = {
-  tagline: "Japan's best soup shops, in 3D.",
+  tagline: "Find your next bowl. Anywhere.",
   searchLabel: "Search shops",
   searchPlaceholder: "Search shops, cities, bowls",
   brothsLabel: "Broth",
   citiesLabel: "Jump to a city",
-  allJapan: "All Japan",
+  allJapan: "All mapped shops",
   trailTitle: "The Tonkotsu Trail",
   trailSub: "3 bowls. One city. A deeper dive.",
   trailStop: "Stop the trail",
@@ -35,7 +35,7 @@ const en = {
   copyLink: "Copy link",
   linkCopied: "Link copied",
   copyFailed: "Couldn't copy. The link is in the address bar.",
-  overview: "Show all of Japan",
+  overview: "Show the planet",
   loading: "Warming up the broth…",
   loadingSlow: "Still simmering. Big city, lots of tiles.",
   mapUnavailable: "The map could not load. You can still explore shops, save places, and get directions.",

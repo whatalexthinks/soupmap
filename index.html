@@ -3,26 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Soupmap — A field guide to the perfect bowl</title>
-    <meta name="description" content="An independent field guide to Japan, one bowl at a time. Explore a 3D map, discover ramen, udon, soba and oden, and save your next great detour." />
+    <title>Soupmap — Find your next bowl. Anywhere.</title>
+    <meta name="description" content="A world of soups, mapped for curious travelers. Explore Japan's ramen, udon, soba and oden in our Japan pilot; more places to come." />
     <link rel="canonical" href="%SITE_URL%/" />
     <meta name="theme-color" content="#f3f1e9" />
     <meta name="color-scheme" content="light" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Soupmap" />
-    <meta property="og:title" content="Soupmap — A field guide to the perfect bowl" />
-    <meta property="og:description" content="Pick a broth or a city and fly down to street level onto the shop. Ramen, udon, soba and oden across Japan." />
+    <meta property="og:title" content="Soupmap — Find your next bowl. Anywhere." />
+    <meta property="og:description" content="A world of soups, mapped for curious travelers. Explore Japan's ramen, udon, soba and oden in our Japan pilot; more places to come." />
     <meta property="og:url" content="%SITE_URL%/" />
-    <meta property="og:image" content="%SITE_URL%/og.png" />
+    <meta property="og:image" content="%SITE_URL%/social/soupmap-world.png" />
+    <meta property="og:image:secure_url" content="%SITE_URL%/social/soupmap-world.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Soupmap wordmark over a night map of Japan with steaming bowls." />
+    <meta property="og:image:alt" content="Soupmap — Find your next bowl. Anywhere. A soup bowl sits within a fine-lined globe on a warm cream background with vermilion accents." />
     <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Soupmap — A field guide to the perfect bowl" />
-    <meta name="twitter:description" content="Pick a broth or a city and fly down to street level onto the shop." />
-    <meta name="twitter:image" content="%SITE_URL%/og.png" />
+    <meta name="twitter:title" content="Soupmap — Find your next bowl. Anywhere." />
+    <meta name="twitter:description" content="A world of soups, mapped for curious travelers. Explore Japan's ramen, udon, soba and oden in our Japan pilot; more places to come." />
+    <meta name="twitter:image" content="%SITE_URL%/social/soupmap-world.png" />
+    <meta name="twitter:image:alt" content="Soupmap — Find your next bowl. Anywhere. A soup bowl sits within a fine-lined globe on a warm cream background with vermilion accents." />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
@@ -35,7 +38,7 @@
         "@type": "WebSite",
         "name": "Soupmap",
         "url": "%SITE_URL%/",
-        "description": "A photorealistic 3D map of Japan's best soup shops: ramen, udon, soba and oden."
+        "description": "A world of soups, mapped for curious travelers. Explore Japan's ramen, udon, soba and oden in our Japan pilot; more places to come."
       }
     </script>
   </head>
@@ -45,11 +48,11 @@
     <main class="app" id="app">
       <header class="masthead">
         <a class="brand" href="/" aria-label="Soupmap home"><span class="brand__seal" aria-hidden="true">湯</span>soupmap<span class="brand__period">.</span></a>
-        <div class="masthead__caption">A FIELD GUIDE TO JAPAN<span>Good things take a little wandering.</span></div>
+        <div class="masthead__caption">A WORLD OF SOUPS<span>Starting in Japan. Follow your appetite.</span></div>
         <nav class="view-tabs" aria-label="Collection"><button id="explore-tab" aria-pressed="true">Explore</button><button id="saved-tab" aria-pressed="false">Saved <span id="saved-count">0</span></button></nav>
         <button id="surprise-btn" class="surprise-btn">Find me a bowl <span aria-hidden="true">↗</span></button>
       </header>
-      <div class="map" id="map" role="region" aria-label="3D map of soup shops in Japan">
+      <div class="map" id="map" role="region" aria-label="Map of soup shops. Current listings are a Japan pilot.">
         <div class="map__canvas" id="cesium"></div>
         <div class="loader" id="loader" role="status">
           <svg class="loader__bowl" viewBox="0 0 92 92" aria-hidden="true">
@@ -71,9 +74,9 @@
           <span class="sr-only">Expand the shop list</span>
         </button>
         <header class="panel__header">
-          <div class="eyebrow"><span class="edition-dot"></span> THE SOUP ATLAS <span class="edition">VOL. 01 / JAPAN</span></div>
+          <div class="eyebrow"><span class="edition-dot"></span> THE SOUP ATLAS <span class="edition">STARTING IN JAPAN</span></div>
           <h1 class="editorial-title" id="panel-title">Follow your<br /><em>appetite.</em></h1>
-          <p class="tagline">Small counters. Deep traditions.<br />Your next great bowl is out there.</p>
+          <p class="tagline">A world of soups.<br />Find your next bowl. Anywhere.</p>
         </header>
         <div class="search" role="search">
           <label for="shop-search" class="sr-only">Search shops</label>
@@ -81,6 +84,35 @@
           <input id="shop-search" type="search" placeholder="A shop, a city, a craving…" autocomplete="off" spellcheck="false" enterkeyhint="search" />
         </div>
         <div class="panel__body" id="panel-body">
+          <section class="discovery-controls" aria-label="Narrow shop results">
+            <label class="discovery-control" for="cuisine-filter">
+              <span class="discovery-control__label">Main style</span>
+              <select id="cuisine-filter" aria-label="Filter by main noodle or soup style">
+                <option value="all">All styles</option>
+                <option value="ramen">Ramen</option>
+                <option value="udon">Udon</option>
+                <option value="soba">Soba</option>
+                <option value="oden">Oden</option>
+                <option value="other">Other / unknown</option>
+              </select>
+            </label>
+            <label class="discovery-control discovery-control--language" for="name-language">
+              <span class="discovery-control__label">Shop names</span>
+              <select id="name-language" aria-label="Shop names language">
+                <option value="en">EN · Romanized</option>
+                <option value="ja">日本語 · Japanese</option>
+              </select>
+            </label>
+            <label class="discovery-control discovery-control--sort" for="shop-sort">
+              <span class="discovery-control__label">Sort</span>
+              <select id="shop-sort" aria-label="Sort shops">
+                <option value="guide">Guide order</option>
+                <option value="name">Name A–Z</option>
+                <option value="city">City A–Z</option>
+                <option value="distance">Nearest me</option>
+              </select>
+            </label>
+          </section>
           <div class="section-heading"><h2 class="section-label" id="city-label">Choose your city</h2><span class="micro">07 destinations</span></div>
           <nav class="cities" id="city-buttons" aria-labelledby="city-label"><!--soupmap:cities--></nav>
           <details class="taste-filter"><summary>Find your flavor <span id="filter-count">All styles</span></summary>
@@ -90,15 +122,14 @@
 
           </details>
 
+          <div class="results-toolbar"><p class="result-count" id="result-count" aria-live="polite"><!--soupmap:count--></p></div>
+          <button id="clear-filters" class="clear-filters" hidden>Reset filters ×</button>
+          <p id="saved-note" class="saved-note" hidden>Your personal shortlist. Saved on this device.</p>
+          <ul class="shop-list" id="shop-list" aria-label="Soup shops"><!--soupmap:list--></ul>
           <button type="button" class="trail-btn" id="trail-btn" aria-pressed="false">
             <span class="trail-btn__icon" id="trail-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor" /></svg></span>
             <span><small>TAKE THE SCENIC ROUTE</small><strong id="trail-title">The Tonkotsu Trail</strong><span id="trail-sub">3 bowls. One city. A deeper dive.</span></span><span class="trail-arrow" aria-hidden="true">↗</span>
           </button>
-
-          <div class="results-toolbar"><p class="result-count" id="result-count" aria-live="polite"><!--soupmap:count--></p><label class="sort-label"><span class="sr-only">Sort shops</span><select id="shop-sort"><option value="guide">Guide order</option><option value="name">Name A–Z</option><option value="city">City A–Z</option></select></label></div>
-          <button id="clear-filters" class="clear-filters" hidden>Reset filters ×</button>
-          <p id="saved-note" class="saved-note" hidden>Your personal shortlist. Saved on this device.</p>
-          <ul class="shop-list" id="shop-list" aria-label="Soup shops"><!--soupmap:list--></ul>
         </div>
         <footer class="panel__footer">
           <a href="/credits/">Data &amp; credits</a>
@@ -125,7 +156,7 @@
           <button type="button" class="icon-btn" id="building-toggle" aria-pressed="false" aria-label="Building info" title="Building info" hidden>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20.5V5.5l8-2v17M13 8.5l6 2v10M3 20.5h18M8 8h2M8 11.5h2M8 15h2M16 13h1M16 16h1" /></svg>
           </button>
-          <button type="button" class="icon-btn" id="overview-btn" aria-label="Show all of Japan" title="Show all of Japan">
+          <button type="button" class="icon-btn" id="overview-btn" aria-label="Show the planet" title="Show the planet">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5Z" /></svg>
           </button>
         </div>

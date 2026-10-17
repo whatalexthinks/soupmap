@@ -1,0 +1,30 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Qh9NGA3nUcQUXKWvgyp6O"
+uri = "file://public/social/soupmap-japan.png"
+type = "image"
+title = "Soupmap link preview"
+description = "Updated 1200 × 630 sharing image for messages and social previews."
+logical_id = "75625b2e-5d73-4dad-8a1b-e7cb4ed34373"
+content_hash = "sha256:ec130bae12f9c00bce142de169e9604958379db00603f1a373d14bd35b87b861"
+size = 77890
+mtime_ms = 1792243296782
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:98ee5556-4593-4077-8db7-66516487e138/75625b2e-5d73-4dad-8a1b-e7cb4ed34373/cd82d9e8-ec44-4537-842c-9ccde3b2ca8c"
+storage_version_token = "1792243334874320"
+content_type = "image/png"
+
+[[outputs]]
+id = "z7JT8HsE62qIoOFgOGdUs"
+uri = "file://public/social/soupmap-world.png"
+type = "image"
+title = "Soupmap — a world of soups"
+description = "Worldwide positioning and the updated shared-link image. Current coverage remains the Japan pilot."
+logical_id = "061a4a3a-726a-43a5-9c32-821d04e5d8bc"
+content_hash = "sha256:8797ae70e2331f9da9c35198d5039489d0a67658cef0eef236bd37b5246fac76"
+size = 110877
+mtime_ms = 1792243563146
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:98ee5556-4593-4077-8db7-66516487e138/061a4a3a-726a-43a5-9c32-821d04e5d8bc/f984b390-6e29-4ed8-8ca5-d2082ac4da44"
+storage_version_token = "1792244021131771"
+content_type = "image/png"

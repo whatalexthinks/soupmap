@@ -40,7 +40,7 @@ test("large lists are bounded and offer a way to see further results", () => {
 });
 
 test("nationwide search includes places outside the featured city shortcuts", () => {
-  const shop = OPEN_SHOPS.find(s => s.city === "八重山郡竹富町");
+  const shop = OPEN_SHOPS.find(s => s.neighborhood === "八重山郡竹富町");
   assert.ok(shop);
   const results = discover(SHOPS, {query:shop.name,city:"all",broths:new Set(),saved:new Set(),savedOnly:false,sort:"guide"});
   assert.ok(results.some(s => s.slug === shop.slug));

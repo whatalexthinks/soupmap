@@ -7,6 +7,7 @@ import { gzipSync } from "node:zlib";
 import { parseArgs, distanceM, loadShops } from "./lib/util.ts";
 import { openPlaceToShop, type OpenPlace } from "../src/data/open-catalog.ts";
 import { ShopsSchema } from "../src/data/schema.ts";
+import { createRomanizer } from "./lib/romanize.ts";
 
 const args = parseArgs(process.argv.slice(2));
 if (typeof args.input !== "string") throw new Error("--input must point to an Overture extract");
@@ -26,6 +27,7 @@ const locations = new Map<string, OpenPlace[]>();
 const records: OpenPlace[] = [];
 let excluded = 0;
 const normalize = (s: string) => s.toLowerCase().replace(/[\s\p{P}\p{S}]/gu, "");
+const romanize = await createRomanizer();
 for (const raw of source.records) {
   const licenses = [...new Set((raw.sources ?? []).map(s => s.license).filter((s): s is string => !!s))];
   // Only redistribute records whose supplied sources have explicitly supported licenses.
@@ -48,6 +50,8 @@ for (const raw of source.records) {
     locality: raw.addresses.find(a => a.country === "JP")?.locality || "",
     category: raw.taxonomy?.primary || "soup_restaurant", licenses,
   };
+  place.nameRomanized = romanize(name);
+  place.localityRomanized = romanize(place.locality);
   seenIds.add(raw.id);
   locations.set(key, [...(locations.get(key) ?? []), place]);
   records.push(place);

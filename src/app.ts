@@ -8,10 +8,13 @@ import { CITIES, cityBySlug } from "./data/cities.ts";
 import plateauData from "./data/plateau-tilesets.json" with { type: "json" };
 import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops.ts";
 import { TRAILS } from "./data/trails.ts";
+import { STARTUP_CITY_SLUG } from "./startup.ts";
 import { t } from "./i18n.ts";
 import type { MapEngineImpl } from "./map/engine.ts";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
-import type { StreetView } from "./map/streetview.ts";
+import { StreetView } from "./map/streetview.ts";
+import { type CuisineId } from "./cuisines.ts";
+import { displayName, restoreNameLanguage, getNameLanguage, setNameLanguage, type NameLanguage } from "./names.ts";
 import { router } from "./router.ts";
 import { TrailPlayer } from "./trail.ts";
 import { BuildingPanel } from "./ui/building-panel.ts";
@@ -43,8 +46,12 @@ function afterFirstPaint(fn: () => void): void {
 
 export class App {
   private query = "";
-  private city = 'tokyo';
+  private city: string = STARTUP_CITY_SLUG;
+  private navigationRevision = 0;
   private sort: SortOrder = 'guide';
+  private cuisine: CuisineId | 'all' = 'all';
+  private origin: {lat:number;lng:number} | null = null;
+  private locationRequest = 0;
   private savedOnly = false;
   private readonly saved = this.readSaved();
   private inspectBuildings = false;
@@ -60,6 +67,7 @@ export class App {
   private selected: string | null = null;
   private engine: MapEngineImpl | null = null;
   private streetView: StreetView | null = null;
+  private streetViewRequest = 0;
   private buildingInfo: BuildingInfo | null = null;
   private lowPower = false;
   private readonly googleKey = (import.meta.env?.VITE_GOOGLE_MAPS_KEY ?? "").trim();
@@ -79,6 +87,8 @@ export class App {
   });
 
   constructor() {
+    restoreNameLanguage();
+    if (this.googleKey) this.streetView = new StreetView(this.googleKey);
     this.panel = new Panel(ORDERED_SHOPS, {
       onQuery: (q) => {
         this.trail.stop();
@@ -106,7 +116,13 @@ export class App {
         this.closeCard();
         this.sheet.ensureOpen();
       },
-      onSort: sort => { this.sort = sort; this.refresh(); },
+      onSort: sort => { void this.changeSort(sort); },
+      onCuisine: cuisine => {
+        this.trail.stop();
+        this.cuisine = cuisine;
+        this.refresh();
+      },
+      onNameLanguage: language => this.changeNameLanguage(language),
       onReset: () => this.resetFilters(),
       onSurprise: () => {
         const choices = this.filtered().filter(s => s.slug !== this.selected);
@@ -114,6 +130,7 @@ export class App {
         if (shop) { this.trail.stop(); this.select(shop.slug, { fly: true, focus: true }); }
       },
     });
+    this.panel.setNameLanguage(getNameLanguage());
 
     this.card = new ShopCard({
       onSave: shop => this.toggleSaved(shop.slug),
@@ -168,6 +185,17 @@ export class App {
     });
     this.panel.searchInput.addEventListener("focus", () => this.sheet.ensureOpen());
     $("#pano-back").addEventListener("click", () => this.closeStreetView());
+    window.addEventListener("soupmap:google-auth-error", () => {
+      this.closeStreetView();
+      this.card.setStreetView("unavailable", "Google denied the interactive viewer. Enable Maps JavaScript API on this project and key, check billing and website restrictions, then reload.");
+      toast("Google denied interactive Street View. Check Maps JavaScript API access.", 5000);
+    });
+    window.addEventListener("soupmap:streetview-error", () => {
+      const shop = this.card.current;
+      this.closeStreetView();
+      if (shop) this.card.setStreetView("unavailable", this.streetView?.unavailableReason(shop));
+      toast("This panorama could not load. Try the Google Maps link.");
+    });
 
     window.addEventListener('storage', e => {
       if (e.key !== SAVED_KEY && e.key !== null) return;
@@ -180,16 +208,51 @@ export class App {
 
   private filtered(): readonly Shop[] {
     return discover(ORDERED_SHOPS, { query: this.query, city: this.city, sort: this.sort,
-      broths: this.broths, savedOnly: this.savedOnly, saved: this.saved });
+      broths: this.broths, savedOnly: this.savedOnly, saved: this.saved,
+      cuisine: this.cuisine, origin: this.origin });
   }
 
   private refresh(): void {
     const shops = this.filtered();
     this.panel.renderList(shops, this.selected, this.saved, this.savedOnly);
     this.panel.setCity(this.city);
-    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all';
+    this.panel.setCuisine(this.cuisine);
+    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && this.cuisine === 'all';
     this.engine?.setShops(shops);
     if (this.selected && !shops.some(shop => shop.slug === this.selected)) this.closeCard();
+  }
+
+  private changeNameLanguage(language: NameLanguage): void {
+    setNameLanguage(language);
+    this.panel.setNameLanguage(language);
+    this.refresh();
+    this.engine?.pins.refreshNames();
+    if (this.selected) this.select(this.selected, {fly:false, focus:false});
+  }
+
+  private async changeSort(sort: SortOrder): Promise<void> {
+    const request = ++this.locationRequest;
+    if (sort === "distance" && !this.origin) {
+      this.panel.setSort(this.sort);
+      if (!navigator.geolocation) {
+        toast("Location is unavailable in this browser. Choose another sort.");
+        return;
+      }
+      toast("Allow location access to sort the current results by distance.");
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve,reject) =>
+          navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:12000,maximumAge:300000,enableHighAccuracy:false}));
+        if (request !== this.locationRequest) return;
+        this.origin = {lat:position.coords.latitude,lng:position.coords.longitude};
+      } catch {
+        if (request === this.locationRequest) toast("Location was unavailable or not allowed. Your previous sort is unchanged.", 4000);
+        return;
+      }
+    }
+    if (request !== this.locationRequest) return;
+    this.sort = sort;
+    this.panel.setSort(sort);
+    this.refresh();
   }
 
   private toggleSaved(slug: string): void {
@@ -206,8 +269,9 @@ export class App {
   }
 
   private resetFilters(): void {
+    ++this.navigationRevision;
     this.trail.stop();
-    this.query = ''; this.city = 'all'; this.broths.clear();
+    this.query = ''; this.city = 'all'; this.broths.clear(); this.cuisine = 'all';
     this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
     this.refresh(); this.updateLocation();
     this.turnOffBuilding();
@@ -216,25 +280,31 @@ export class App {
 
   private updateLocation(): void {
     const city = cityBySlug.get(this.city);
-    $('#map-city').textContent = city?.name ?? 'Japan';
-    $('#map-city-ja').textContent = city?.nameJa ?? '日本';
-    $('#map-coordinates').textContent = city ? `${city.lat.toFixed(4)}° N · ${city.lng.toFixed(4)}° E` : 'HOKKAIDO TO KYUSHU';
-    $('#map-summary').textContent = this.savedOnly ? 'Your personal collection of places worth a detour.' : 'A city best discovered one bowl at a time.';
+    $('#map-city').textContent = city?.name ?? 'Earth';
+    $('#map-city-ja').textContent = city?.nameJa ?? '';
+    $('#map-coordinates').textContent = city
+      ? `${Math.abs(city.lat).toFixed(4)}° ${city.lat < 0 ? 'S' : 'N'} · ${Math.abs(city.lng).toFixed(4)}° ${city.lng < 0 ? 'W' : 'E'}`
+      : 'A WORLD OF SOUPS';
+    $('#map-summary').textContent = this.savedOnly ? 'Your saved places, one bowl at a time.'
+      : city ? `Japan pilot · ${city.slug === STARTUP_CITY_SLUG ? 'Tokyo test destination' : city.name}` : 'Worldwide atlas · Current listings: Japan pilot';
   }
 
   // ── Selection ────────────────────────────────────────────────────────────
 
   select(slug: string, options: { fly: boolean; focus: boolean }): void {
+    ++this.navigationRevision;
+    if (slug !== this.selected && (this.streetView?.isOpen || this.streetView?.isLoading)) this.closeStreetView();
     const shop = shopBySlug.get(slug);
     if (!shop) return;
     // Deep links and trail stops must remain visible in the current discovery state.
     if (!this.filtered().some(s => s.slug === slug)) {
-      this.query = ''; this.broths.clear(); this.savedOnly = false;
+      this.query = ''; this.broths.clear(); this.savedOnly = false; this.cuisine = 'all';
       this.city = CITIES.find(c => c.name === shop.city)?.slug ?? 'all';
       this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
       this.refresh(); this.updateLocation();
     }
     this.selected = slug;
+    this.sheet.setCovered(true);
     this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug) });
     this.panel.markSelected(slug);
     router.set(slug);
@@ -254,25 +324,31 @@ export class App {
   }
 
   closeCard(): void {
+    if (this.streetView?.isOpen || this.streetView?.isLoading) this.closeStreetView();
     const previous = this.selected;
     const hadFocus = this.card.contains(document.activeElement);
     this.selected = null;
     this.card.close();
+    this.sheet.setCovered(false);
     this.panel.markSelected(null);
     router.set(null);
     this.engine?.setSelected(null);
-    if (previous && hadFocus) this.panel.focusRow(previous);
+    if (previous && hadFocus) {
+      if(isMobileLayout()) this.sheet.focusHandle();
+      else this.panel.focusRow(previous);
+    }
   }
 
   private onEscape(): void {
     if (this.splat.open) return; // the dialog handles its own Escape
     if (this.trail.playing) this.trail.stop();
-    else if (this.streetView?.isOpen) this.closeStreetView();
+    else if (this.streetView?.isOpen || this.streetView?.isLoading) this.closeStreetView();
     else if (this.buildingPanel.open) this.turnOffBuilding();
     else if (this.selected) this.closeCard();
   }
 
   private jumpToCity(slug: string): void {
+    ++this.navigationRevision;
     this.trail.stop();
     this.city = slug;
     this.closeCard(); this.refresh(); this.updateLocation();
@@ -330,14 +406,14 @@ export class App {
   // ── Street View ("Stand outside") ────────────────────────────────────────
 
   private streetViewUsable(): boolean {
-    return !!this.streetView && this.engine?.mode === "google";
+    return !!this.streetView;
   }
 
   /** Show "Stand outside" only if an outdoor panorama exists near the shop. */
   private async checkStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) {
       this.card.setStreetView("unavailable", this.googleKey
-        ? "In-app Street View needs the Google 3D map to finish loading. You can also open it in Google Maps."
+        ? "Interactive Street View is unavailable. You can also open it in Google Maps."
         : "In-app Street View needs a Google Maps key. You can still open it in Google Maps.");
       return;
     }
@@ -349,8 +425,10 @@ export class App {
 
   private async openStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) return;
+    const request = ++this.streetViewRequest;
     this.card.setStreetView("loading");
     const info = await this.streetView.open(shop);
+    if (request !== this.streetViewRequest) return;
     if (this.card.current?.slug !== shop.slug) {
       this.streetView.close();
       return;
@@ -360,15 +438,15 @@ export class App {
       toast(t("streetViewFailed"));
       return;
     }
-    const date = info.date ? ` · ${esc(info.date)}` : "";
-    $("#pano-label").innerHTML = `<strong>${esc(t("streetViewOf", { name: shop.name }))}</strong> · ${esc(info.copyright)}${date}`;
+    $("#pano-label").innerHTML = `<strong>Exploring near ${esc(displayName(shop))}</strong><span class="pano__hint">Arrows to move · Drag to look · +/− to zoom</span>`;
     $("#pano-bar").hidden = false;
     document.body.classList.add("is-pano");
     $("#pano-back").focus();
   }
 
   private closeStreetView(): void {
-    if (!this.streetView?.isOpen) return;
+    if (!this.streetView) return;
+    ++this.streetViewRequest;
     this.streetView.close();
     $("#pano-bar").hidden = true;
     document.body.classList.remove("is-pano");
@@ -435,7 +513,6 @@ export class App {
     this.buildingRequest++;
     this.inspectBuildings = false;
     this.buildingInfo?.disable();
-    this.controls.setBuildingsReady(false);
     this.buildingPanel.hide();
     this.updateBuildingToggles(this.selected ? shopBySlug.get(this.selected) : undefined);
   }
@@ -444,12 +521,10 @@ export class App {
     const dataView = !!this.buildingInfo?.isDataView;
     switch (event.kind) {
       case "loading":
-        this.controls.setBuildingsReady(false);
         if (!this.inspectBuildings) break;
         this.buildingPanel.show({ kind: "loading" }, dataView, this.engine?.mode === "google");
         break;
       case "ready":
-        this.controls.setBuildingsReady(true);
         if (!this.inspectBuildings) break;
         this.buildingPanel.show({ kind: "hint" }, dataView, this.engine?.mode === "google");
         break;
@@ -462,7 +537,6 @@ export class App {
         this.buildingPanel.show({ kind: "facts", facts: event.facts }, dataView, this.engine?.mode === "google");
         break;
       case "unavailable":
-        this.controls.setBuildingsReady(false);
         this.buildingPanel.hide();
         this.controls.flash(t("buildingUnavailable"));
         break;
@@ -488,6 +562,8 @@ export class App {
         creditViewport: $("#credit-viewport"),
         googleKey: this.googleKey,
         shops: ORDERED_SHOPS,
+        initialLocation: (this.selected ? shopBySlug.get(this.selected) : undefined)
+          ?? cityBySlug.get(this.city) ?? cityBySlug.get(STARTUP_CITY_SLUG),
         reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
         lowPower: this.lowPower,
         onStatus: status => {
@@ -503,12 +579,9 @@ export class App {
       // ?debug exposes the engine for inspection in the console and in browser tests.
       if (new URLSearchParams(location.search).has("debug")) Object.assign(window, { soupmap: engine });
       this.trackCreditBar();
-      if (this.googleKey && engine.mode === "google") {
-        const { StreetView } = await import("./map/streetview.ts");
-        this.streetView = new StreetView(engine, this.googleKey);
-      }
       engine.onShopPicked((slug) => this.select(slug, { fly: true, focus: false }));
       engine.onUserInteraction(() => {
+        ++this.navigationRevision;
         this.trail.stop();
         if (isMobileLayout() && !this.selected) this.sheet.setSnap("peek");
       });
@@ -522,14 +595,23 @@ export class App {
         this.updateBuildingToggles(shop);
       }
       if (shop) {
-        await engine.flyToShop(shop, { duration: 0, bottomInset: this.bottomInset() });
-        void this.syncBuilding(shop);
+        const revision = this.navigationRevision;
+        await engine.flyToShop(shop, { duration: 5.5, bottomInset: this.bottomInset() });
+        if (revision === this.navigationRevision) void this.syncBuilding(shop);
       } else {
         const city = cityBySlug.get(this.city);
-        if (city) await engine.flyToCity(city, { duration: 0 });
+        const revision = this.navigationRevision;
+        if (city) {
+          $('#map-city').textContent = 'Earth';
+          $('#map-city-ja').textContent = '';
+          $('#map-coordinates').textContent = 'A WORLD OF SOUPS';
+          $('#map-summary').textContent = `Flying to ${city.name}${city.slug === STARTUP_CITY_SLUG ? ' · test destination' : ''}`;
+          await engine.playIntro(city);
+          this.updateLocation();
+        }
         else await engine.flyToOverview({ duration: 0 });
         const anchor = ORDERED_SHOPS.find(s => s.city === city?.name && PLATEAU_INDEX.has(s.cityCode));
-        if (anchor && engine.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);
+        if (revision === this.navigationRevision && anchor && engine.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);
       }
     } catch (error) {
       console.warn("[soupmap] 3D map unavailable", error);

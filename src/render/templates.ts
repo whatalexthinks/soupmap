@@ -11,29 +11,32 @@ import { t } from "../i18n.ts";
 import { icon } from "../ui/icons.ts";
 import { bowlArt } from "./bowl.ts";
 import { esc } from "../ui/dom.ts";
+import { displayName, getNameLanguage, type NameLanguage } from "../names.ts";
 
 export function bowlIcon(broth: BrothId): string {
   return `<span class="bowl" style="--broth:${BROTHS[broth].color}" aria-hidden="true"></span>`;
 }
 
-export function shopRowHtml(shop: Shop, selected: boolean, saved = false, index = 0): string {
+export function shopRowHtml(shop: Shop, selected: boolean, saved = false, index = 0, language: NameLanguage = getNameLanguage()): string {
   const broth = BROTHS[shop.broth];
+  const primaryName = displayName(shop, language);
+  const accessibleName = shop.nameJa && shop.nameJa !== primaryName ? `${primaryName} (${shop.nameJa})` : primaryName;
   return `<li class="shop-entry${selected ? ' is-selected' : ''}">
-    <a class="shop-row" href="#${esc(shop.slug)}" data-slug="${esc(shop.slug)}"${selected ? ' aria-current="true"' : ''}>
+    <a class="shop-row" href="#${esc(shop.slug)}" data-slug="${esc(shop.slug)}" aria-label="${esc(accessibleName)}"${selected ? ' aria-current="true"' : ''}>
       <span class="shop-row__art" style="--broth:${broth.color}">${bowlArt(shop.broth)}</span>
       <span class="shop-row__content"><span class="shop-row__kicker">${esc(shop.neighborhood)} <span> / ${String(index + 1).padStart(2, '0')}</span></span>
-      <span class="shop-row__name">${esc(shop.name)}</span>
-      ${shop.nameJa !== shop.name ? `<span class="shop-row__ja" lang="ja">${esc(shop.nameJa)}</span>` : ""}
+      <span class="shop-row__name" lang="${language === "ja" ? "ja" : "en"}">${esc(primaryName)}</span>
+      ${shop.nameJa && shop.nameJa !== primaryName ? `<span class="shop-row__ja" lang="ja">${esc(shop.nameJa)}</span>` : ""}
       <span class="shop-row__meta"><span class="swatch" style="--broth:${broth.color}"></span>${esc(broth.label)}<span class="shop-row__city"> · ${esc(shop.city)}${shop.slug.startsWith("open-") ? " · Open data" : ""}</span></span></span>
       <span class="shop-row__arrow" aria-hidden="true">↗</span>
     </a>
-    <button class="save-shop" data-save="${esc(shop.slug)}" aria-pressed="${saved}" aria-label="${saved ? 'Unsave' : 'Save'} ${esc(shop.name)}" title="${saved ? 'Remove from saved' : 'Save this place'}">${icon('bookmark')}</button>
+    <button class="save-shop" data-save="${esc(shop.slug)}" aria-pressed="${saved}" aria-label="${saved ? 'Unsave' : 'Save'} ${esc(accessibleName)}" title="${saved ? 'Remove from saved' : 'Save this place'}">${icon('bookmark')}</button>
   </li>`;
 }
 
-export function shopListHtml(shops: readonly Shop[], selected: string | null = null, saved: ReadonlySet<string> = new Set(), savedOnly = false, limit = 100): string {
+export function shopListHtml(shops: readonly Shop[], selected: string | null = null, saved: ReadonlySet<string> = new Set(), savedOnly = false, limit = 100, language: NameLanguage = getNameLanguage()): string {
   if (!shops.length) return `<li class="empty"><span class="empty__symbol" aria-hidden="true">${icon(savedOnly ? 'bookmark' : 'search')}</span><strong>${savedOnly ? 'A little room for discovery.' : 'A different craving?'}</strong><p>${savedOnly ? 'Save places with the bookmark button. If you already have saves, try resetting your filters.' : 'No bowls match these filters. Try another city, flavor, or search.'}</p></li>`;
-  return shops.slice(0, limit).map((s, i) => shopRowHtml(s, s.slug === selected, saved.has(s.slug), i)).join('')
+  return shops.slice(0, limit).map((s, i) => shopRowHtml(s, s.slug === selected, saved.has(s.slug), i, language)).join('')
     + (shops.length > limit ? `<li class="load-more"><button type="button" class="btn" data-load-more>Show more shops (${Math.min(limit, shops.length).toLocaleString()} of ${shops.length.toLocaleString()})</button></li>` : '');
 }
 

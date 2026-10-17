@@ -4,6 +4,7 @@ import { BROTHS } from "../data/broths.ts";
 import type { Shop } from "../data/shops.ts";
 import { getSource } from "../sources.ts";
 import { t } from "../i18n.ts";
+import { displayName, getNameLanguage, isRomanizedName } from "../names.ts";
 import { $, esc, prefersReducedMotion } from "./dom.ts";
 import { icon } from "./icons.ts";
 
@@ -33,10 +34,10 @@ function directionsUrl(shop: Shop): string {
 function mediaHtml(shop: Shop): string {
   if (shop.videoUrl) {
     const autoplay = prefersReducedMotion() ? "" : " autoplay";
-    return `<video src="${esc(shop.videoUrl)}" muted playsinline loop controls${autoplay} preload="metadata" aria-label="${esc(`${shop.name}: short video`)}"></video>`;
+    return `<video src="${esc(shop.videoUrl)}" muted playsinline loop controls${autoplay} preload="metadata" aria-label="${esc(`${displayName(shop)}: short video`)}"></video>`;
   }
   if (shop.photo.url) {
-    return `<img src="${esc(shop.photo.url)}" alt="${esc(`${shop.signatureBowl} at ${shop.name}`)}" loading="lazy" decoding="async" />
+    return `<img src="${esc(shop.photo.url)}" alt="${esc(`${shop.signatureBowl} at ${displayName(shop)}`)}" loading="lazy" decoding="async" />
       <p class="card__credit">${esc(t("photoBy", { credit: shop.photo.credit ?? "", license: shop.photo.license ?? "" }))}</p>`;
   }
   return `<span class="card__media-kanji" lang="ja">${esc(BROTHS[shop.broth].labelJa)}</span>${bowlArt(shop.broth)}<span class="card__media-label">Broth illustration / ${esc(BROTHS[shop.broth].label)}</span>`;
@@ -105,8 +106,9 @@ export class ShopCard {
           </div>
         </div>
         <div class="card__body">
-          <h2 class="card__title" id="card-title" tabindex="-1">${esc(shop.name)}</h2>
-          ${shop.nameJa !== shop.name ? `<p class="card__ja" lang="ja">${esc(shop.nameJa)}</p>` : ""}
+          <h2 class="card__title" id="card-title" tabindex="-1">${esc(displayName(shop))}</h2>
+          ${shop.nameJa !== displayName(shop) ? `<p class="card__ja" lang="ja">${esc(shop.nameJa)}</p>` : ""}
+          ${getNameLanguage() === "en" && isRomanizedName(shop) ? '<p class="card__fine">Automatically romanized name; pronunciation may differ. Japanese original above.</p>' : ""}
           <p class="card__where">${esc(shop.neighborhood)}, ${esc(shop.city)}</p>
           <div class="street-view-actions">
             <button type="button" class="btn btn--primary" data-action="stand-outside" disabled aria-describedby="street-view-status">${icon("person")}Street View · look outside</button>

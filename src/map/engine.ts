@@ -24,9 +24,11 @@ import {
   Rectangle,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
+  TileMapServiceImageryProvider,
   UrlTemplateImageryProvider,
   Viewer,
   createGooglePhotorealistic3DTileset,
+  buildModuleUrl,
   defined,
   type Cartesian2,
   type Cesium3DTileset,
@@ -44,6 +46,7 @@ export interface EngineOptions {
   creditViewport: HTMLElement;
   googleKey: string;
   shops: readonly Shop[];
+  initialLocation?: {lat:number;lng:number};
   reducedMotion: boolean;
   /** Phones and low-end devices: fewer, coarser tiles. */
   lowPower: boolean;
@@ -92,6 +95,7 @@ export class MapEngineImpl implements MapEngine {
   readonly viewer: Viewer;
   readonly pins: PinLayer;
   readonly director: CameraDirector;
+  private googleSurfaceReady = false;
   googleTileset: Cesium3DTileset | undefined;
 
   private _mode: MapMode = "google";
@@ -134,10 +138,12 @@ export class MapEngineImpl implements MapEngine {
     scene.globe.maximumScreenSpaceError = options.lowPower ? 3 : 2;
     const controller = scene.screenSpaceCameraController;
     controller.minimumZoomDistance = 25;
-    controller.maximumZoomDistance = 2.0e7;
+    controller.maximumZoomDistance = 5.0e7;
 
     this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE);
-    this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives);
+    this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives, options.initialLocation);
+    this.director.showPlanet();
+    this.viewer.camera.changed.addEventListener(()=>this.syncGlobeVisibility());
     this.installInput();
   }
 
@@ -147,6 +153,13 @@ export class MapEngineImpl implements MapEngine {
 
   /** Load Google 3D tiles, or fall back to GSI. Resolves once a layer is in place. */
   async start(): Promise<void> {
+    // Bundled global imagery makes the opening Earth visible even before Google
+    // tiles arrive, and outside Japan when the regional GSI fallback is active.
+    const earth = await TileMapServiceImageryProvider.fromUrl(
+      buildModuleUrl("Assets/Textures/NaturalEarthII"),
+      {credit:new Credit("Natural Earth II · public domain")},
+    );
+    this.viewer.imageryLayers.addImageryProvider(earth,0);
     const key = this.options.googleKey;
     if (!key) {
       this.enableFallback("No Google Maps key configured");
@@ -175,13 +188,23 @@ export class MapEngineImpl implements MapEngine {
       this.watchGoogleTiles(tileset);
       tileset.initialTilesLoaded.addEventListener(() => {
         if (this._mode !== "google") return;
-        this.viewer.scene.globe.show = false;
+        this.googleSurfaceReady = true;
+        this.syncGlobeVisibility();
         this.viewer.scene.requestRender();
       });
       this.options.onStatus({ kind: "ready", mode: "google" });
     } catch (error) {
       console.warn("[soupmap] Google 3D tiles unavailable, using GSI fallback.", error);
       this.enableFallback("Google 3D tiles could not load");
+    }
+  }
+
+  private syncGlobeVisibility(): void {
+    const show = this._mode !== "google" || !this.googleSurfaceReady
+      || this.viewer.camera.positionCartographic.height > 400_000;
+    if (this.viewer.scene.globe.show !== show) {
+      this.viewer.scene.globe.show = show;
+      this.viewer.scene.requestRender();
     }
   }
 
@@ -246,7 +269,10 @@ export class MapEngineImpl implements MapEngine {
 
   private installInput(): void {
     const canvas = this.viewer.scene.canvas;
-    const notify = () => this.interactionHandlers.forEach((h) => h());
+    const notify = () => {
+      this.director.cancel();
+      this.interactionHandlers.forEach((h) => h());
+    };
     canvas.addEventListener("pointerdown", notify, { passive: true });
     canvas.addEventListener("wheel", notify, { passive: true });
 
@@ -327,8 +353,8 @@ export class MapEngineImpl implements MapEngine {
 
   faceNorth(): void { this.reframe(0, this.viewer.camera.pitch); }
 
-  playIntro(): Promise<void> {
-    return this.director.intro();
+  playIntro(city: City): Promise<void> {
+    return this.director.intro(city);
   }
 
   cancelFlight(): void {

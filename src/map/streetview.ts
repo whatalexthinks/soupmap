@@ -1,26 +1,11 @@
+/// <reference types="google.maps" />
 /**
- * "Stand outside": the nearest Google Street View panorama at a shop, rendered inside
- * Cesium with GoogleStreetViewCubeMapPanoramaProvider + CubeMapPanorama (CesiumJS ≥ 1.139).
- *
- * - Availability uses the Street View metadata endpoint (no charge) with source=outdoor,
- *   which returns Google's own street imagery only (no user PhotoSpheres).
- * - Opening a panorama loads six cube faces = six Street View Static API requests.
- * - Any failure hides the button; nothing is shown as an error.
+ * Native Google Street View, with progressive imagery and connected street navigation.
+ * The free Static metadata lookup is retained so selecting a shop doesn't load a
+ * billable JavaScript panorama. Interactive imagery loads only after explicit entry.
  */
-import {
-  Cartesian3,
-  Cartographic,
-  GoogleStreetViewCubeMapPanoramaProvider,
-  HeadingPitchRange,
-  Math as CesiumMath,
-  Matrix4,
-  ScreenSpaceEventHandler,
-  ScreenSpaceEventType,
-  type CubeMapPanorama,
-  type PerspectiveFrustum,
-} from "cesium";
 import type { Shop } from "../data/shops.ts";
-import type { MapEngineImpl } from "./engine.ts";
+import { loadInteractiveStreetView } from "./google-loader.ts";
 
 export interface PanoInfo {
   panoId: string;
@@ -29,7 +14,6 @@ export interface PanoInfo {
   copyright: string;
   date: string | null;
 }
-
 interface MetadataResponse {
   status: string;
   pano_id?: string;
@@ -38,48 +22,30 @@ interface MetadataResponse {
   date?: string;
 }
 
-const METADATA_URL = "https://maps.googleapis.com/maps/api/streetview/metadata";
-const SEARCH_RADIUS_M = 100;
-const MIN_FOV = CesiumMath.toRadians(20);
-const MAX_FOV = CesiumMath.toRadians(100);
-
-/** Initial compass bearing from the panorama to the shop, so you face the door. */
-function bearing(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
-  const φ1 = CesiumMath.toRadians(fromLat);
-  const φ2 = CesiumMath.toRadians(toLat);
-  const Δλ = CesiumMath.toRadians(toLng - fromLng);
-  const y = Math.sin(Δλ) * Math.cos(φ2);
-  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-  return Math.atan2(y, x);
-}
-
-interface ActiveView {
-  panorama: CubeMapPanorama;
-  handler: ScreenSpaceEventHandler;
-  saved: { position: Cartesian3; heading: number; pitch: number; roll: number; fov: number | undefined };
-  globeShown: boolean;
+export function headingToShop(from: {lat:number;lng:number}, to: {lat:number;lng:number}): number {
+  const radians = Math.PI / 180;
+  const lat1 = from.lat*radians, lat2 = to.lat*radians, delta = (to.lng-from.lng)*radians;
+  return (Math.atan2(Math.sin(delta)*Math.cos(lat2),
+    Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(delta))/radians+360)%360;
 }
 
 export class StreetView {
   private readonly errors = new Map<string, string>();
   private readonly cache = new Map<string, Promise<PanoInfo | null>>();
-  private provider: Promise<GoogleStreetViewCubeMapPanoramaProvider> | undefined;
-  private active: ActiveView | null = null;
+  private panorama: google.maps.StreetViewPanorama | null = null;
+  private container: HTMLDivElement | null = null;
+  private request = 0;
+  private opening = false;
 
   constructor(
-    private readonly engine: MapEngineImpl,
     private readonly key: string,
+    private readonly load = loadInteractiveStreetView,
   ) {}
 
-  get isOpen(): boolean {
-    return this.active !== null;
-  }
+  get isOpen(): boolean { return this.panorama !== null; }
+  get isLoading(): boolean { return this.opening; }
+  unavailableReason(shop: Shop): string | undefined { return this.errors.get(shop.slug); }
 
-  unavailableReason(shop: Shop): string | undefined {
-    return this.errors.get(shop.slug);
-  }
-
-  /** Nearest outdoor panorama within 100 m. Cache successful imagery only. */
   find(shop: Shop): Promise<PanoInfo | null> {
     let pending = this.cache.get(shop.slug);
     if (!pending) {
@@ -95,32 +61,20 @@ export class StreetView {
   private async lookup(shop: Shop): Promise<PanoInfo | null> {
     this.errors.delete(shop.slug);
     const params = new URLSearchParams({
-      location: `${shop.lat},${shop.lng}`,
-      radius: String(SEARCH_RADIUS_M),
-      source: "outdoor",
-      key: this.key,
+      location: `${shop.lat},${shop.lng}`, radius: "100", source: "outdoor", key: this.key,
     });
     try {
-      const response = await fetch(`${METADATA_URL}?${params}`, { signal: AbortSignal.timeout(8000) });
-      if (!response.ok) {
-        this.errors.set(shop.slug, "Google's imagery check failed. Try Street View in Google Maps.");
-        return null;
-      }
-      const data = (await response.json()) as MetadataResponse;
+      const response = await fetch(`https://maps.googleapis.com/maps/api/streetview/metadata?${params}`, { signal: AbortSignal.timeout(8000) });
+      if (!response.ok) throw new Error("Metadata failed");
+      const data = await response.json() as MetadataResponse;
       if (data.status !== "OK" || !data.pano_id || !data.location) {
         this.errors.set(shop.slug, data.status === "REQUEST_DENIED"
-          ? "Google denied Street View access. Check Street View Static API, billing and website restrictions for this key."
+          ? "Google denied the imagery check. Check Street View Static API, billing and website restrictions."
           : data.status === "OVER_QUERY_LIMIT" ? "Google's Street View request limit was reached. Try Google Maps."
           : "No outdoor Street View imagery was found within 100 m. Try Google Maps for nearby coverage.");
         return null;
       }
-      return {
-        panoId: data.pano_id,
-        lat: data.location.lat,
-        lng: data.location.lng,
-        copyright: data.copyright ?? "© Google",
-        date: data.date ?? null,
-      };
+      return { panoId: data.pano_id, ...data.location, copyright: data.copyright ?? "© Google", date: data.date ?? null };
     } catch {
       this.errors.set(shop.slug, "The Street View availability check could not connect. Try the Google Maps link.");
       return null;
@@ -128,88 +82,56 @@ export class StreetView {
   }
 
   async open(shop: Shop): Promise<PanoInfo | null> {
-    const info = await this.find(shop);
-    if (!info || this.active) return null;
+    if (this.isOpen || this.opening) return null;
+    this.opening = true;
+    const request = ++this.request;
     try {
-      this.provider ??= GoogleStreetViewCubeMapPanoramaProvider.fromUrl({ key: this.key });
-      const provider = await this.provider;
-      const panorama = await provider.loadPanorama({
-        cartographic: Cartographic.fromDegrees(info.lng, info.lat, 0),
-        panoId: info.panoId,
+      const info = await this.find(shop);
+      if (!info || request !== this.request) return null;
+      const library = await this.load(this.key);
+      if (request !== this.request) return null;
+      const container = document.createElement("div");
+      container.className = "interactive-streetview";
+      container.setAttribute("aria-label", "Interactive Street View. Use arrows to move along connected streets.");
+      document.body.append(container);
+      this.container = container;
+      // Give Google's renderer its full viewport before creating it. Never scale a
+      // low-resolution still or reuse the previous shop's zoom.
+      const panorama = new library.StreetViewPanorama(container, {
+        pano: info.panoId, pov: { heading: headingToShop(info, shop), pitch: 0 }, zoom: 0,
+        visible: true, linksControl: true, clickToGo: true, scrollwheel: true,
+        panControl: true, zoomControl: true, addressControl: true,
+        fullscreenControl: false, enableCloseButton: false,
+        motionTracking: false, motionTrackingControl: false,
       });
-      this.enter(panorama, info, shop);
+      this.panorama = panorama;
+      panorama.addListener("status_changed", () => {
+        if (request !== this.request) return;
+        const status = panorama.getStatus();
+        if (status && status !== "OK") {
+          this.errors.set(shop.slug, "Google could not load this interactive panorama. Try the Google Maps link for other nearby imagery.");
+          window.dispatchEvent(new Event("soupmap:streetview-error"));
+        }
+      });
       return info;
-    } catch (error) {
-      this.provider = undefined;
-      this.errors.set(shop.slug, "The panorama could not load. Check Map Tiles API access or use Street View in Google Maps.");
-      console.warn("[soupmap] Street View panorama failed to load");
+    } catch {
+      if (request === this.request) {
+        this.close();
+        this.errors.set(shop.slug, "Interactive Street View needs Maps JavaScript API enabled and allowed on this key, active billing and the correct website restrictions. You can also open it in Google Maps.");
+      }
       return null;
+    } finally {
+      if (request === this.request) this.opening = false;
     }
   }
 
-  private enter(panorama: CubeMapPanorama, info: PanoInfo, shop: Shop): void {
-    const { viewer, pins } = this.engine;
-    const scene = viewer.scene;
-    const camera = viewer.camera;
-    const frustum = camera.frustum as PerspectiveFrustum;
-
-    const saved = {
-      position: Cartesian3.clone(camera.positionWC),
-      heading: camera.heading,
-      pitch: camera.pitch,
-      roll: camera.roll,
-      fov: frustum.fov,
-    };
-    const globeShown = scene.globe.show;
-
-    camera.cancelFlight();
-    scene.primitives.add(panorama);
-    scene.globe.show = false;
-    if (this.engine.googleTileset) this.engine.googleTileset.show = false;
-    pins.setVisible(false);
-
-    camera.lookAt(
-      Cartesian3.fromDegrees(info.lng, info.lat, 2),
-      new HeadingPitchRange(bearing(info.lat, info.lng, shop.lat, shop.lng), 0, 2),
-    );
-    const controller = scene.screenSpaceCameraController;
-    controller.enableZoom = false;
-    controller.enableTranslate = false;
-
-    // Mouse wheel narrows/widens the field of view, like zooming a real panorama.
-    const handler = new ScreenSpaceEventHandler(scene.canvas);
-    handler.setInputAction((delta: number) => {
-      const fov = (frustum.fov ?? CesiumMath.toRadians(60)) * (delta < 0 ? 1.05 : 0.95);
-      frustum.fov = CesiumMath.clamp(fov, MIN_FOV, MAX_FOV);
-      scene.requestRender();
-    }, ScreenSpaceEventType.WHEEL);
-
-    this.active = { panorama, handler, saved, globeShown };
-    scene.requestRender();
-  }
-
   close(): void {
-    const active = this.active;
-    if (!active) return;
-    this.active = null;
-    const { viewer, pins } = this.engine;
-    const scene = viewer.scene;
-    const camera = viewer.camera;
-
-    active.handler.destroy();
-    scene.primitives.remove(active.panorama);
-    camera.lookAtTransform(Matrix4.IDENTITY);
-    if (active.saved.fov !== undefined) (camera.frustum as PerspectiveFrustum).fov = active.saved.fov;
-    camera.setView({
-      destination: active.saved.position,
-      orientation: { heading: active.saved.heading, pitch: active.saved.pitch, roll: active.saved.roll },
-    });
-    const controller = scene.screenSpaceCameraController;
-    controller.enableZoom = true;
-    controller.enableTranslate = true;
-    scene.globe.show = active.globeShown;
-    if (this.engine.googleTileset) this.engine.googleTileset.show = true;
-    pins.setVisible(true);
-    scene.requestRender();
+    ++this.request;
+    this.opening = false;
+    this.panorama?.setVisible(false);
+    if (this.panorama && typeof google !== "undefined") google.maps.event.clearInstanceListeners(this.panorama);
+    this.panorama = null;
+    this.container?.remove();
+    this.container = null;
   }
 }

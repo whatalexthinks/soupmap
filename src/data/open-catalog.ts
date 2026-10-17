@@ -1,11 +1,14 @@
 import { CITIES } from "./cities.ts";
 import type { Shop } from "./schema.ts";
+import { inferCuisine } from "../cuisines.ts";
 
 /** Compact, redistributable records; never invent missing menu or price data. */
 export interface OpenPlace {
   id: string;
   name: string;
   nameJa: string;
+  nameRomanized?: string;
+  localityRomanized?: string;
   lat: number;
   lng: number;
   locality: string;
@@ -25,7 +28,9 @@ export function openPlaceToShop(place: OpenPlace): Shop {
     slug: `open-${place.id.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
     name: place.name,
     nameJa: place.nameJa || place.name,
-    city: city?.name ?? (place.locality || "Japan"),
+    nameRomanized: place.nameRomanized,
+    cuisine: inferCuisine(place.category, `${place.name} ${place.nameJa}`),
+    city: city?.name ?? (place.localityRomanized || place.locality || "Japan"),
     cityCode: "00000",
     neighborhood: place.locality || city?.name || "Japan",
     lat: place.lat, lng: place.lng, broth,

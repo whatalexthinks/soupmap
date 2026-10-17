@@ -1,0 +1,29 @@
+.interactive-streetview {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #272d29;
+}
+/* Leave Google's navigation, address and attribution controls unobstructed. */
+body.is-pano #pano-bar {
+  z-index: 65;
+  top: 12px;
+  left: auto;
+  right: 12px;
+  transform: none;
+  max-width: min(470px, calc(100vw - 24px));
+  background: #f8f7f0;
+  backdrop-filter: none;
+}
+.pano__hint { display: block; margin-top: 3px; font-size: 11px; font-weight: 400; }
+@media (max-width: 760px) {
+  body.is-pano #pano-bar {
+    top: auto;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
+  #pano-bar .btn { flex: none; }
+}

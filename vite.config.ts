@@ -89,8 +89,8 @@ export default defineConfig(({ mode }) => {
           { src: `${CESIUM_BUILD}/ThirdParty/**/*`, dest: CESIUM_DIR, rename: { stripBase: 4 } },
           { src: `${CESIUM_BUILD}/Widgets/**/*`, dest: CESIUM_DIR, rename: { stripBase: 4 } },
           {
-            // NaturalEarthII is Cesium's offline base layer; we run with baseLayer: false.
-            src: [`${CESIUM_BUILD}/Assets/**/*`, `!${CESIUM_BUILD}/Assets/Textures/NaturalEarthII/**`],
+            // Includes the bundled global Earth imagery used by the planet opening.
+            src: [`${CESIUM_BUILD}/Assets/**/*`],
             dest: CESIUM_DIR,
             rename: { stripBase: 4 },
           },

@@ -6,6 +6,7 @@
  * - disableDepthTestDistance keeps buildings from hiding pins.
  * - Supercluster groups pins at country/region zoom.
  */
+import { displayName } from "../names.ts";
 import {
   BillboardCollection,
   BoundingSphere,
@@ -103,6 +104,11 @@ export class PinLayer {
     this.viewer.scene.requestRender();
   }
 
+  refreshNames(): void {
+    for (const { shop, label } of this.pins.values()) label.text = displayName(shop);
+    this.viewer.scene.requestRender();
+  }
+
   setVisibleShops(shops: readonly Shop[]): void {
     this.visible = new Set(shops.map((s) => s.slug));
     for (const shop of shops) this.catalog.set(shop.slug, shop);
@@ -168,7 +174,7 @@ export class PinLayer {
     });
     const label = this.labelCollection.add({
       position,
-      text: shop.name,
+      text: displayName(shop),
       font: "600 12px 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif",
       fillColor: Color.fromCssColorString("#fffaf0"),
       outlineColor: Color.fromCssColorString("#242b25"),

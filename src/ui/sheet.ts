@@ -2,6 +2,7 @@
  * Mobile search dock and browse sheet with three useful snap heights.
  */
 import { $, isMobileLayout } from "./dom.ts";
+import { sheetHeights, updateViewport } from "./viewport.ts";
 
 type Snap = "peek" | "half" | "full";
 
@@ -11,6 +12,9 @@ export class BottomSheet {
   private snap: Snap = "peek";
   private suppressClick = false;
   private wasMobile = isMobileLayout();
+  private covered = false;
+  private keyboardSnap: Snap | null = null;
+  private stopDrag: (()=>void) | null = null;
 
   constructor() {
     const grips = [this.handle, $(".panel__header", this.panel)];
@@ -27,22 +31,36 @@ export class BottomSheet {
       const mobile = isMobileLayout();
       if (mobile && !this.wasMobile) this.snap = "peek";
       this.wasMobile = mobile;
+      this.stopDrag?.();
       this.apply();
     });
+    window.visualViewport?.addEventListener("resize",()=>this.apply());
+    window.visualViewport?.addEventListener("scroll",()=>this.apply());
+    if(window.ResizeObserver) new window.ResizeObserver(()=>this.apply()).observe(document.querySelector(".masthead")!);
     this.apply();
   }
 
   private heights(): Record<Snap, number> {
-    const credit = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--credit-h")) || 34;
-    const peek = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sheet-peek")) || 72;
-    const vh = window.innerHeight;
-    return { peek, half: Math.round(vh * 0.52), full: vh - 64 - credit };
+    const v=updateViewport();
+    return sheetHeights(v.height,v.header,v.credits,v.safeBottom,v.peek);
   }
 
   setSnap(snap: Snap): void {
     this.snap = snap;
+    this.keyboardSnap=null;
+    if(snap==="peek" && this.panel.contains(document.activeElement)) {
+      (document.activeElement as HTMLElement).blur();
+    }
     this.apply();
   }
+
+  setCovered(covered:boolean):void {
+    this.covered=covered;
+    if(covered && isMobileLayout()) this.setSnap("peek");
+    this.apply();
+  }
+
+  focusHandle():void { this.handle.focus({preventScroll:true}); }
 
   /** Expand at least to half height (e.g. when the search box is focused). */
   ensureOpen(): void {
@@ -50,13 +68,26 @@ export class BottomSheet {
   }
 
   private apply(): void {
+    const viewport=updateViewport();
+    const mobile=isMobileLayout();
+    this.panel.toggleAttribute("data-covered",mobile && this.covered);
+    this.panel.inert=mobile && this.covered;
     if (!isMobileLayout()) {
+      this.keyboardSnap=null;
       this.panel.style.removeProperty("--sheet-h");
       this.panel.removeAttribute("data-snap");
       this.handle.setAttribute("aria-expanded", "true");
       this.handle.setAttribute("aria-label", "Shop list");
       this.handle.querySelector(".sr-only")!.textContent = "Shop list";
       return;
+    }
+    const keyboard=viewport.bottom>120 && (window.visualViewport?.scale ?? 1)===1;
+    if(keyboard && this.panel.contains(document.activeElement) && this.keyboardSnap===null) {
+      this.keyboardSnap=this.snap;
+      this.snap="full";
+    } else if(!keyboard && this.keyboardSnap!==null) {
+      this.snap=this.keyboardSnap;
+      this.keyboardSnap=null;
     }
     this.panel.style.setProperty("--sheet-h", `${this.heights()[this.snap]}px`);
     this.panel.setAttribute("data-snap", this.snap);
@@ -69,7 +100,9 @@ export class BottomSheet {
   private startDrag(down: PointerEvent): void {
     if (!isMobileLayout() || down.button !== 0) return;
     const target = down.target as Element;
+    const grip=down.currentTarget as Element;
     if (target.closest("a, input, select") || (target.closest("button") && !target.closest("#sheet-handle"))) return;
+    this.stopDrag?.();
     const startY = down.clientY;
     const startH = this.panel.getBoundingClientRect().height;
     const h = this.heights();
@@ -78,9 +111,10 @@ export class BottomSheet {
     let velocity = 0;
     let moved = false;
     this.panel.setAttribute("data-dragging", "");
-    (down.currentTarget as Element).setPointerCapture?.(down.pointerId);
+    grip.setPointerCapture?.(down.pointerId);
 
     const move = (e: PointerEvent) => {
+      if(e.pointerId !== down.pointerId) return;
       const dy = startY - e.clientY;
       if (Math.abs(dy) > 4) moved = true;
       const now = performance.now();
@@ -90,17 +124,28 @@ export class BottomSheet {
       const height = Math.min(Math.max(startH + dy, h.peek), h.full);
       this.panel.style.setProperty("--sheet-h", `${height}px`);
     };
-    const up = () => {
+    const cleanup = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
+      window.removeEventListener("pointercancel",cancel);
       this.panel.removeAttribute("data-dragging");
+      this.stopDrag=null;
+      if(grip.hasPointerCapture?.(down.pointerId)) grip.releasePointerCapture(down.pointerId);
+    };
+    const cancel = (event?:PointerEvent) => {
+      if(event && event.pointerId !== down.pointerId) return;
+      cleanup();
+      this.apply();
+    };
+    const up = (event:PointerEvent) => {
+      if(event.pointerId !== down.pointerId) return;
+      cleanup();
       if (!moved) {
         this.apply();
         return;
       }
       this.suppressClick = true;
-      setTimeout(() => (this.suppressClick = false), 0);
+      setTimeout(() => (this.suppressClick = false), 300);
       const current = this.panel.getBoundingClientRect().height;
       const projected = current + velocity * 180;
       const order: Snap[] = ["peek", "half", "full"];
@@ -109,6 +154,7 @@ export class BottomSheet {
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
-    window.addEventListener("pointercancel", up);
+    window.addEventListener("pointercancel", cancel);
+    this.stopDrag=cancel;
   }
 }

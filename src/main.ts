@@ -4,6 +4,8 @@ import "@fontsource-variable/instrument-sans";
 import "./styles/main.css";
 import "./styles/atlas.css";
 import "./styles/catalog.css";
+import "./styles/streetview.css";
+import "./styles/discovery-controls.css";
 import "./styles/mobile-map.css";
 import { loadJapaneseFont } from "./fonts.ts";
 

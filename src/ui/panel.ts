@@ -2,6 +2,8 @@
 import type { SortOrder } from "../discovery.ts";
 import type { BrothId } from "../data/broths.ts";
 import type { Shop } from "../data/shops.ts";
+import type { CuisineId } from "../cuisines.ts";
+import { getNameLanguage, type NameLanguage } from "../names.ts";
 import { t } from "../i18n.ts";
 import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "../render/templates.ts";
 import { $ } from "./dom.ts";
@@ -16,6 +18,8 @@ export interface PanelHandlers {
   onSave(slug: string): void;
   onSavedOnly(savedOnly: boolean): void;
   onSort(sort: SortOrder): void;
+  onCuisine(cuisine: CuisineId | "all"): void;
+  onNameLanguage(language: NameLanguage): void;
   onReset(): void;
   onSurprise(): void;
 }
@@ -26,22 +30,27 @@ export class Panel {
   private readonly chips = $("#broth-chips");
   private readonly cities = $("#city-buttons");
   private readonly search = $<HTMLInputElement>("#shop-search");
+  private readonly cuisine = $<HTMLSelectElement>("#cuisine-filter");
+  private readonly nameLanguage = $<HTMLSelectElement>("#name-language");
+  private readonly sort = $<HTMLSelectElement>("#shop-sort");
   private readonly trail = $<HTMLButtonElement>("#trail-btn");
   private pageLimit = 100;
   private lastShops: readonly Shop[] = [];
   private lastSelected: string | null = null;
   private lastSaved: ReadonlySet<string> = new Set();
   private lastSavedOnly = false;
+  private currentNameLanguage: NameLanguage = getNameLanguage();
 
   constructor(allShops: readonly Shop[], handlers: PanelHandlers) {
     const coverage = document.createElement("p");
     coverage.className = "catalog-note";
     const openCount = allShops.filter(s => s.slug.startsWith("open-")).length;
-    coverage.textContent = `${allShops.length.toLocaleString()} locations across Japan · ${openCount.toLocaleString()} open-data listings. Coverage and shop details are unverified. Choose All Japan to search nationwide.`;
-    this.search.parentElement?.insertAdjacentElement("afterend", coverage);
+    coverage.textContent = `Japan pilot · ${allShops.length.toLocaleString()} mapped locations, including ${openCount.toLocaleString()} open-data listings. Coverage and details are unverified. English names where available; generated romanization otherwise. Some names remain Japanese.`;
+    $("#panel-body").insertBefore(coverage, $("#panel-body").firstElementChild);
     // Prerendered at build time; render here too so dev and prod behave the same.
     if (!this.chips.querySelector(".chip")) this.chips.innerHTML = brothChipsHtml(allShops);
     if (!this.cities.querySelector(".city-btn")) this.cities.innerHTML = cityButtonsHtml(allShops);
+    this.nameLanguage.value = this.currentNameLanguage;
 
     let timer = 0;
     this.search.addEventListener("input", () => {
@@ -87,7 +96,9 @@ export class Panel {
     $('#saved-tab').addEventListener('click', () => handlers.onSavedOnly(true));
     $('#clear-filters').addEventListener('click', () => { clearTimeout(timer); handlers.onReset(); });
     $('#surprise-btn').addEventListener('click', () => handlers.onSurprise());
-    $<HTMLSelectElement>('#shop-sort').addEventListener('change', e => handlers.onSort((e.target as HTMLSelectElement).value as SortOrder));
+    this.sort.addEventListener('change', e => handlers.onSort((e.target as HTMLSelectElement).value as SortOrder));
+    this.cuisine.addEventListener("change", () => handlers.onCuisine(this.cuisine.value as CuisineId | "all"));
+    this.nameLanguage.addEventListener("change", () => handlers.onNameLanguage(this.nameLanguage.value as NameLanguage));
   }
 
   renderList(shops: readonly Shop[], selected: string | null, saved: ReadonlySet<string>, savedOnly: boolean): void {
@@ -106,7 +117,7 @@ export class Panel {
     const index = this.lastSelected ? this.lastShops.findIndex(s => s.slug === this.lastSelected) : -1;
     const selected = index >= this.pageLimit ? this.lastShops[index] : undefined;
     const ordered = selected ? [selected, ...this.lastShops.filter(s => s.slug !== selected.slug)] : this.lastShops;
-    this.list.innerHTML = shopListHtml(ordered, this.lastSelected, this.lastSaved, this.lastSavedOnly, this.pageLimit);
+    this.list.innerHTML = shopListHtml(ordered, this.lastSelected, this.lastSaved, this.lastSavedOnly, this.pageLimit, this.currentNameLanguage);
   }
 
   setBrothPressed(pressed: ReadonlySet<BrothId>): void {
@@ -130,6 +141,20 @@ export class Panel {
     for (const button of this.cities.querySelectorAll<HTMLButtonElement>('[data-city]')) {
       button.setAttribute('aria-pressed', String(button.dataset.city === slug));
     }
+  }
+
+  setCuisine(cuisine: CuisineId | "all"): void {
+    this.cuisine.value = cuisine;
+  }
+
+  setNameLanguage(language: NameLanguage): void {
+    this.currentNameLanguage = language;
+    this.nameLanguage.value = language;
+    this.drawList();
+  }
+
+  setSort(sort: SortOrder): void {
+    this.sort.value = sort;
   }
 
   focusRow(slug: string): void {

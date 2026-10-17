@@ -33,7 +33,7 @@
   background-color: #f8f7f0;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 500px) and (max-width: 1024px) {
   :root {
     --sheet-peek: 72px;
   }
@@ -239,5 +239,301 @@
 
   .toast {
     bottom: calc(var(--credit-h) + var(--sheet-peek) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
+
+/* Mobile-layout overrides shared with the sheet's JS breakpoint. */
+@media (max-width: 760px), (max-height: 500px) and (max-width: 1024px) {
+  :root {
+    --mobile-visible-height: var(--visible-height, 100dvh);
+    --mobile-safe-bottom: var(--safe-bottom, env(safe-area-inset-bottom, 0px));
+    --mobile-masthead-height: var(--masthead-height, var(--top, 64px));
+    --top: calc(62px + env(safe-area-inset-top, 0px));
+  }
+
+  .masthead {
+    height: var(--top);
+    min-height: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .map {
+    inset: var(--top) 0 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .panel {
+    top: auto;
+    bottom: calc(var(--viewport-bottom, 0px) + var(--credit-h, 0px) + var(--mobile-safe-bottom));
+    max-height: max(72px, calc(var(--mobile-visible-height) - var(--mobile-masthead-height) - var(--credit-h, 0px) - var(--mobile-safe-bottom)));
+    touch-action: auto;
+  }
+
+  .panel[data-snap="peek"] {
+    bottom: calc(var(--viewport-bottom, 0px) + var(--credit-h, 0px) + var(--mobile-safe-bottom) + 10px);
+    height: var(--sheet-peek, 72px);
+    max-height: var(--sheet-peek, 72px);
+  }
+
+  .panel[data-snap="half"],
+  .panel[data-snap="full"] {
+    top: auto;
+    z-index: 35;
+    bottom: calc(var(--viewport-bottom, 0px) + var(--credit-h, 0px) + var(--mobile-safe-bottom));
+    height: var(--sheet-h, var(--sheet-peek, 72px));
+    max-height: calc(var(--mobile-visible-height) - var(--mobile-masthead-height) - var(--credit-h, 0px) - var(--mobile-safe-bottom));
+  }
+
+  .panel__handle,
+  .panel__header {
+    touch-action: none;
+  }
+
+  .panel__body,
+  .panel__body input,
+  .panel__body select,
+  .panel__body summary,
+  .panel__body details {
+    touch-action: pan-y;
+  }
+
+  .panel__body {
+    min-width: 0;
+    min-height: 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .panel__footer,
+  .panel[data-snap="half"] .panel__footer,
+  .panel[data-snap="full"] .panel__footer {
+    display: none !important;
+  }
+
+  .search,
+  .discovery-controls,
+  .discovery-control,
+  .results-toolbar,
+  .shop-row__content {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .discovery-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .discovery-control select,
+  .sort-label select {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 12px;
+  }
+
+  .results-toolbar .sort-label {
+    min-width: 0;
+    max-width: 58%;
+  }
+
+  .shop-row {
+    grid-template-columns: minmax(60px, 74px) minmax(0, 1fr) 12px;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .shop-row__name,
+  .shop-row__ja,
+  .shop-row__kicker {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .save-shop {
+    width: 44px;
+    height: 44px;
+    right: -6px;
+    top: 6px;
+  }
+
+  .map-heading {
+    top: calc(var(--mobile-masthead-height) + 12px);
+    left: 12px;
+    max-width: calc(100vw - 88px);
+    padding: 10px 12px;
+  }
+
+  .controls {
+    top: calc(var(--mobile-masthead-height) + 12px);
+    right: 8px;
+    max-width: calc(100vw - 16px);
+  }
+
+  .controls .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .card {
+    top: auto;
+    bottom: calc(var(--viewport-bottom, 0px) + var(--credit-h, 0px) + var(--mobile-safe-bottom));
+    left: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+    border-radius: 18px 18px 0 0;
+    max-height: min(calc(var(--mobile-visible-height) * .68), calc(var(--mobile-visible-height) - var(--mobile-masthead-height) - var(--credit-h, 0px) - var(--mobile-safe-bottom) - 8px));
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .card__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .card__topbar {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+  }
+
+  .card__topbar .icon-btn {
+    width: 44px;
+    height: 44px;
+    flex: none;
+  }
+
+  .card__title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .card__body {
+    min-width: 0;
+    padding: 16px 18px max(18px, var(--mobile-safe-bottom));
+  }
+
+  .actions {
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .actions .btn {
+    min-width: 0;
+    min-height: 44px;
+    overflow-wrap: anywhere;
+  }
+
+  .card[data-covered],
+  .panel[data-covered] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .panel[data-covered] {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 380px), (max-height: 500px) and (max-width: 380px) {
+  .discovery-controls {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .discovery-control:first-child {
+    grid-column: 1;
+  }
+
+  .discovery-control--language {
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .panel[data-snap="half"] .search,
+  .panel[data-snap="full"] .search {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+
+  .panel[data-snap="half"] .panel__body,
+  .panel[data-snap="full"] .panel__body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+@media (max-height: 500px) and (max-width: 1024px) {
+  .panel[data-snap="half"] .panel__header {
+    display: none;
+  }
+
+  .panel[data-snap="half"] .panel__handle,
+  .panel[data-snap="full"] .panel__handle {
+    height: 24px;
+  }
+
+  .masthead {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .brand {
+    font-size: 23px;
+    gap: 6px;
+  }
+
+  .brand__seal {
+    width: 25px;
+    height: 27px;
+    font-size: 16px;
+  }
+
+  .view-tabs {
+    gap: 12px;
+  }
+
+  .view-tabs button {
+    min-height: 44px;
+    font-size: 11px;
+  }
+
+  .map-heading {
+    top: calc(var(--mobile-masthead-height) + 8px);
+    max-width: calc(100vw - 84px);
+    padding: 8px 10px;
+  }
+
+  .map-heading h2 {
+    font-size: 26px;
+    margin: 4px 0 0;
+  }
+
+  .controls {
+    top: calc(var(--mobile-masthead-height) + 8px);
+  }
+
+  .controls .icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .card__media {
+    aspect-ratio: 3.2;
+    max-height: 96px;
+  }
+
+  .card__body {
+    padding-top: 12px;
   }
 }

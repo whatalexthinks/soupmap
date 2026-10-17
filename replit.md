@@ -1,5 +1,13 @@
 # Running Soupmap on Replit
 
+## Product scope and opening
+
+- Soupmap is a worldwide soup atlas, not a Japan-only brand. Current listings are explicitly a **Japan pilot**; do not claim overseas coverage before importing real, attributed records.
+- Keep the Soupmap name with the positioning **“Find your next bowl. Anywhere.”**
+- Startup shows the whole planet, pauses, and flies into the explicitly configured Tokyo test destination. It does not infer that the visitor is in Tokyo or request geolocation on startup.
+- The planet uses bundled Natural Earth II imagery; Google 3D remains the city-scale view and GSI remains the regional Japan fallback. The overview control returns to the whole planet.
+- New camera input cancels the intro. Respect reduced motion, and preserve shop deep links rather than forcing every link to Tokyo.
+
 - Keep the imported Vite/TypeScript app in its existing structure.
 - Use Node.js 22 (the current dependencies require it).
 - The **Start application** workflow runs `npm run dev` on `0.0.0.0:5000`.
@@ -16,19 +24,26 @@
 - `VITE_GOOGLE_MAPS_KEY` must be available during the production build. The Google key is intentionally browser-visible; restrict it to the required APIs and exact allowed website origins.
 - After publishing, add the actual published origin to the key's website restrictions. Do not assume the development Preview origin covers the published site.
 
+## Shared-link preview
+
+- The homepage includes server-rendered Open Graph and large-image Twitter/X metadata; messaging crawlers do not need JavaScript to read it.
+- The 1200×630 image is `public/social/soupmap-world.png`, with vector source beside it. Regenerate it with `npm run assets:social` after editing `scripts/generate-social-card.mjs`. Fonts are converted to paths; no external fonts or Google imagery are needed to display the card.
+- Keep metadata image URLs absolute and aligned with the published canonical origin. Changing the image filename helps avoid old image caches. Messaging services may still cache the page preview after publishing; there is no app-side way to clear every service's cache.
+
 ## Open-data catalog
 
 - The downloadable source-attributed catalog is `public/data/open-shops.json.gz`; keep it compressed in Git. Raw extracts belong in `/tmp`, not the repository.
 - Refresh explicitly with `python3 scripts/fetch-open-places.py --release 2026-09-23.1 --output /tmp/soupmap-overture.json`, followed by `node --import tsx scripts/import-open-places.ts --input /tmp/soupmap-overture.json`. Python/DuckDB is only for this data-maintenance step; the app still runs on Vite/TypeScript.
 - The importer deduplicates locations and allows only explicitly supported CDLA-Permissive-2.0/Apache-2.0 source licenses. Run `npm run validate` and tests after refreshing.
 - Keep open-data listings unverified. Do not invent prices, menus, hours, broth styles or municipality codes. Seven featured city shortcuts remain; All Japan/search reaches the nationwide catalog.
+- The importer generates approximate Latin readings offline using Kuromoji/WanaKana; `npm run data:romanize` can update the existing catalog without downloading a fresh extract. Keep originals, mark generated readings, and leave unreadable proper names in Japanese instead of inventing a translation. Dictionaries never ship to browsers.
 - In-app Street View uses Google's imagery APIs; the always-available external Google Maps link is a fallback when API access or imagery coverage is missing.
 
 ## Google Street View setup
 
-- Enable **Street View Static API** in the Google Cloud project that owns `VITE_GOOGLE_MAPS_KEY`, with billing active. The current Cesium panorama provider uses this API for both metadata and the six panorama face images.
-- **Map Tiles API** is needed for the separate Google photorealistic 3D map. The current implementation does not need Places API or Maps JavaScript API.
-- In the key's API restrictions, allow both Street View Static API and Map Tiles API. Keep application restrictions set to websites, with the exact Preview origin followed by `/*`; add the real published/custom origin when publishing. Do not use a wildcard that authorizes every Replit project.
+- Enable **Maps JavaScript API** for interactive panoramas and **Street View Static API** for the free nearby-imagery metadata check, in the same Cloud project as `VITE_GOOGLE_MAPS_KEY`, with billing active.
+- **Map Tiles API** is needed for the separate Google photorealistic 3D map. Places API is not used. Street View is an independent native Google viewer with connected-road navigation, not a stationary Cesium cube made of static faces.
+- In the key's API restrictions, allow Maps JavaScript API, Street View Static API and Map Tiles API. Keep application restrictions set to websites, with the exact Preview origin followed by `/*`; add the real published/custom origin when publishing. Do not use a wildcard that authorizes every Replit project.
 - If requests are denied, check API activation, billing, quota and the actual website referrer in Google Cloud. Keep restrictions in place; do not expose an unrestricted key to troubleshoot.
-- The app checks outdoor coverage within 100 m. A missing panorama is not necessarily a key error, and the imagery may not show the precise entrance. Metadata checks do not consume image quota; opening the custom panorama loads six image faces.
-- Reference: https://developers.google.com/maps/documentation/streetview/get-api-key and https://developers.google.com/maps/api-security-best-practices
+- The app checks outdoor coverage within 100 m. A missing panorama is not necessarily a key error, and imagery may not show the precise entrance. Metadata checks do not consume image quota. The JavaScript viewer loads only after explicit entry and uses Google's Dynamic Street View billing. Zoom starts at zero; navigation depends on connected imagery being available.
+- Reference: https://developers.google.com/maps/documentation/javascript/streetview and https://developers.google.com/maps/api-security-best-practices
