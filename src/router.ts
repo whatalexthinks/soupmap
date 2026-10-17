@@ -1,9 +1,10 @@
 /**
- * Deep links. Phase 1: /#<slug> opens a shop and selection updates the hash.
- * Also accepts /shop/<slug> so Phase 2's prerendered shop pages can boot the same app.
+ * Map selections keep legacy fragment state. Shared substantive shops use their
+ * standalone documents, which link back to /#<slug> for the interactive map.
  */
 import { shopBySlug } from "./data/shops.ts";
 import { parseShortlist, shortlistHash } from "./shortlist.ts";
+import { shopPath } from "./data/indexation.ts";
 
 function slugFromLocation(): string | null {
   const shared = parseShortlist(location.hash, new Set(shopBySlug.keys()));
@@ -42,7 +43,9 @@ export const router = {
   },
 
   shareUrl(slug: string): string {
-    return `${location.origin}/#${slug}`;
+    const shop = shopBySlug.get(slug);
+    if (!shop) throw new Error("This shop is no longer available.");
+    return `${location.origin}${shopPath(shop)}`;
   },
 
   shortlist() {

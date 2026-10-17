@@ -153,6 +153,31 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+/* Directory records share the credits document layout, including on phones. */
+.page ol {
+  padding-left: 24px;
+}
+
+.source {
+  overflow-wrap: anywhere;
+}
+
+.source h2 {
+  font-size: 21px;
+  margin: 0 0 10px;
+}
+
+@media (max-width: 520px) {
+  .source dl {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .source dd {
+    margin-bottom: 8px;
+  }
+}
+
 .notes {
   margin: 10px 0 0;
   padding-left: 18px;

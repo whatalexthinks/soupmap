@@ -181,8 +181,11 @@ or you'll count every visit twice.)
 
 `public/_headers` caches `/assets/*` (content-hashed) and `/cesium/<version>/*` forever. Cesium's
 runtime files are copied into a **versioned** folder (`/cesium/1.146.0/`), so upgrading Cesium
-changes the path and old caches can't serve stale workers. There is deliberately no `404.html`:
-Pages then serves `index.html` for unknown paths, which is what future `/shop/<slug>` pages need.
+changes the path and old caches can't serve stale workers.
+The current Replit production command serves real files from `dist/` using sirv, without an
+SPA fallback. Shop, city and catalog URLs have generated directory `index.html` documents;
+missing shop URLs must return 404 rather than the homepage. If moving to Cloudflare Pages,
+configure a real 404 response instead of relying on its implicit SPA fallback.
 
 ### 3.6 AI search and crawler access
 
@@ -211,9 +214,22 @@ change.
 
 The build also emits `/llms.txt` with canonical resource links and Japan pilot data
 limitations. This emerging convention is optional, not an indexing requirement or a grant
-of crawling/training permission. It does not replace crawlable catalog pages. Add links to
-indexable city/shop pages there when those pages exist; do not treat interactive selections
-as published pages.
+of crawling/training permission. It links to the crawlable `/catalog/` directory and sitemap;
+interactive map fragments are not published documents.
+
+### 3.7 Static catalog pages
+
+The build emits `/catalog/` with numbered pagination for all nationwide records, equivalent
+directories for the seven featured cities at `/city/<slug>/`, and `/shop/<slug>/` documents
+only for substantive records. Basic imported locations remain visible in directory HTML
+with names, reported coordinates, source IDs, licenses and unverified notices, but do not
+receive thin standalone pages. Shop pages retain original names, editorial notes, known
+facts and explicit unknowns. All generated documents include unique metadata, canonical
+URLs and structured data, and are listed in the sitemap. They work without JavaScript.
+
+Eligibility lives in `src/data/indexation.ts`; page content in `src/render/catalog.ts` reuses
+the existing data and credits document layout. Keep page generation, shop/share links and
+sitemap inclusion aligned when changing the policy.
 
 ---
 
@@ -437,7 +453,6 @@ no MSAA, and request-render mode (frames are drawn only when something changes).
 | Our own vertical video per shop | `videoUrl` on the shop; the card already plays it (muted, no autoplay with reduced motion). |
 | More broth trails | Add an entry to `src/data/trails.ts`. |
 | "Step inside" captures | `splatUrl` (see [§6](#6-splat-capture-pipeline-step-inside)). |
-| Prerendered `/shop/<slug>` and `/city/<slug>` pages | Reuse `src/render/templates.ts` in the Vite plugin; the router already reads `/shop/<slug>`, and Pages serves `index.html` for unknown paths. |
 | EN / JA / RU | Add dictionaries in `src/i18n.ts`; every visible string goes through `t()`. |
 | Expansion beyond Japan | Add cities (with bbox) in `src/data/cities.ts`; relax `cityCode` in the schema for non-JP shops; enable the planned OSM tile fallback in `sources.ts`. |
 | Accounts, check-ins, owner claims, sponsorship, tours | Needs a backend; the client only depends on `shops.json`'s shape, which can move behind an API later. |

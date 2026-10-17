@@ -2,7 +2,7 @@
  * String templates shared by the browser and the build.
  * The Vite plugin prerenders these into index.html (fast first paint, crawlable),
  * and the client re-renders with the same functions when filters change.
- * Phase 2's prerendered /shop/<slug> and /city/<slug> pages should reuse them.
+ * Substantive records link to static shop documents; basic locations stay on the map.
  */
 import { BROTHS, BROTH_IDS, type BrothId } from "../data/broths.ts";
 import { CITIES } from "../data/cities.ts";
@@ -12,6 +12,7 @@ import { icon } from "../ui/icons.ts";
 import { bowlArt } from "./bowl.ts";
 import { esc } from "../ui/dom.ts";
 import { displayName, getNameLanguage, type NameLanguage } from "../names.ts";
+import { shopPath } from "../data/indexation.ts";
 
 export function bowlIcon(broth: BrothId): string {
   return `<span class="bowl" style="--broth:${BROTHS[broth].color}" aria-hidden="true"></span>`;
@@ -22,7 +23,7 @@ export function shopRowHtml(shop: Shop, selected: boolean, saved = false, index 
   const primaryName = displayName(shop, language);
   const accessibleName = shop.nameJa && shop.nameJa !== primaryName ? `${primaryName} (${shop.nameJa})` : primaryName;
   return `<li class="shop-entry${selected ? ' is-selected' : ''}">
-    <a class="shop-row" href="#${esc(shop.slug)}" data-slug="${esc(shop.slug)}" aria-label="${esc(accessibleName)}"${selected ? ' aria-current="true"' : ''}>
+    <a class="shop-row" href="${esc(shopPath(shop))}" data-slug="${esc(shop.slug)}" aria-label="${esc(accessibleName)}"${selected ? ' aria-current="true"' : ''}>
       <span class="shop-row__art" style="--broth:${broth.color}">${bowlArt(shop.broth)}</span>
       <span class="shop-row__content"><span class="shop-row__kicker">${esc(shop.neighborhood)} <span> / ${String(index + 1).padStart(2, '0')}</span></span>
       <span class="shop-row__name" lang="${language === "ja" ? "ja" : "en"}">${esc(primaryName)}</span>
@@ -61,8 +62,8 @@ export function cityButtonsHtml(shops: readonly Shop[]): string {
   const cities = CITIES.filter((c) => used.has(c.name))
     .map(
       (c) =>
-        `<button type="button" class="city-btn" data-city="${c.slug}" aria-pressed="${c.slug === 'tokyo'}">${esc(c.name)}<span class="ja" lang="ja">${esc(c.nameJa)}</span></button>`,
+        `<a href="/city/${c.slug}/" class="city-btn" data-city="${c.slug}" aria-pressed="${c.slug === 'tokyo'}">${esc(c.name)}<span class="ja" lang="ja">${esc(c.nameJa)}</span></a>`,
     )
     .join("");
-  return `<button type="button" class="city-btn" data-city="all" aria-pressed="false">${esc(t("allJapan"))}</button>${cities}`;
+  return `<a href="/catalog/" class="city-btn" data-city="all" aria-pressed="false">${esc(t("allJapan"))}</a>${cities}`;
 }

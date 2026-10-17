@@ -107,8 +107,10 @@ export class Panel {
     });
 
     this.cities.addEventListener("click", (e) => {
-      const btn = (e.target as Element).closest<HTMLButtonElement>(".city-btn");
-      if (btn?.dataset.city) handlers.onCity(btn.dataset.city);
+      const btn = (e.target as Element).closest<HTMLAnchorElement>(".city-btn");
+      if (!btn?.dataset.city || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      handlers.onCity(btn.dataset.city);
     });
 
     this.trail.addEventListener("click", () => handlers.onTrail());

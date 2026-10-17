@@ -12,6 +12,8 @@ function discoveryAssets(siteUrl?: string): Map<string, string> {
     emitFile(asset: { fileName: string; source: string }) {
       assets.set(asset.fileName, asset.source);
     },
+  }, {}, {
+    "credits/index.html": { type: "asset", source: '<link rel="stylesheet" href="/assets/credits-test.css">' },
   });
   return assets;
 }
