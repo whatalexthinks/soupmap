@@ -91,6 +91,9 @@
 .shortlist-share__saved-count { margin-left: auto; }
 
 .shortlist-share__list {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
   max-height: min(46vh, 440px);
   min-height: 100px;
   overflow: auto;

@@ -218,6 +218,15 @@ function chooseShared(id: string): void {
   input.checked = !input.checked;
   input.dispatchEvent(new window.Event('change', {bubbles:true}));
 }
+function assertSavedShopGroup(expectedCount: number): void {
+  const group = el('fieldset.shortlist-share__list');
+  assert.ok(group, 'shop choices have native fieldset group semantics');
+  assert.equal(group.querySelector(':scope > legend')?.textContent, 'Saved soup shops');
+  assert.equal(group.querySelectorAll('[data-shortlist-shop]').length, expectedCount);
+  for (const input of group.querySelectorAll('[data-shortlist-shop]')) {
+    assert.ok(input.closest('label')?.textContent?.trim(), 'each checkbox retains its shop name');
+  }
+}
 
 test('initial shared link opens the shortlist without importing or replacing saves', () => {
   assert.equal(el('#shared-shortlist').hidden, false);
@@ -234,9 +243,11 @@ test('sharing is opt-in and includes only the selected saved shops', () => {
   assert.equal(el('#share-shortlist').hidden, true);
   click('#saved-tab');
   click('#share-shortlist');
+  assertSavedShopGroup(2);
   assert.equal(window.document.querySelectorAll('[data-shortlist-shop]:checked').length, 0);
   assert.equal((el('[data-shortlist-generate]') as HTMLButtonElement).disabled, true);
   chooseShared('afuri-ebisu');
+  assertSavedShopGroup(2);
   click('[data-shortlist-generate]');
   const link = (el('[data-shortlist-url]') as HTMLInputElement).value;
   const params = new URLSearchParams(new URL(link).hash.slice(1));
@@ -248,6 +259,17 @@ test('sharing is opt-in and includes only the selected saved shops', () => {
   click('[data-shortlist-close]');
   assert.equal(el('#shortlist-share').hidden, true);
   assert.equal(window.document.activeElement?.id, 'share-shortlist');
+});
+
+test('share chooser retains its named group when saved shops are removed', () => {
+  click('[data-save="afuri-ebisu"]');
+  click('#saved-tab');
+  click('#share-shortlist');
+  assertSavedShopGroup(1);
+  window.localStorage.setItem('soupmap:saved:v1', '[]');
+  window.dispatchEvent(new window.StorageEvent('storage', {key:'soupmap:saved:v1'}));
+  assertSavedShopGroup(0);
+  assert.match(el('.shortlist-share__list').textContent!, /No saved shops yet/);
 });
 
 test('shared view spans cities and adds individual saves without replacing existing ones', () => {
@@ -304,11 +326,13 @@ test('share chooser stays bounded, caps selection and follows language and cross
   assert.equal((el(`[data-shortlist-shop][value="${ids[20]}"]`) as HTMLInputElement).disabled, true);
   click('[data-shortlist-next]');
   assert.equal(window.document.querySelectorAll('[data-shortlist-shop]').length, 100);
+  assertSavedShopGroup(100);
   click('[data-shortlist-generate]');
   assert.equal(new URLSearchParams(new URL((el('[data-shortlist-url]') as HTMLInputElement).value).hash.slice(1)).getAll('id').length, 20);
   const language = el('#name-language') as HTMLSelectElement;
   language.value = 'ja';
   language.dispatchEvent(new window.Event('change', {bubbles:true}));
+  assertSavedShopGroup(100);
   assert.ok(el('#shortlist-share').textContent!.includes(ORDERED_SHOPS[100].nameJa));
   window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(ids.slice(1)));
   window.dispatchEvent(new window.StorageEvent('storage', {key:'soupmap:saved:v1'}));

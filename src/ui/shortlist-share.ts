@@ -191,9 +191,10 @@ export class ShortlistShare {
         <span>selected</span>
         <span class="shortlist-share__saved-count">${this.candidates.length} saved ${this.candidates.length === 1 ? "shop" : "shops"}</span>
       </div>
-      <div class="shortlist-share__list" aria-label="Saved soup shops">
+      <fieldset class="shortlist-share__list">
+        <legend class="sr-only">Saved soup shops</legend>
         ${rows || `<div class="shortlist-share__empty"><strong>No saved shops yet</strong><span>Save a few places in Soupmap, then come back to build a shortlist.</span></div>`}
-      </div>
+      </fieldset>
       <nav class="shortlist-share__pagination" aria-label="Shortlist pages">
         <button type="button" data-shortlist-prev ${this.page === 0 ? "disabled" : ""}>Previous</button>
         <span>Page ${this.page + 1} of ${pageCount}</span>
