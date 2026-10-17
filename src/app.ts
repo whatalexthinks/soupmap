@@ -26,6 +26,7 @@ import { Panel } from "./ui/panel.ts";
 import { BottomSheet } from "./ui/sheet.ts";
 import { SplatModal } from "./ui/splat-modal.ts";
 import type { SharedShortlist } from "./shortlist.ts";
+import { trackEvent } from "./analytics.ts";
 
 /** PLATEAU building tilesets by municipality code (from scripts/fetch-plateau-catalog.ts). */
 const PLATEAU_INDEX: ReadonlyMap<string, PlateauTilesetRef> = new Map(
@@ -47,6 +48,8 @@ function afterFirstPaint(fn: () => void): void {
 
 export class App {
   private query = "";
+  private searchAnalyticsTimer = 0;
+  private trackedSharedSignature = "";
   private city: string = STARTUP_CITY_SLUG;
   private navigationRevision = 0;
   private sort: SortOrder = 'guide';
@@ -102,9 +105,20 @@ export class App {
     if (this.googleKey) this.streetView = new StreetView(this.googleKey);
     this.panel = new Panel(ORDERED_SHOPS, {
       onQuery: (q) => {
+        const changed = q !== this.query;
         this.trail.stop();
         this.query = q;
         this.refresh();
+        if (changed) {
+          window.clearTimeout(this.searchAnalyticsTimer);
+          if (q) this.searchAnalyticsTimer = window.setTimeout(() => {
+            if (this.query !== q) return;
+            trackEvent("search_performed", {
+              result_count: this.filtered().length, city: this.city,
+              cuisine: this.cuisine, shared_list: this.sharedActive,
+            });
+          }, 600);
+        }
       },
       onToggleBroth: (id) => {
         this.trail.stop();
@@ -112,6 +126,7 @@ export class App {
         else this.broths.add(id);
         this.panel.setBrothPressed(this.broths);
         this.refresh();
+        trackEvent("filter_changed", {filter:"broth",value:id,enabled:this.broths.has(id)});
       },
       onCity: (slug) => this.jumpToCity(slug),
       onSelect: (slug) => {
@@ -125,6 +140,7 @@ export class App {
         this.sharedActive = false;
         router.clearShortlist();
         this.savedOnly = savedOnly;
+        trackEvent("collection_viewed", {collection:savedOnly ? "saved" : "explore"});
         this.resetFilters();
         this.closeCard();
         this.sheet.ensureOpen();
@@ -135,9 +151,16 @@ export class App {
         this.trail.stop();
         this.cuisine = cuisine;
         this.refresh();
+        trackEvent("filter_changed", {filter:"cuisine",value:cuisine});
       },
-      onNameLanguage: language => this.changeNameLanguage(language),
-      onReset: () => this.resetFilters(),
+      onNameLanguage: language => {
+        this.changeNameLanguage(language);
+        trackEvent("filter_changed", {filter:"name_language",value:language});
+      },
+      onReset: () => {
+        this.resetFilters();
+        trackEvent("filter_changed", {filter:"reset",value:"all"});
+      },
       onSurprise: () => {
         const choices = this.filtered().filter(s => s.slug !== this.selected);
         const shop = choices[Math.floor(Math.random() * choices.length)] ?? this.filtered()[0];
@@ -184,6 +207,7 @@ export class App {
 
   start(): void {
     this.shared = router.shortlist();
+    this.trackSharedShortlist();
     if (this.shared) this.sharedHash = location.hash;
     this.sharedActive = !!this.shared;
     if (this.shared) this.city = 'all';
@@ -197,6 +221,7 @@ export class App {
       const shared = router.shortlist();
       if (shared) {
         this.shared = shared;
+        this.trackSharedShortlist();
         this.sharedHash = location.hash;
         this.showShared(false);
       } else if (this.sharedActive) {
@@ -268,6 +293,17 @@ export class App {
     this.sheet.ensureOpen();
   }
 
+  private trackSharedShortlist(): void {
+    if (!this.shared) return;
+    // The signature is local only; never send bearer links or selected shop IDs.
+    const signature = JSON.stringify([this.shared.ids, this.shared.missing, !!this.shared.error]);
+    if (signature === this.trackedSharedSignature) return;
+    this.trackedSharedSignature = signature;
+    trackEvent("shared_shortlist_opened", {
+      shop_count: this.shared.ids.length, missing_count: this.shared.missing, valid: !this.shared.error,
+    });
+  }
+
   private changeNameLanguage(language: NameLanguage): void {
     setNameLanguage(language);
     this.panel.setNameLanguage(language);
@@ -299,16 +335,22 @@ export class App {
     this.sort = sort;
     this.panel.setSort(sort);
     this.refresh();
+    trackEvent("filter_changed", {filter:"sort",value:sort});
   }
 
   private toggleSaved(slug: string): void {
-    if (!shopBySlug.has(slug)) return;
+    const shop = shopBySlug.get(slug);
+    if (!shop) return;
     if (this.saved.has(slug)) this.saved.delete(slug); else this.saved.add(slug);
     let persistent = true;
     try { localStorage.setItem(SAVED_KEY, JSON.stringify([...this.saved])); }
     catch { persistent = false; }
     this.refresh();
     if (this.selected === slug) this.card.setSaved(this.saved.has(slug));
+    trackEvent("save_changed", {
+      saved: this.saved.has(slug), persistent, shared_list: this.sharedActive,
+      city:shop.city, broth:shop.broth,
+    });
     const saveButton = [...document.querySelectorAll<HTMLButtonElement>('[data-save]')].find(b => b.dataset.save === slug);
     if (!document.body.classList.contains('has-card')) saveButton?.focus({ preventScroll: true });
     toast(persistent ? (this.saved.has(slug) ? 'Added to your saved places' : 'Removed from saved places') : 'Saved for this session. Browser storage is unavailable.');
@@ -354,6 +396,9 @@ export class App {
       this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
       this.refresh(); this.updateLocation();
     }
+    if (this.selected !== slug) trackEvent("shop_opened", {
+      city:shop.city, broth:shop.broth, shared_list:this.sharedActive,
+    });
     this.selected = slug;
     this.sheet.setCovered(true);
     this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug) });
@@ -402,6 +447,7 @@ export class App {
     ++this.navigationRevision;
     this.trail.stop();
     this.city = slug;
+    trackEvent("filter_changed", {filter:"city",value:slug});
     this.closeCard(); this.refresh(); this.updateLocation();
     if (isMobileLayout()) this.sheet.setSnap('peek');
     if (slug === 'all') {
@@ -419,6 +465,7 @@ export class App {
   private async copyLink(shop: Shop): Promise<void> {
     try {
       await navigator.clipboard.writeText(router.shareUrl(shop.slug));
+      trackEvent("shop_link_copied");
       toast(t("linkCopied"));
     } catch {
       toast(t("copyFailed"), 3500);
@@ -487,6 +534,7 @@ export class App {
       return;
     }
     if (!info) {
+      trackEvent("street_view_failed");
       this.card.setStreetView("unavailable", this.streetView.unavailableReason(shop));
       toast(t("streetViewFailed"));
       return;
@@ -494,6 +542,7 @@ export class App {
     $("#pano-label").innerHTML = `<strong>Exploring near ${esc(displayName(shop))}</strong><span class="pano__hint">Arrows to move · Drag to look · +/− to zoom</span>`;
     $("#pano-bar").hidden = false;
     document.body.classList.add("is-pano");
+    trackEvent("street_view_opened", {city:shop.city,broth:shop.broth});
     $("#pano-back").focus();
   }
 

@@ -1,3 +1,4 @@
+import { trackEvent } from "../analytics.ts";
 /** The shop card: names, broth, signature bowl, facts, blurb, media and actions. */
 import { bowlArt } from "../render/bowl.ts";
 import { BROTHS } from "../data/broths.ts";
@@ -65,6 +66,9 @@ export class ShopCard {
       if (!button || !this.shop) return;
       const shop = this.shop;
       switch (button.dataset.action) {
+        case "directions":
+          trackEvent("directions_clicked", {city:shop.city,broth:shop.broth});
+          break;
         case "save":
           handlers.onSave(shop);
           break;
@@ -127,7 +131,7 @@ export class ShopCard {
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
             ${shop.splatUrl ? `<button type="button" class="btn" data-action="step-inside">${icon("cube")}${shop.splatUrl?.startsWith("procedural:") ? "View bowl demo" : esc(t("stepInside"))}</button>` : ""}
             <a class="btn" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">${icon("external")}${esc(t("openInGoogleMaps"))}</a>
-            <a class="btn btn--primary" href="${esc(directionsUrl(shop))}" target="_blank" rel="noopener">${icon("directions")}${esc(t("directions"))}</a>
+            <a class="btn btn--primary" data-action="directions" href="${esc(directionsUrl(shop))}" target="_blank" rel="noopener">${icon("directions")}${esc(t("directions"))}</a>
             <button type="button" class="btn" data-action="copy">${icon("link")}${esc(t("copyLink"))}</button>
           </div>
           <p class="card__fine">${provenanceHtml(shop)}<a href="/credits/">${esc(t("credits"))}</a></p>

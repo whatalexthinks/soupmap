@@ -1,3 +1,4 @@
+import { trackEvent } from "../analytics.ts";
 import type { Shop } from "../data/shops.ts";
 import { displayName, type NameLanguage } from "../names.ts";
 import { esc } from "./dom.ts";
@@ -112,6 +113,7 @@ export class ShortlistShare {
       const url = this.onGenerate([...this.selected]);
       if (!url) throw new Error("A link could not be created. Please try again.");
       this.generatedUrl = url;
+      trackEvent("shortlist_link_created", {shop_count:this.selected.size});
       this.render();
       this.setStatus("Your shortlist link is ready.");
       this.host.querySelector<HTMLInputElement>("[data-shortlist-url]")?.focus();
@@ -126,9 +128,11 @@ export class ShortlistShare {
   private async copyUrl(): Promise<void> {
     const input = this.host.querySelector<HTMLInputElement>("[data-shortlist-url]");
     if (!input || !this.generatedUrl) return;
+    const shopCount = this.selected.size;
     try {
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard access unavailable");
       await navigator.clipboard.writeText(this.generatedUrl);
+      trackEvent("shortlist_link_copied", {shop_count:shopCount});
       this.setStatus("Link copied to clipboard.");
     } catch {
       input.focus();

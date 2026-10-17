@@ -36,6 +36,95 @@ const el=(selector:string)=>window.document.querySelector(selector) as unknown a
 const click=(selector:string)=>el(selector).click();
 const rows=()=>[...window.document.querySelectorAll<HTMLAnchorElement>('.shop-row')];
 
+function analyticsEvents() {
+  const events: {name:string; data:Record<string,string|number|boolean>}[]=[];
+  Object.defineProperty(window,"umami",{configurable:true,value:{
+    track:(name:string,data:Record<string,string|number|boolean>={})=>{events.push({name,data});},
+  }});
+  return events;
+}
+
+test('analytics counts actual shop opens, save changes, filters and directions without shop IDs',()=>{
+  const events=analyticsEvents();
+  click('[data-slug="afuri-ebisu"]');
+  app.select('afuri-ebisu',{fly:false,focus:false});
+  assert.equal(events.filter(e=>e.name==='shop_opened').length,1);
+  click('#card [data-action="save"]');
+  click('#card [data-action="save"]');
+  assert.deepEqual(events.filter(e=>e.name==='save_changed').map(e=>e.data.saved),[true,false]);
+  const directions=el('#card [data-action="directions"]');
+  directions.addEventListener('click',e=>e.preventDefault(),{once:true});
+  directions.click();
+  assert.equal(events.filter(e=>e.name==='directions_clicked').length,1);
+  click('[data-city="fukuoka"]');
+  assert.ok(events.some(e=>e.name==='filter_changed' && e.data.value==='fukuoka'));
+  assert.ok(!JSON.stringify(events).includes('afuri-ebisu'));
+  assert.ok(events.every(e=>/^[a-z_]{1,49}$/.test(e.name)));
+});
+
+test('analytics debounces searches and never sends the query text',async()=>{
+  const events=analyticsEvents();
+  const input=el('#shop-search') as HTMLInputElement;
+  input.value='private craving';
+  input.dispatchEvent(new window.Event('input',{bubbles:true}) as unknown as Event);
+  await new Promise(resolve=>setTimeout(resolve,100));
+  input.value='another private craving';
+  input.dispatchEvent(new window.Event('input',{bubbles:true}) as unknown as Event);
+  await new Promise(resolve=>setTimeout(resolve,800));
+  const searches=events.filter(e=>e.name==='search_performed');
+  assert.equal(searches.length,1);
+  assert.equal(searches[0]?.data.result_count,0);
+  assert.ok(!JSON.stringify(events).includes('craving'));
+});
+
+test('analytics counts copied shop links only after clipboard success',async()=>{
+  const events=analyticsEvents();
+  const shop=ORDERED_SHOPS[0]!;
+  Object.defineProperty(window.navigator,'clipboard',{configurable:true,value:{
+    writeText:async()=>{throw new Error('Denied');},
+  }});
+  await (app as any).copyLink(shop);
+  assert.equal(events.length,0);
+  Object.defineProperty(window.navigator,'clipboard',{configurable:true,value:{writeText:async()=>{}}});
+  await (app as any).copyLink(shop);
+  assert.equal(events.filter(e=>e.name==='shop_link_copied').length,1);
+  assert.ok(!JSON.stringify(events).includes(shop.slug));
+});
+
+test('analytics tracks shared-list opens once and distinguishes saves from shared discovery',()=>{
+  const events=analyticsEvents();
+  window.history.replaceState(null,'','/'+shortlistHash(['afuri-ebisu']));
+  window.dispatchEvent(new window.HashChangeEvent('hashchange'));
+  app.select('afuri-ebisu',{fly:false,focus:false});
+  click('#card [data-action="save"]');
+  window.dispatchEvent(new window.HashChangeEvent('hashchange'));
+  assert.equal(events.filter(e=>e.name==='shared_shortlist_opened').length,1);
+  assert.ok(events.some(e=>e.name==='save_changed' && e.data.shared_list===true && e.data.saved===true));
+  assert.ok(!JSON.stringify(events).includes('afuri-ebisu'));
+  assert.ok(!JSON.stringify(events).includes('shortlist='));
+});
+
+test('analytics distinguishes successful, unavailable and canceled Street View entries',async()=>{
+  const events=analyticsEvents();
+  const shop=ORDERED_SHOPS.find(s=>s.slug==='afuri-ebisu')!;
+  app.select(shop.slug,{fly:false,focus:false});
+  const panorama={open:async():Promise<unknown>=>null,close(){},unavailableReason:()=>''};
+  (app as any).streetView=panorama;
+  await (app as any).openStreetView(shop);
+  assert.equal(events.filter(e=>e.name==='street_view_failed').length,1);
+  panorama.open=async()=>({});
+  await (app as any).openStreetView(shop);
+  assert.equal(events.filter(e=>e.name==='street_view_opened').length,1);
+  let finish!:(value:unknown)=>void;
+  panorama.open=()=>new Promise(resolve=>{finish=resolve;});
+  const pending=(app as any).openStreetView(shop);
+  (app as any).closeStreetView();
+  finish({});
+  await pending;
+  assert.equal(events.filter(e=>e.name==='street_view_opened').length,1);
+  assert.equal(events.filter(e=>e.name==='street_view_failed').length,1);
+});
+
 test('boots into Tokyo with working city filtering and disabled pending map controls',()=>{
   assert.equal(rows().length,100);
   assert.ok(el('[data-load-more]'));
@@ -237,7 +326,8 @@ test('initial shared link opens the shortlist without importing or replacing sav
   assert.ok(el('#card').hidden);
 });
 
-test('sharing is opt-in and includes only the selected saved shops', () => {
+test('sharing is opt-in and includes only the selected saved shops', async () => {
+  const events=analyticsEvents();
   click('[data-save="afuri-ebisu"]');
   click('[data-save="ginza-kagari"]');
   assert.equal(el('#share-shortlist').hidden, true);
@@ -254,6 +344,13 @@ test('sharing is opt-in and includes only the selected saved shops', () => {
   assert.deepEqual(params.getAll('id'), ['afuri-ebisu']);
   assert.ok(!link.includes('ginza-kagari'));
   assert.equal(window.location.hash, '');
+  Object.defineProperty(window.navigator,'clipboard',{configurable:true,value:{writeText:async()=>{}}});
+  click('[data-shortlist-copy]');
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(events.filter(e=>e.name.startsWith('shortlist_link_')),[
+    {name:'shortlist_link_created',data:{shop_count:1}},
+    {name:'shortlist_link_copied',data:{shop_count:1}},
+  ]);
   chooseShared('ginza-kagari');
   assert.equal((el('[data-shortlist-url]') as HTMLInputElement).value, '');
   click('[data-shortlist-close]');
@@ -341,6 +438,7 @@ test('share chooser stays bounded, caps selection and follows language and cross
 });
 
 test('shortlist copy reports clipboard failure and leaves a selectable link', async () => {
+  const events=analyticsEvents();
   click('[data-save="afuri-ebisu"]');
   click('#saved-tab');
   click('#share-shortlist');
@@ -350,6 +448,8 @@ test('shortlist copy reports clipboard failure and leaves a selectable link', as
   click('[data-shortlist-copy]');
   await new Promise(resolve => setTimeout(resolve, 0));
   assert.match(el('[data-shortlist-status]').textContent!, /copy it manually/);
+  assert.equal(events.filter(e=>e.name==='shortlist_link_created').length,1);
+  assert.equal(events.filter(e=>e.name==='shortlist_link_copied').length,0);
   const input = el('[data-shortlist-url]') as HTMLInputElement;
   assert.equal(input.selectionEnd, input.value.length);
 });
