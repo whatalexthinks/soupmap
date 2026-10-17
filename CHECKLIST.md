@@ -29,8 +29,22 @@ build sandbox couldn't reach. Work top to bottom; tick as you go.
 - [ ] Custom domain `soupmap.com` + `www.soupmap.com` added; **www → apex** Redirect Rule (301).
 - [ ] **Web Analytics**: site added, token in `VITE_CF_ANALYTICS_TOKEN`, redeployed; automatic
       injection left **off** on the Pages project (avoid double counting).
-- [ ] `https://soupmap.com/robots.txt` and `/sitemap.xml` show the right domain.
+- [ ] `https://soupmap.com/robots.txt`, `/sitemap.xml`, and `/llms.txt` show the right domain;
+      the guide links to the homepage, credits, and downloadable catalog.
 - [ ] Response headers on the live site include the cache and security headers from `public/_headers`.
+- [ ] **If using Cloudflare Pages or a Cloudflare proxy**, review the zone's AI crawler/bot
+      controls, WAF rules, and challenges. Allow intended search/indexing and user-initiated
+      retrieval agents to read and cite the public atlas; decide training permissions
+      separately, without blanket-allowing all automation. Record agents, purposes,
+      intentional exclusions (or explicitly none), reasons, and review date in release notes
+      or a deployment policy record. See [the access policy review](README.md#36-ai-search-and-crawler-access).
+- [ ] For that Cloudflare setup, verify intended agents can fetch `/`, `/credits/`,
+      `/llms.txt`, and `/data/open-shops.json.gz` without denials/challenges, using provider
+      verification and edge logs where available. `robots.txt` permission and spoofed
+      user-agent requests alone do not establish actual crawler access. Mark these two
+      Cloudflare policy checks not applicable for direct Replit Autoscale hosting without
+      a Cloudflare proxy; Web Analytics alone does not require them. This source-only
+      checklist does not assert that a live block exists.
 
 ## 3. Verify every shop (then set `"verified": true`)
 
