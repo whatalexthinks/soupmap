@@ -184,8 +184,9 @@ export class Panel {
   }
 
   setCity(slug: string): void {
-    for (const button of this.cities.querySelectorAll<HTMLButtonElement>('[data-city]')) {
-      button.setAttribute('aria-pressed', String(button.dataset.city === slug));
+    for (const link of this.cities.querySelectorAll<HTMLAnchorElement>('[data-city]')) {
+      if (link.dataset.city === slug) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
     }
   }
 

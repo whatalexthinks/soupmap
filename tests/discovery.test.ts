@@ -2,10 +2,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { discover, parseSaved, type DiscoveryState } from '../src/discovery.ts';
 import { CURATED_SHOPS as ORDERED_SHOPS } from '../src/data/shops.ts';
-import { shopListHtml } from '../src/render/templates.ts';
+import { cityButtonsHtml, shopListHtml } from '../src/render/templates.ts';
 import { TrailPlayer } from '../src/trail.ts';
 import { TRAILS } from '../src/data/trails.ts';
 const base: DiscoveryState = { query: '', city: 'all', broths: new Set(), saved: new Set(), savedOnly: false, sort: 'guide' };
+
+test('prerendered city links mark Tokyo current without button-only pressed states', () => {
+  const html = cityButtonsHtml(ORDERED_SHOPS);
+  assert.doesNotMatch(html, /aria-pressed/);
+  assert.equal((html.match(/aria-current=/g) ?? []).length, 1);
+  assert.match(html, /<a href="\/city\/tokyo\/" class="city-btn" data-city="tokyo" aria-current="true">/);
+  assert.match(html, /<a href="\/catalog\/" class="city-btn" data-city="all">/);
+  for (const slug of ['sapporo', 'kitakata', 'kyoto', 'osaka', 'wakayama', 'fukuoka']) {
+    assert.ok(html.includes(`<a href="/city/${slug}/" class="city-btn" data-city="${slug}">`));
+  }
+});
 
 test('city and broth filters intersect while multiple broths are alternatives', () => {
   assert.equal(discover(ORDERED_SHOPS, {...base, city:'tokyo'}).length, 3);

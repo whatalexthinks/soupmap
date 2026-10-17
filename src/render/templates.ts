@@ -62,8 +62,8 @@ export function cityButtonsHtml(shops: readonly Shop[]): string {
   const cities = CITIES.filter((c) => used.has(c.name))
     .map(
       (c) =>
-        `<a href="/city/${c.slug}/" class="city-btn" data-city="${c.slug}" aria-pressed="${c.slug === 'tokyo'}">${esc(c.name)}<span class="ja" lang="ja">${esc(c.nameJa)}</span></a>`,
+        `<a href="/city/${c.slug}/" class="city-btn" data-city="${c.slug}"${c.slug === 'tokyo' ? ' aria-current="true"' : ''}>${esc(c.name)}<span class="ja" lang="ja">${esc(c.nameJa)}</span></a>`,
     )
     .join("");
-  return `<a href="/catalog/" class="city-btn" data-city="all" aria-pressed="false">${esc(t("allJapan"))}</a>${cities}`;
+  return `<a href="/catalog/" class="city-btn" data-city="all">${esc(t("allJapan"))}</a>${cities}`;
 }

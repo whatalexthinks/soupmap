@@ -128,12 +128,40 @@ test('analytics distinguishes successful, unavailable and canceled Street View e
 test('boots into Tokyo with working city filtering and disabled pending map controls',()=>{
   assert.equal(rows().length,100);
   assert.ok(el('[data-load-more]'));
-  assert.equal(el('[data-city="tokyo"]').getAttribute('aria-pressed'),'true');
+  assert.equal(el('[data-city="tokyo"]').getAttribute('aria-current'),'true');
   assert.ok((el('#zoom-in') as HTMLButtonElement).disabled);
   click('[data-city="fukuoka"]');
   assert.equal(rows().length,100);
   assert.equal(el('#map-city').textContent,'Fukuoka');
   assert.ok(rows().every(r=>r.textContent?.includes('Fukuoka')));
+});
+test('city links keep crawlable destinations and expose only the current filter',()=>{
+  const assertCurrent = (city:string) => {
+    const links = [...window.document.querySelectorAll<HTMLAnchorElement>('.city-btn')];
+    assert.deepEqual(links.filter(link=>link.hasAttribute('aria-current')).map(link=>link.dataset.city),[city]);
+    for (const link of links) {
+      assert.equal(link.tagName,'A');
+      assert.equal(link.hasAttribute('aria-pressed'),false);
+      assert.equal(link.getAttribute('href'),link.dataset.city === 'all' ? '/catalog/' : `/city/${link.dataset.city}/`);
+    }
+    assert.equal(el(`[data-city="${city}"]`).getAttribute('aria-current'),'true');
+  };
+  assertCurrent('tokyo');
+  click('[data-city="fukuoka"]');
+  assertCurrent('fukuoka');
+  click('[data-city="all"]');
+  assertCurrent('all');
+  click('#clear-filters');
+  assertCurrent('all');
+  click('[data-city="tokyo"]');
+  assertCurrent('tokyo');
+
+  for (const modifier of ['ctrlKey','metaKey','shiftKey','altKey']) {
+    const event = new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0,[modifier]:true});
+    el('[data-city="fukuoka"]').dispatchEvent(event);
+    assert.equal(event.defaultPrevented,false);
+    assertCurrent('tokyo');
+  }
 });
 test('bookmark survives tab changes, persists to storage, and can be removed',()=>{
   click('[data-save="afuri-ebisu"]');
@@ -180,7 +208,7 @@ test('card bookmark remains synchronized with collection and cross-tab updates',
 });
 test('deep-link selection from another city reveals its entry and malformed hash is safe',()=>{
   app.select('ichiran-nakasu',{fly:false,focus:false});
-  assert.equal(el('[data-city="fukuoka"]').getAttribute('aria-pressed'),'true');
+  assert.equal(el('[data-city="fukuoka"]').getAttribute('aria-current'),'true');
   assert.ok(rows().some(r=>r.dataset.slug==='ichiran-nakasu'));
   window.history.replaceState(null,'','/#%E0%A4%A');
   assert.equal(router.initial(),null);

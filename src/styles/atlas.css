@@ -48,7 +48,7 @@ button:disabled {cursor:default;opacity:.45}
 .city-btn {flex:none;display:block;border:1px solid var(--line);background:transparent;border-radius:4px;padding:7px 11px;min-height:35px;font-size:11px;color:var(--steam-2)}
 .city-btn .ja {display:none}
 .city-btn:hover {border-color:var(--steam-3)}
-.city-btn[aria-pressed=true] {background:var(--steam);border-color:var(--steam);color:var(--panel-solid)}
+.city-btn[aria-current=true] {background:var(--steam);border-color:var(--steam);color:var(--panel-solid)}
 .taste-filter {border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:3px 0 16px;padding:10px 0}
 .taste-filter summary {cursor:pointer;font-size:12px;list-style:none;display:flex;align-items:center;gap:8px;min-height:24px}
 .taste-filter summary::after {content:'+';font-size:17px;margin-left:4px}
