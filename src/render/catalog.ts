@@ -8,6 +8,7 @@ import { getSource } from "../sources.ts";
 import { esc } from "../ui/dom.ts";
 
 export const CATALOG_PAGE_SIZE = 100;
+export const CATALOG_RANGE_SIZE = 25;
 export interface CatalogPage {
   path: string;
   title: string;
@@ -51,9 +52,27 @@ export function listingPath(base: string, page: number): string {
   return page === 1 ? base : `${base}page/${page}/`;
 }
 
+function rangePath(base: string, first: number): string {
+  return `${base}range/${first}/`;
+}
+
 function listingPages(shops: readonly Shop[], base: string, label: string, all: readonly Shop[]): CatalogPage[] {
   const total = Math.ceil(shops.length / CATALOG_PAGE_SIZE);
-  return Array.from({ length: total }, (_, index) => {
+  const ranges = total > CATALOG_RANGE_SIZE
+    ? Array.from({ length: Math.ceil(total / CATALOG_RANGE_SIZE) }, (_, index) => {
+      const first = index * CATALOG_RANGE_SIZE + 1;
+      return { first, last: Math.min(first + CATALOG_RANGE_SIZE - 1, total) };
+    }) : [];
+  // Small directories link directly to their pages; larger ones use bounded hubs.
+  const pageLinks = (first: number, last: number) => `<ul>${Array.from({ length: last - first + 1 }, (_, index) => {
+    const page = first + index;
+    return `<li><a href="${listingPath(base, page)}">Page ${page} — locations ${(page - 1) * CATALOG_PAGE_SIZE + 1}–${Math.min(page * CATALOG_PAGE_SIZE, shops.length)}</a></li>`;
+  }).join("")}</ul>`;
+  const rangeNavigation = ranges.length
+    ? `<nav aria-label="Catalog page ranges"><h2>Browse all ${total} pages</h2><ul>${ranges.map(({ first, last }) =>
+      `<li><a href="${rangePath(base, first)}">Pages ${first}–${last}</a></li>`).join("")}</ul></nav>`
+    : total > 1 ? `<nav aria-label="Catalog page index"><h2>Browse all ${total} pages</h2>${pageLinks(1, total)}</nav>` : "";
+  const pages: CatalogPage[] = Array.from({ length: total }, (_, index) => {
     const page = index + 1;
     const start = index * CATALOG_PAGE_SIZE;
     const slice = shops.slice(start, start + CATALOG_PAGE_SIZE);
@@ -65,6 +84,7 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
       content: `<h1>${esc(heading)}</h1><p class="lede">${esc(description)}</p>
         ${base !== "/catalog/" ? '<p><a href="/catalog/">All Japan catalog</a></p>' : ""}
         ${cityLinks(all)}${limitations}
+        ${rangeNavigation}
         <p>Showing ${start + 1}–${start + slice.length} of ${shops.length} locations.</p>
         ${directoryRows(slice, start)}
         <nav aria-label="Catalog pages">
@@ -81,6 +101,28 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
       },
     };
   });
+  for (const { first, last } of ranges) {
+    const heading = `${label} soup shop catalog — Pages ${first}–${last}`;
+    const start = (first - 1) * CATALOG_PAGE_SIZE;
+    const end = Math.min(last * CATALOG_PAGE_SIZE, shops.length);
+    const description = `Browse pages ${first}–${last} of the ${label} soup shop catalog, covering locations ${start + 1}–${end} of ${shops.length}. Each page lists up to ${CATALOG_PAGE_SIZE} reported locations with names, sources and verification status.`;
+    pages.push({
+      path: rangePath(base, first), title: `${heading} · Soupmap`, description,
+      content: `<nav aria-label="Breadcrumb"><a href="/catalog/">Japan catalog</a>${base !== "/catalog/" ? ` / <a href="${base}">${esc(label)} catalog</a>` : ""}</nav>
+        <h1>${esc(heading)}</h1><p class="lede">${esc(description)}</p>
+        <nav aria-label="Catalog pages in this range">${pageLinks(first, last)}</nav>
+        ${limitations}
+        <p><a href="${base}">Browse all ${esc(label)} catalog page ranges</a></p>`,
+      structuredData: {
+        "@type": "CollectionPage", name: heading, description,
+        mainEntity: { "@type": "ItemList", itemListElement: Array.from({ length: last - first + 1 }, (_, index) => ({
+          "@type": "ListItem", position: first + index, name: `${label} catalog — Page ${first + index}`,
+          url: listingPath(base, first + index),
+        })) },
+      },
+    });
+  }
+  return pages;
 }
 
 export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
