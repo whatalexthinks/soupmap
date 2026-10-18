@@ -73,6 +73,7 @@ export default defineConfig(({ mode }) => {
         input: {
           main: resolve(import.meta.dirname, "index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
+          moderate: resolve(import.meta.dirname, "moderate/index.html"),
         },
       },
     },

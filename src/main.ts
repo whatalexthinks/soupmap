@@ -3,6 +3,7 @@ import "@fontsource-variable/fraunces/soft.css";
 import "@fontsource-variable/instrument-sans";
 import "./styles/main.css";
 import "./styles/atlas.css";
+import "./styles/journey.css";
 import { App } from "./app.ts";
 import { loadJapaneseFont } from "./fonts.ts";
 

@@ -46,7 +46,7 @@
       <header class="masthead">
         <a class="brand" href="/" aria-label="Soupmap home"><span class="brand__seal" aria-hidden="true">湯</span>soupmap<span class="brand__period">.</span></a>
         <div class="masthead__caption">A FIELD GUIDE TO JAPAN<span>Good things take a little wandering.</span></div>
-        <nav class="view-tabs" aria-label="Collection"><button id="explore-tab" aria-pressed="true">Explore</button><button id="saved-tab" aria-pressed="false">Saved <span id="saved-count">0</span></button></nav>
+        <nav class="view-tabs" aria-label="Collection"><button id="explore-tab" aria-pressed="true">Explore</button><button id="hubs-tab" aria-haspopup="dialog">Chapters</button><button id="passport-tab" aria-haspopup="dialog">Passport</button><button id="saved-tab" aria-pressed="false">Saved <span id="saved-count">0</span></button></nav>
         <button id="surprise-btn" class="surprise-btn">Find me a bowl <span aria-hidden="true">↗</span></button>
       </header>
       <div class="map" id="map" role="region" aria-label="3D map of soup shops in Japan">
@@ -81,6 +81,7 @@
           <input id="shop-search" type="search" placeholder="A shop, a city, a craving…" autocomplete="off" spellcheck="false" enterkeyhint="search" />
         </div>
         <div class="panel__body" id="panel-body">
+          <section id="collection-banner" class="collection-banner" hidden></section>
           <div class="section-heading"><h2 class="section-label" id="city-label">Choose your city</h2><span class="micro">07 destinations</span></div>
           <nav class="cities" id="city-buttons" aria-labelledby="city-label"><!--soupmap:cities--></nav>
           <details class="taste-filter"><summary>Find your flavor <span id="filter-count">All styles</span></summary>
@@ -102,7 +103,7 @@
         </div>
         <footer class="panel__footer">
           <a href="/credits/">Data &amp; credits</a>
-          <span>Independent discovery, bowl by bowl.</span>
+          <button id="contribute-btn" class="text-btn" aria-haspopup="dialog">Help write the guide ↗</button>
         </footer>
       </section>
 
@@ -139,6 +140,10 @@
       </div>
     </main>
 
+    <dialog id="journey-dialog" class="journey-dialog" aria-labelledby="journey-title">
+      <header class="journey-header"><div><span id="journey-eyebrow" class="eyebrow"></span><h2 id="journey-title" tabindex="-1"></h2></div><button id="journey-close" class="icon-btn" aria-label="Close and return to map">×</button></header>
+      <div id="journey-content" class="journey-content"></div>
+    </dialog>
     <div class="credit-viewport" id="credit-viewport"></div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

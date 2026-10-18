@@ -1,0 +1,154 @@
+/* The collectible layer keeps the atlas's paper, ink and vermilion vocabulary. */
+.text-btn {border:0;background:none;padding:5px 0;color:var(--lantern);font-size:11px;cursor:pointer;text-decoration:none;line-height:1.5}
+.text-btn:hover {text-decoration:underline;text-underline-offset:4px}
+.panel__footer .text-btn {font-size:9px;padding:0}
+.view-tabs {gap:20px}
+.journey-dialog {width:min(1040px,calc(100vw - 48px));height:min(900px,calc(100dvh - 56px));max-width:none;max-height:none;border:1px solid #fff8;border-radius:12px;background:#f7f5ed;color:var(--steam);padding:0;box-shadow:0 30px 100px #14221455;overflow:hidden}
+.journey-dialog[open] {display:flex;flex-direction:column;animation:card-in .3s var(--ease)}
+.journey-dialog::backdrop {background:#1d2c28a6;backdrop-filter:blur(6px)}
+.journey-header {display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 36px 24px;border-bottom:1px solid var(--line);flex:none}
+.journey-header h2 {font:400 36px/1.15 var(--font-display);letter-spacing:-1.3px;margin:10px 0 0}
+.journey-header .icon-btn {font-size:25px;flex:none}
+.journey-content {padding:0 36px 36px;overflow:auto;overscroll-behavior:contain;min-height:0;scrollbar-width:thin;scrollbar-color:#c4ccb9 transparent}
+.journey-intro {display:flex;justify-content:space-between;align-items:center;gap:20px;margin:24px 0}
+.journey-intro p {font-size:13px;color:var(--steam-2);line-height:1.8;margin:0}
+.journey-edition {font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--steam-3);line-height:1.8;text-align:right;white-space:nowrap}
+.chapter-cities {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.chapter-cities button {border:1px solid var(--line);background:#eeeee3;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;text-align:left;border-radius:6px;transition:background .2s}
+.chapter-cities button:hover {background:#e3e7d7;border-color:#aeb99c}
+.chapter-cities button>span {font:22px var(--font-ja);color:#9ca98d;letter-spacing:3px}
+.chapter-cities strong {font-weight:550;font-size:15px}
+.chapter-cities small {font-size:9px;color:var(--steam-3)}
+.journey-section-heading {display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:30px 0 16px}
+.journey-section-heading h3 {font:400 27px var(--font-display);letter-spacing:-.6px;margin:0}
+.journey-section-heading>span {font-size:8px;letter-spacing:1px;color:var(--steam-3)}
+.hub-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.hub-card {border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#faf8f1}
+.hub-cover {height:170px;position:relative;background:color-mix(in srgb,var(--stamp) 10%,#ebece1);overflow:hidden;padding:20px;color:var(--stamp);border-bottom:1px solid var(--line)}
+.hub-cover::after {content:'';position:absolute;inset:18px;border:1px solid currentColor;opacity:.16;pointer-events:none}
+.hub-number {font-size:8px;letter-spacing:1.4px;position:relative;z-index:1}
+.hub-kanji {font:76px var(--font-ja);letter-spacing:10px;position:absolute;left:25px;bottom:5px;opacity:.8}
+.hub-seal {position:absolute;right:26px;top:48px;width:72px;height:72px;display:grid;place-items:center;border:1px solid currentColor;border-radius:50%;outline:1px solid currentColor;outline-offset:4px;font:24px var(--font-display);transform:rotate(-12deg)}
+.hub-copy {padding:22px}
+.hub-copy h3 {font:400 29px var(--font-display);margin:8px 0 12px;letter-spacing:-.7px}
+.hub-copy p {font-size:12px;line-height:1.8;color:var(--steam-2);min-height:64px;margin-bottom:16px}
+.hub-copy progress {width:100%;height:3px;appearance:none;border:0;background:#e7e7dc;display:block;margin:0 0 18px}
+.hub-copy progress::-webkit-progress-bar {background:#e7e7dc}
+.hub-copy progress::-webkit-progress-value {background:var(--stamp)}
+.hub-copy progress::-moz-progress-bar {background:var(--stamp)}
+.hub-actions {display:flex;gap:8px}
+.hub-actions .btn--primary {flex:1;background:var(--stamp);border-color:var(--stamp)}
+.chapter-mission {display:flex;align-items:center;gap:22px;padding:24px;background:#e9eddf;border:1px solid #dce2cf;border-radius:6px;margin:28px 0 0}
+.mission-mark {font:40px var(--font-ja);color:#748665}
+.chapter-mission h3 {font:400 25px var(--font-display);margin:8px 0}
+.chapter-mission p {font-size:11px;line-height:1.8;margin:0;color:var(--steam-2)}
+.chapter-mission .btn {flex:none}
+.collection-banner {background:#e8ecdf;border:1px solid #d7dfcc;border-radius:5px;padding:16px;margin:14px 0}
+.collection-banner h3 {font:400 24px var(--font-display);margin:8px 0;letter-spacing:-.5px}
+.collection-banner p {font-size:11px;line-height:1.7;color:var(--steam-2)}
+.collection-banner>div {display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.collection-banner .text-btn {font-size:10px}
+.visit-actions {display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+.visit-actions .btn {background:#647452;border-color:#647452}
+.passport-cover {position:relative;display:grid;grid-template-columns:1fr auto;padding:34px;background:#354735;color:#f3efde;margin-top:24px;border-radius:6px;border:7px double #617054;overflow:hidden}
+.passport-cover .eyebrow {color:#c4c6a4;font-size:8px}
+.passport-cover h3 {font:400 48px/1.05 var(--font-display);letter-spacing:-1.5px;margin:22px 0}
+.passport-cover h3 em {color:#d5bf8f;font-weight:400}
+.passport-cover p {font-size:11px;color:#d7d9c5;line-height:1.8;margin:0}
+.passport-emblem {display:flex;align-items:center;justify-content:center;flex-direction:column;width:140px;height:140px;border:1px solid #b4b68b;border-radius:50%;outline:1px solid #8b9877;outline-offset:7px;align-self:center;margin:0 12px;color:#d7c89d;transform:rotate(9deg)}
+.passport-emblem>span {font:66px var(--font-ja)}
+.passport-emblem small {font-size:7px;letter-spacing:1.5px}
+.passport-stats {grid-column:1/-1;display:flex;gap:40px;border-top:1px solid #d6d8ba30;padding-top:24px;margin-top:28px}
+.passport-stats span {font-size:10px;color:#d7d9c5}
+.passport-stats strong {font:400 32px var(--font-display);display:block;color:#f5f1df;margin-bottom:3px}
+.passport-tools {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0 10px}
+.passport-tools .text-btn {font-size:10px;margin-left:6px}
+.import-label {position:relative;cursor:pointer;overflow:hidden}
+.import-label input {position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}
+.import-label:focus-within {outline:2px solid var(--lantern);outline-offset:3px}
+.share-privacy {font-size:10px;color:var(--steam-3);line-height:1.6}
+.achievement-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.achievement {display:flex;gap:12px;align-items:center;padding:14px;border:1px dashed #ccd0c1;border-radius:5px;background:#eeeee6;color:#77806d}
+.achievement.is-earned {background:#f2e9da;border:1px solid #ceaa8d;color:#91482d}
+.achievement-stamp {width:38px;height:44px;display:grid;place-items:center;flex:none;border:1px solid currentColor;border-radius:3px;font:26px var(--font-ja);transform:rotate(-7deg);opacity:.65}
+.is-earned .achievement-stamp {opacity:1;outline:1px solid #91482d50;outline-offset:2px}
+.achievement strong {font-size:11px;font-weight:600;line-height:1.4;display:block}
+.achievement p {font-size:9px;line-height:1.5;margin:5px 0}
+.achievement small {font-size:8px;letter-spacing:.8px;text-transform:uppercase}
+.passport-tabs {display:flex;gap:24px;border-bottom:1px solid var(--line);margin:30px 0 20px}
+.passport-tabs button {background:none;border:0;border-bottom:2px solid transparent;font-size:12px;color:var(--steam-3);padding:10px 0}
+.passport-tabs button[aria-pressed=true] {border-color:var(--lantern);color:var(--steam);font-weight:600}
+.stamp-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.visit-stamp {position:relative;display:flex;flex-direction:column;border:1px solid #b8bda8;border-radius:5px;padding:20px;background:#f2f1e6;min-width:0}
+.stamp-city {font:28px var(--font-ja);letter-spacing:4px;color:#7f8d6e;margin-bottom:14px}
+.stamp-date {font:9px monospace;letter-spacing:1px;color:#a2583e}
+.visit-stamp h3 {font:400 22px var(--font-display);margin:8px 0;letter-spacing:-.5px}
+.visit-stamp .micro {font-size:9px;line-height:1.6}
+.visit-bowl {font-size:11px;font-weight:550;margin:12px 0 4px}
+.visit-note {font-size:11px;line-height:1.8;color:var(--steam-2);white-space:pre-wrap;overflow-wrap:anywhere}
+.stamp-actions {display:flex;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px;margin-top:auto}
+.stamp-actions .text-btn {font-size:10px}
+.visit-stamp.just-stamped {animation:stamp-in .5s var(--ease)}
+@keyframes stamp-in {from{opacity:0;transform:scale(1.13) rotate(-5deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.passport-empty {grid-column:1/-1;display:flex;flex-direction:column;align-items:center;padding:35px 15px;text-align:center;border:1px dashed var(--line-strong);border-radius:6px}
+.passport-empty>span {font:46px var(--font-ja);color:#9aa58a}
+.passport-empty h3 {font:400 27px var(--font-display);margin:16px 0 8px}
+.passport-empty p {font-size:12px;color:var(--steam-3);margin-bottom:20px}
+.form-intro {display:flex;align-items:center;gap:20px;max-width:600px;margin:26px auto}
+.form-intro h3 {font:400 28px var(--font-display);margin:0 0 6px}
+.form-intro p {font-size:12px;color:var(--steam-3);margin:0}
+.stamp-mini {font:30px var(--font-ja);color:var(--lantern);border:2px solid currentColor;outline:1px solid currentColor;outline-offset:3px;padding:4px 7px;transform:rotate(-6deg)}
+.journey-form {max-width:600px;margin:0 auto 20px;display:flex;flex-direction:column;gap:18px}
+.journey-form label {display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:550}
+.journey-form label small {font-size:10px;font-weight:400;color:var(--steam-3)}
+.journey-form input:not([type=checkbox]),.journey-form textarea,.journey-form select,.share-link {width:100%;border:1px solid #cfd5c3;border-radius:5px;background:#fdfbf4;padding:12px;color:var(--steam);font-size:14px}
+.journey-form textarea {min-height:112px;resize:vertical;line-height:1.7}
+.journey-form .check-label {display:flex;flex-direction:row;align-items:flex-start;gap:9px;line-height:1.7;font-weight:400}
+.check-label input {accent-color:#647452;margin-top:4px;flex:none}
+.form-hint {font-size:11px;line-height:1.75;color:var(--steam-3);margin:0}
+.form-actions {display:flex;align-items:center;gap:22px}
+.form-actions .btn {min-height:44px;padding:10px 22px;font-size:12px}
+.form-message {font-size:12px;color:var(--lantern);line-height:1.7;margin:0}
+#new-place-fields {display:flex;flex-direction:column;gap:18px}
+.honeypot {position:absolute!important;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+.community-status {font-size:12px;line-height:1.7;border-left:2px solid #9aa884;background:#e9eddf;padding:12px 16px;margin-bottom:24px}
+.mission-strip {border:1px solid var(--line);padding:16px;border-radius:5px;margin-bottom:24px}
+.mission-strip p {font-size:12px;color:var(--steam-2);margin:8px 0}
+.mission-strip button {margin-right:18px}
+.field-note {border-top:1px solid var(--line);padding:18px 0}
+.field-note p {font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
+.field-note small {font-size:10px;color:var(--steam-3)}
+.contribution-history {margin-top:30px}
+.contribution-history h3 {font:400 26px var(--font-display);margin-bottom:8px}
+.contribution-history p {font-size:11px;color:var(--steam-3)}
+.contribution-history>div {display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.status-tag {background:#e5e8db;padding:3px 8px;border-radius:4px;font-size:9px;letter-spacing:.5px;text-transform:uppercase}
+#journey-dialog .toast {bottom:24px;max-width:calc(100% - 48px);width:max-content;white-space:normal}
+@media(max-width:1100px){.masthead__caption{display:none}.achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stamp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+  :root{--top:96px}
+  .masthead{height:96px;display:grid;grid-template-columns:1fr auto;grid-template-rows:52px 44px;padding:0 18px;gap:0}
+  .brand{grid-column:1;grid-row:1;font-size:26px}
+  .view-tabs{grid-column:1/-1;grid-row:2;justify-content:space-between;gap:22px;margin:0;width:100%;height:44px}
+  .view-tabs button{font-size:12px;padding:10px 0}
+  .surprise-btn{display:flex;grid-column:2;grid-row:1;font-size:10px;padding:7px 10px;gap:10px}
+  .surprise-btn span{font-size:15px}
+  .map{top:96px}.map-heading{top:114px}.controls{top:114px}
+  .panel{max-height:calc(100dvh - 132px)}
+  .journey-dialog{width:100%;height:100dvh;margin:0;border:0;border-radius:0}
+  .journey-header{padding:22px 20px 18px;gap:12px}.journey-header h2{font-size:29px;letter-spacing:-1px}
+  .journey-content{padding:0 20px 28px}.journey-intro{margin:20px 0}.journey-intro p{font-size:12px}.journey-edition{font-size:8px}
+  .chapter-cities{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.chapter-cities button{padding:15px}.chapter-cities small{font-size:9px}
+  .journey-section-heading{margin-top:26px}.journey-section-heading h3{font-size:25px}.journey-section-heading>span{font-size:7px;text-align:right}
+  .hub-grid{grid-template-columns:1fr;gap:16px}.hub-cover{height:155px}.hub-copy{padding:20px}.hub-copy p{min-height:0;font-size:12px}
+  .chapter-mission{flex-wrap:wrap;gap:16px;padding:20px}.chapter-mission>div{flex:1}.chapter-mission .btn{width:100%}
+  .passport-cover{padding:22px 18px;grid-template-columns:1fr}.passport-cover h3{font-size:40px;position:relative;z-index:1;margin:20px 0}
+  .passport-emblem{position:absolute;right:-26px;top:55px;width:120px;height:120px;opacity:.17}.passport-cover p{font-size:10px}
+  .passport-stats{gap:25px;padding-top:18px;margin-top:20px}.passport-stats strong{font-size:28px}.passport-stats span{font-size:9px}
+  .passport-tools{gap:8px}.passport-tools .btn{font-size:10px;min-height:40px}.passport-tools .text-btn{font-size:10px;margin:0 8px 0 0}
+  .achievement-grid{gap:8px}.achievement{padding:12px 9px;gap:9px}.achievement-stamp{width:28px;height:34px;font-size:21px}.achievement strong{font-size:10px}.achievement p{font-size:9px}
+  .stamp-grid{grid-template-columns:1fr}.visit-stamp{padding:22px}.stamp-city{font-size:32px}.visit-stamp h3{font-size:27px}.visit-note{font-size:12px}.stamp-actions{margin-top:18px}
+  .form-intro h3{font-size:25px}.journey-form input:not([type=checkbox]),.journey-form textarea,.journey-form select{font-size:16px}
+  .form-actions{gap:16px}.form-actions .btn{font-size:12px;flex:1}
+  .share-link{font-size:12px;margin-top:16px}
+}

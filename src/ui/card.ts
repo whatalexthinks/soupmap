@@ -10,6 +10,8 @@ import { icon } from "./icons.ts";
 export interface CardHandlers {
   onClose(): void;
   onSave(shop: Shop): void;
+  onVisit(shop: Shop): void;
+  onContribute(shop: Shop): void;
   onStandOutside(shop: Shop): void;
   onBuildingInfo(shop: Shop): void;
   onStepInside(shop: Shop): void;
@@ -64,6 +66,8 @@ export class ShopCard {
       if (!button || !this.shop) return;
       const shop = this.shop;
       switch (button.dataset.action) {
+        case "visit": handlers.onVisit(shop); break;
+        case "contribute": handlers.onContribute(shop); break;
         case "save":
           handlers.onSave(shop);
           break;
@@ -90,7 +94,7 @@ export class ShopCard {
     return this.shop;
   }
 
-  open(shop: Shop, options: { focus: boolean; buildingAvailable: boolean; saved: boolean }): void {
+  open(shop: Shop, options: { focus: boolean; buildingAvailable: boolean; saved: boolean; visited?: boolean }): void {
     this.shop = shop;
     const broth = BROTHS[shop.broth];
     this.el.style.setProperty("--broth", broth.color);
@@ -116,6 +120,7 @@ export class ShopCard {
           </dl>
           <p class="blurb">${esc(shop.blurb)}</p>
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
+          <div class="visit-actions"><button class="btn btn--primary" data-action="visit">${options.visited?'✓ In your passport · Edit visit':'I had a bowl here · Collect a stamp'}</button><button class="text-btn" data-action="contribute">Read & leave field notes ↗</button></div>
           <div class="actions">
             <button type="button" class="btn btn--primary" data-action="stand-outside" hidden>${icon("person")}${esc(t("standOutside"))}</button>
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
@@ -138,6 +143,11 @@ export class ShopCard {
     this.el.hidden = true;
     this.el.innerHTML = "";
     document.body.classList.remove("has-card");
+  }
+
+  setVisited(visited: boolean): void {
+    const button=this.el.querySelector<HTMLElement>('[data-action="visit"]');
+    if(button)button.textContent=visited?'✓ In your passport · Edit visit':'I had a bowl here · Collect a stamp';
   }
 
   setSaved(saved: boolean): void {

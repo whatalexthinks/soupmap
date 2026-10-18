@@ -2,6 +2,8 @@
  * App orchestration: UI state, deep links, and the lazily loaded 3D map.
  * The UI works on its own; the map attaches when its chunk arrives.
  */
+import { Journey } from "./ui/journey.ts";
+import { collectionFromUrl, collectionUrl, type Hub } from "./data/hubs.ts";
 import { discover, parseSaved, SAVED_KEY, type SortOrder } from "./discovery.ts";
 import type { BrothId } from "./data/broths.ts";
 import { CITIES, cityBySlug } from "./data/cities.ts";
@@ -43,6 +45,8 @@ function afterFirstPaint(fn: () => void): void {
 
 export class App {
   private query = "";
+  private collection: {slugs:readonly string[];hub?:Hub}|null=null;
+  private readonly journey: Journey;
   private city = 'tokyo';
   private sort: SortOrder = 'guide';
   private savedOnly = false;
@@ -115,7 +119,17 @@ export class App {
       },
     });
 
+    this.journey = new Journey({
+      select: slug => this.select(slug,{fly:true,focus:true}),
+      collection: (slugs,hub) => this.openCollection(slugs,hub),
+      city: slug => this.jumpToCity(slug),
+      changed: () => { this.card?.setVisited(!!this.selected && !!this.journey.visits[this.selected]); this.renderCollection(); },
+      saved: () => this.saved,
+      saveCollection: slugs => this.saveCollection(slugs),
+    });
     this.card = new ShopCard({
+      onVisit: shop => {this.trail.stop();this.journey.showVisit(shop);},
+      onContribute: shop => {this.trail.stop();this.journey.showContribution(shop);},
       onSave: shop => this.toggleSaved(shop.slug),
       onClose: () => {
         this.trail.stop();
@@ -152,14 +166,24 @@ export class App {
   }
 
   start(): void {
+    this.collection=collectionFromUrl(location.search,new Set(shopBySlug.keys()));
+    if(this.collection)this.city=this.collection.hub?.city??'all';
     const initial = router.initial();
     if (initial) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
     this.refresh();
     this.updateLocation();
+    this.renderCollection();
+    $('#collection-banner').addEventListener('click', e => {
+      const button=(e.target as Element).closest<HTMLElement>('button');
+      if(button?.dataset.collectionAction==='clear')this.resetFilters();
+      if(button?.dataset.collectionAction==='save'&&this.collection)this.saveCollection(this.collection.slugs);
+      if(button?.dataset.collectionAction==='share'&&this.collection)void this.shareCollection();
+    });
     if (initial) this.select(initial, { fly: false, focus: false });
     router.onChange((slug) => (slug ? this.select(slug, { fly: true, focus: false }) : this.closeCard()));
 
     document.addEventListener("keydown", (e) => {
+      if(this.journey.open)return;
       const typing = (e.target as HTMLElement).matches('input, textarea, select, [contenteditable]');
       if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault(); this.closeCard(); this.panel.searchInput.focus();
@@ -179,7 +203,8 @@ export class App {
   }
 
   private filtered(): readonly Shop[] {
-    return discover(ORDERED_SHOPS, { query: this.query, city: this.city, sort: this.sort,
+    const source=this.collection?this.collection.slugs.flatMap(s=>shopBySlug.get(s)??[]):ORDERED_SHOPS;
+    return discover(source, { query: this.query, city: this.city, sort: this.sort,
       broths: this.broths, savedOnly: this.savedOnly, saved: this.saved });
   }
 
@@ -187,7 +212,7 @@ export class App {
     const shops = this.filtered();
     this.panel.renderList(shops, this.selected, this.saved, this.savedOnly);
     this.panel.setCity(this.city);
-    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all';
+    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && !this.collection;
     this.engine?.setShops(shops);
     if (this.selected && !shops.some(shop => shop.slug === this.selected)) this.closeCard();
   }
@@ -207,11 +232,56 @@ export class App {
 
   private resetFilters(): void {
     this.trail.stop();
+    this.clearCollection();
     this.query = ''; this.city = 'all'; this.broths.clear();
     this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
     this.refresh(); this.updateLocation();
     this.turnOffBuilding();
     void this.engine?.flyToOverview();
+  }
+
+  private clearCollection():void {
+    this.collection=null;
+    const url=new URL(location.href);url.searchParams.delete('hub');url.searchParams.delete('collection');
+    history.replaceState(null,'',url.pathname+url.search+url.hash);
+    this.renderCollection();
+  }
+
+  private openCollection(slugs:readonly string[],hub?:Hub):void {
+    this.trail.stop();this.closeCard();
+    this.query='';this.broths.clear();this.savedOnly=false;
+    this.panel.searchInput.value='';this.panel.setBrothPressed(this.broths);
+    this.collection=hub?{slugs,hub}:{slugs};this.city=hub?.city??'all';
+    const share=new URL(collectionUrl(location.origin,slugs,hub?.slug));
+    history.replaceState(null,'',share.pathname+share.search);
+    this.refresh();this.updateLocation();this.renderCollection();
+    const city=cityBySlug.get(this.city);
+    if(city)void this.engine?.flyToCity(city);else void this.engine?.flyToOverview();
+    const anchor=slugs.flatMap(s=>shopBySlug.get(s)??[])[0];
+    if(anchor&&this.engine?.mode==='fallback'&&this.autoBuildings)void this.turnOnBuilding(anchor);
+    if(isMobileLayout())this.sheet.ensureOpen();
+  }
+
+  private renderCollection():void {
+    const banner=document.querySelector<HTMLElement>('#collection-banner');if(!banner)return;
+    banner.hidden=!this.collection;if(!this.collection)return;
+    const {hub,slugs}=this.collection;
+    const visited=slugs.filter(s=>this.journey?.visits[s]).length;
+    banner.innerHTML=`<span class="eyebrow">${hub?'THE COLLECTION':'SHARED COLLECTION'}</span><h3>${esc(hub?.title??'A trail worth keeping.')}</h3><p>${hub?esc(hub.description):'A personal selection of places from the Soupmap guide.'}</p><span class="micro">${visited} / ${slugs.length} visited · Take your time</span><div><button class="text-btn" data-collection-action="save">Save all places</button><button class="text-btn" data-collection-action="share">Share ↗</button><button class="text-btn" data-collection-action="clear">Leave collection ×</button></div>`;
+  }
+
+  private saveCollection(slugs:readonly string[]):void {
+    slugs.forEach(slug=>{if(shopBySlug.has(slug))this.saved.add(slug);});
+    let persistent=true;try{localStorage.setItem(SAVED_KEY,JSON.stringify([...this.saved]));}catch{persistent=false;}
+    this.refresh();this.card.setSaved(!!this.selected&&this.saved.has(this.selected));
+    toast(persistent?'Collection added to your saved places.':'Collection saved for this session only.');
+  }
+
+  private async shareCollection():Promise<void> {
+    if(!this.collection)return;
+    const url=collectionUrl(location.origin,this.collection.slugs,this.collection.hub?.slug);
+    try{await navigator.clipboard.writeText(url);toast('Collection link copied.');}
+    catch{toast('The collection link is in your address bar.',4000);}
   }
 
   private updateLocation(): void {
@@ -229,13 +299,14 @@ export class App {
     if (!shop) return;
     // Deep links and trail stops must remain visible in the current discovery state.
     if (!this.filtered().some(s => s.slug === slug)) {
+      this.clearCollection();
       this.query = ''; this.broths.clear(); this.savedOnly = false;
       this.city = CITIES.find(c => c.name === shop.city)?.slug ?? 'all';
       this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
       this.refresh(); this.updateLocation();
     }
     this.selected = slug;
-    this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug) });
+    this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug), visited: !!this.journey.visits[shop.slug] });
     this.panel.markSelected(slug);
     router.set(slug);
     this.engine?.setSelected(slug);
@@ -265,7 +336,7 @@ export class App {
   }
 
   private onEscape(): void {
-    if (this.splat.open) return; // the dialog handles its own Escape
+    if (this.journey.open || this.splat.open) return; // the dialog handles its own Escape
     if (this.trail.playing) this.trail.stop();
     else if (this.streetView?.isOpen) this.closeStreetView();
     else if (this.buildingPanel.open) this.turnOffBuilding();
@@ -274,6 +345,7 @@ export class App {
 
   private jumpToCity(slug: string): void {
     this.trail.stop();
+    this.clearCollection();
     this.city = slug;
     this.closeCard(); this.refresh(); this.updateLocation();
     if (isMobileLayout()) this.sheet.setSnap('peek');
@@ -305,6 +377,7 @@ export class App {
       this.trail.stop();
       return;
     }
+    this.clearCollection();
     const trail = TRAILS[0];
     if (!trail) return;
     // Show the trail's broth on the map while touring.

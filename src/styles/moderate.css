@@ -1,0 +1,20 @@
+body.moderation-page {height:auto;min-height:100vh;overflow:auto;background:#f3f1e9}
+.moderation-shell {max-width:820px;margin:0 auto;padding:44px 24px 80px}
+.moderation-shell>header {margin-bottom:32px}
+.moderation-shell>header>a {display:block;font-size:29px;letter-spacing:-1px;font-weight:650;text-decoration:none;color:var(--steam);margin-bottom:32px}
+.moderation-shell h1 {font:400 45px var(--font-display);letter-spacing:-1.5px;margin:10px 0 16px}
+.moderation-shell>header p {max-width:640px;font-size:13px;line-height:1.8;color:var(--steam-2)}
+#moderator-login {max-width:400px;margin:0}
+#review-status {font-size:12px;line-height:1.7;color:var(--lantern)}
+.review-toolbar {display:flex;gap:20px;align-items:center;padding:16px 0;border-block:1px solid var(--line)}
+.review-toolbar label {font-size:12px;margin-right:auto}
+.review-toolbar select {padding:6px;background:#faf8f0;border:1px solid var(--line);border-radius:4px}
+.review-note {padding:24px 0;border-bottom:1px solid var(--line)}
+.review-note header {display:flex;align-items:center;justify-content:space-between}
+.review-note h2 {font:400 29px var(--font-display);margin:14px 0}
+.review-note p {font-size:14px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
+.review-note small {font-size:11px;color:var(--steam-3)}
+.review-note .form-actions {margin-top:20px}
+.review-note .btn,.review-toolbar .btn {border:1px solid var(--line-strong);border-radius:5px;background:#e6ebdc;padding:10px 15px;font-size:12px;color:var(--steam)}
+.review-note .btn--primary {background:#344a34;color:#f8f6ed;border-color:#344a34}
+.review-empty {padding:30px 0;font:28px var(--font-display)}
