@@ -106,8 +106,8 @@ export const BROTHS: Record<BrothId, Broth> = {
     id: "other",
     label: "Unspecified style",
     labelJa: "その他",
-    color: "#8e8aa8",
-    ink: "#14121f",
+    color: "#b1a18d",
+    ink: "#302822",
     description: "Soup and noodle shops whose specific broth style has not been verified.",
   },
 };

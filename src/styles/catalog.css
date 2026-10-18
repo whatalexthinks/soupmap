@@ -1,7 +1,7 @@
 .catalog-note {
   margin: 12px 0 18px;
   padding: 0 26px;
-  color: #5c6258;
+  color: var(--muted);
   font-size: 11px;
   line-height: 1.65;
   letter-spacing: .01em;
@@ -11,6 +11,11 @@
 #street-view-status { line-height: 1.65; margin-top: 12px; }
 .street-view-actions { margin: 18px 0 22px; }
 .street-view-actions .btn { width: 100%; justify-content: center; }
-.street-view-link { display: inline-block; margin-top: 12px; font-size: 12px; color: #943c2c; text-underline-offset: 3px; }
+.street-view-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--clay); text-underline-offset: 3px; }
 .actions .btn[disabled] { opacity: .6; cursor: not-allowed; }
 .shop-row__meta { line-height: 1.6; }
+
+.card__primary-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.card__primary-actions .btn {min-height:44px;min-width:0;font-size:12px}
+.card__primary-actions [data-action="stand-outside"] {background:var(--paper-light);border-color:var(--rule);color:var(--soot)}
+.card__primary-actions [data-action="stand-outside"]:enabled:hover {background:var(--stone)}
