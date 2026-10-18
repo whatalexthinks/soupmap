@@ -20,13 +20,13 @@ test("indexation gates out thin locations, not merely unverified records", () =>
     { neighborhood: "Japan" }, { lat: NaN },
   ]) assert.equal(isIndexableShop({ ...shop, ...change }), false);
   assert.equal(shopPath(shop), `/shop/${shop.slug}/`);
-  assert.equal(shopPath(OPEN_SHOPS[0]!), `/#${OPEN_SHOPS[0]!.slug}`);
+  assert.equal(shopPath(OPEN_SHOPS[0]!), `/map/#${OPEN_SHOPS[0]!.slug}`);
 });
 
 test("app rows stay on the map while separate city and shop documents remain crawlable", () => {
   const shop = CURATED_SHOPS[0]!;
-  assert.ok(shopRowHtml(shop, false).includes(`href="/#${shop.slug}"`));
-  assert.ok(shopRowHtml(OPEN_SHOPS[0]!, false).includes('href="/#open-'));
+  assert.ok(shopRowHtml(shop, false).includes(`href="/map/#${shop.slug}"`));
+  assert.ok(shopRowHtml(OPEN_SHOPS[0]!, false).includes('href="/map/#open-'));
   const cities = cityButtonsHtml(ORDERED_SHOPS);
   assert.match(cities, /<a href="\/catalog\/"/);
   assert.match(cities, /<a href="\/city\/fukuoka\/"/);
@@ -36,7 +36,7 @@ test("every national record is visible in paginated HTML without filter interact
   const national = pages.filter(p => /^\/catalog\/(?:page\/\d+\/)?$/.test(p.path));
   assert.equal(national.length, Math.ceil(ORDERED_SHOPS.length / CATALOG_PAGE_SIZE));
   const rendered = national.map(p => p.content).join("");
-  const links = [...rendered.matchAll(/<h2><a href="(?:\/shop\/([^/]+)\/|\/#([^"]+))"/g)]
+  const links = [...rendered.matchAll(/<h2><a href="(?:\/shop\/([^/]+)\/|\/map\/#([^"]+))"/g)]
     .map(m => m[1] || m[2]);
   assert.equal(links.length, ORDERED_SHOPS.length);
   const slugs = new Set(links);
@@ -171,7 +171,7 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
   });
   const sitemap = assets.get("sitemap.xml")!;
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
-  assert.equal(locations.length, pages.length + 2);
+  assert.equal(locations.length, pages.length + 3);
   for (const page of pages) {
     assert.ok(locations.includes(origin + page.path));
     const html = assets.get(`${page.path.slice(1)}index.html`)!;

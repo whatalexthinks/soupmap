@@ -154,7 +154,7 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
         <section class="block"><h2>Sources and verification</h2><p>${provenance(shop)}</p>
           <p>Shop notes are Soupmap editorial content, not a copied review or rating. Menu notes and broth descriptions are not a guarantee of current offerings.</p>
           ${limitations}</section>
-        <p><a href="/#${shop.slug}">Open on the Soupmap map</a> · <a href="${esc(shop.googleMapsUrl)}">Check location on Google Maps</a></p>`,
+        <p><a href="/map/#${shop.slug}">Open on the Soupmap map</a> · <a href="${esc(shop.googleMapsUrl)}">Check location on Google Maps</a></p>`,
       // Describe the document, not a verified business, rating, menu or opening-hours claim.
       structuredData: { "@type": "WebPage", name: `${name} — ${shop.city}`, description,
         about: { "@type": "Place", name, alternateName: shop.nameJa,
@@ -184,7 +184,7 @@ export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: 
     <link rel="icon" href="/favicon.svg">${(typeof stylesheet === "string" ? [stylesheet] : stylesheet).map(href => `<link rel="stylesheet" href="${esc(href)}">`).join("")}
     <script type="application/ld+json">${json}</script></head><body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="masthead"><p class="wordmark"><a href="/">soup<span class="wordmark__map">map</span></a></p><a class="back" href="/">← Back to the map</a></header>
+    <header class="masthead"><p class="wordmark"><a href="/">soup<span class="wordmark__map">map</span></a></p><a class="back" href="/map/">← Back to the map</a></header>
     <main id="main" class="page">${page.content}</main>
     <footer class="foot"><p>Soupmap · A worldwide soup atlas, starting in Japan. <a href="/catalog/">Catalog</a> · <a href="/credits/">Data &amp; credits</a></p></footer>
     </body></html>`;

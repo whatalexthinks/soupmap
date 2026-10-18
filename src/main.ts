@@ -2,7 +2,10 @@
 import { loadJapaneseFont } from "./fonts.ts";
 
 loadJapaneseFont();
-void import("./app.ts").then(({ App }) => new App().start()).catch(() => {
+void import("./app.ts").then(({ App }) => {
+  new App().start();
+  void import("./map-account.ts").catch(() => { /* Public map stays usable if auth is offline. */ });
+}).catch(() => {
   const message = document.querySelector("#loader-text");
   if (message) message.textContent = "The shop catalog could not load. Reload the page to try again.";
   document.querySelector(".loader__steam")?.remove();

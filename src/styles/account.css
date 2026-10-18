@@ -1,0 +1,84 @@
+@import "@fontsource-variable/fraunces/soft.css";
+@import "@fontsource-variable/instrument-sans";
+
+* {box-sizing:border-box}
+body.account-page {margin:0;background:#f3f1e9;color:#292e27;font:15px/1.55 "Instrument Sans Variable",system-ui,sans-serif}
+.account-page a {color:inherit;text-underline-offset:4px}
+.account-page button,.account-page input {font:inherit}
+.account-page button {cursor:pointer;padding:9px 16px;border:1px solid #cbd0c2;border-radius:6px;background:#faf9f3;color:#292e27}
+.account-page button:hover {background:#e7e9de}
+.account-page button:disabled {opacity:.5;cursor:not-allowed}
+.account-page :focus-visible {outline:3px solid #b7442c;outline-offset:3px}
+.account-page input:not([type=checkbox]) {width:100%;padding:11px 12px;border:1px solid #c4cab9;border-radius:6px;background:#fffefa;color:#292e27}
+.account-nav {display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px clamp(20px,5vw,72px);border-bottom:1px solid #d8dacd}
+.account-brand {font-size:27px;font-weight:700;text-decoration:none;letter-spacing:-1.5px}
+.account-brand span {color:#b7442c}
+.account-intro {max-width:760px;padding:70px 24px;margin:auto}
+.account-page h1,.account-page h2,.account-page h3 {font-family:"Fraunces Variable",Georgia,serif;line-height:1.1;font-weight:500}
+.account-intro h1,.portal h1 {font-size:clamp(35px,4.8vw,60px);letter-spacing:-2px;margin:10px 0 18px}
+.account-page h2 {font-size:30px;margin:8px 0}
+.account-eyebrow {font-size:10px;font-weight:650;letter-spacing:1.7px;color:#68725e}
+.account-actions {display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:30px}
+.account-primary {background:#b7442c;color:white!important;padding:13px 22px;text-decoration:none;border-radius:6px}
+.account-loading {padding:45px;text-align:center}
+.auth-shell {padding:48px 20px;display:flex;flex-direction:column;align-items:center;gap:22px;min-height:80dvh}
+.auth-shell>p {max-width:440px;text-align:center;font-size:13px;color:#62675d}
+.portal {max-width:1280px;margin:auto;padding:45px clamp(18px,4vw,56px)}
+.portal-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:32px}
+.portal-heading h1 {max-width:720px}
+.portal-heading p {margin-bottom:0}
+.portal-grid {display:grid;grid-template-columns:250px minmax(0,1fr);gap:36px}
+.list-sidebar {border-right:1px solid #d8dacd;padding-right:26px}
+.list-sidebar h2 {font-size:21px}
+.list-sidebar nav {display:flex;flex-direction:column;gap:6px;margin:20px 0 30px}
+.list-sidebar nav button {display:flex;justify-content:space-between;gap:12px;text-align:left;background:transparent;border-color:transparent;overflow-wrap:anywhere}
+.list-sidebar nav button[aria-pressed=true] {background:#e3e7d9;border-color:#bfc7b1}
+.list-sidebar form {display:flex;flex-direction:column;gap:9px}
+.list-title {display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:24px}
+.list-title h2 {overflow-wrap:anywhere}
+.list-title p {margin:5px 0;color:#64705d}
+.personal-shops {padding:0;list-style:none}
+.personal-shops>li {display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #d8dacd;padding:18px 0}
+.personal-shops>li>div {min-width:0}
+.personal-shops a {font-size:18px;font-weight:600;overflow-wrap:anywhere}
+.personal-shops span {display:block;font-size:13px;color:#62675d}
+.personal-shops button {flex-shrink:0;font-size:12px}
+.list-empty {border:1px dashed #bbc2af;border-radius:10px;padding:30px;margin:25px 0}
+.list-empty h3 {font-size:27px;margin:0 0 12px}
+.list-add {margin-top:30px}
+.list-add>label {display:block;margin-bottom:8px;font-weight:600}
+.list-add ul {list-style:none;padding:0}
+.list-add li {display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #d8dacd}
+.list-add small {display:block;color:#62675d}
+.device-import,.list-share {padding:22px;border:1px solid #c4cbb7;background:#eaedde;border-radius:9px;margin:0 0 30px}
+.device-import p,.list-share p {font-size:13px;max-width:680px}
+.device-import button+button {margin-left:10px}
+.list-share>label {display:flex;gap:10px;align-items:center;margin:10px 0}
+.list-share input[type=checkbox] {accent-color:#b7442c}
+.list-share>div {margin-top:18px}
+.list-settings {padding:0 0 20px}
+.list-settings summary {cursor:pointer;font-size:13px}
+.list-settings form {display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:15px 0}
+.list-settings form input {max-width:300px}
+.list-settings .danger {color:#a72a22}
+.account-error,.account-notice {padding:15px 20px;border-radius:8px;margin-bottom:24px}
+.account-error {background:#fae7df;color:#8c281d}
+.account-notice {background:#e2ecdc;color:#31502c}
+.account-fine {font-size:12px;color:#62675d;border-top:1px solid #d8dacd;padding-top:22px;margin-top:40px}
+.cl-formFieldInput::placeholder {color:#73796b;opacity:1}
+.cl-footerActionLink:hover {color:#b7442c}
+.account-mini {display:flex;align-items:center;gap:14px;font-size:12px;flex-wrap:wrap}
+.account-mini button {border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-decoration:underline}
+.account-mini span {font-size:11px;max-width:220px}
+.map-account {margin-left:auto;font-size:11px}
+@media(max-width:760px){.map-account {display:none}}
+@media(max-width:700px){
+  .account-nav {padding:16px 20px}.account-brand {font-size:23px}
+  .portal {padding:28px 18px}.portal-grid {grid-template-columns:1fr;gap:28px}
+  .list-sidebar {border:0;border-bottom:1px solid #d8dacd;padding:0 0 24px}
+  .list-sidebar nav {flex-direction:row;overflow-x:auto;margin:12px 0 20px}
+  .list-sidebar nav button {flex-shrink:0;max-width:240px}
+  .portal-heading {flex-direction:column}.portal-heading h1 {font-size:38px}
+  .list-title {align-items:flex-start;flex-direction:column}
+  .personal-shops a {font-size:16px}.auth-shell {padding:28px 14px}
+}

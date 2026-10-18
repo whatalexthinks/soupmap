@@ -15,5 +15,5 @@ export function isIndexableShop(shop: Shop): boolean {
 }
 
 export function shopPath(shop: Shop): string {
-  return isIndexableShop(shop) ? `/shop/${shop.slug}/` : `/#${shop.slug}`;
+  return isIndexableShop(shop) ? `/shop/${shop.slug}/` : `/map/#${shop.slug}`;
 }

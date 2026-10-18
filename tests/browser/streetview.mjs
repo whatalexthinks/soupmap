@@ -204,7 +204,7 @@ async function run(viewport, mode, slug = shops[0]) {
     // not Cesium. UI startup is explicitly designed to survive map failure.
     await page.route("**/src/map/engine.ts", route => route.abort());
     await instrument(page, mode);
-    await page.goto(`${origin}/#${slug}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}/map/#${slug}`, { waitUntil: "domcontentloaded" });
     const entry = page.locator('[data-action="stand-outside"]');
     stage = "entry";
     await entry.waitFor({ state: "visible" });

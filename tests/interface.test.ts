@@ -19,7 +19,7 @@ beforeEach((context)=>{
     ? 'https://soupmap.example/' + shortlistHash(['afuri-ebisu','ichiran-nakasu'])
     : 'https://soupmap.example/'});
   if (initialShared) window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(['ginza-kagari']));
-  window.document.write(readFileSync(new URL('../index.html',import.meta.url),'utf8'));
+  window.document.write(readFileSync(new URL('../map/index.html',import.meta.url),'utf8'));
   for (const key of ['document','location','history','localStorage','CSS','HTMLElement','Element','HTMLInputElement','HTMLButtonElement','navigator']) {
     Object.defineProperty(globalThis,key,{value:(window as unknown as Record<string,unknown>)[key],configurable:true});
   }

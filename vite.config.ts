@@ -76,7 +76,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`,
           source: catalogDocument(page, siteUrl, stylesheets) });
       }
-      const pages = ["/", "/credits/", ...documents.map(page => page.path)];
+      const pages = ["/", "/map/", "/credits/", ...documents.map(page => page.path)];
       this.emitFile({
         type: "asset",
         fileName: "sitemap.xml",
@@ -141,6 +141,8 @@ export default defineConfig(({ mode }) => {
       rolldownOptions: {
         input: {
           main: resolve(import.meta.dirname, "index.html"),
+          map: resolve(import.meta.dirname, "map/index.html"),
+          account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
         },
       },

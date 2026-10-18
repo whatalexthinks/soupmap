@@ -13,6 +13,7 @@
       "node"
     ],
     "strict": true,
+    "jsx": "react-jsx",
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
@@ -27,6 +28,7 @@
   "include": [
     "src",
     "scripts",
+    "server",
     "vite.config.ts"
   ]
 }

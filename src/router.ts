@@ -54,7 +54,7 @@ export const router = {
 
   shortlistUrl(ids: readonly string[]): string {
     if (ids.some(id => !shopBySlug.has(id))) throw new Error('Some selected shops are no longer available.');
-    return `${location.origin}/${shortlistHash(ids)}`;
+    return `${location.origin}/map/${shortlistHash(ids)}`;
   },
 
   clearShortlist(): void {

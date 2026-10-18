@@ -23,7 +23,7 @@ export function shopRowHtml(shop: Shop, selected: boolean, saved = false, index 
   const primaryName = displayName(shop, language);
   const accessibleName = shop.nameJa && shop.nameJa !== primaryName ? `${primaryName} (${shop.nameJa})` : primaryName;
   return `<li class="shop-entry${selected ? ' is-selected' : ''}">
-    <a class="shop-row" href="/#${esc(shop.slug)}" data-slug="${esc(shop.slug)}" aria-label="${esc(accessibleName)}"${selected ? ' aria-current="true"' : ''}>
+    <a class="shop-row" href="/map/#${esc(shop.slug)}" data-slug="${esc(shop.slug)}" aria-label="${esc(accessibleName)}"${selected ? ' aria-current="true"' : ''}>
       <span class="shop-row__art" style="--broth:${broth.color}">${bowlArt(shop.broth)}</span>
       <span class="shop-row__content"><span class="shop-row__kicker">${esc(shop.neighborhood)} <span> / ${String(index + 1).padStart(2, '0')}</span></span>
       <span class="shop-row__name" lang="${language === "ja" ? "ja" : "en"}">${esc(primaryName)}</span>
