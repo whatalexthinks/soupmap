@@ -530,6 +530,10 @@ export class App {
     if (!this.streetViewUsable() || !this.streetView) return;
     const request = ++this.streetViewRequest;
     this.card.setStreetView("loading");
+    $("#pano-label").textContent = t("streetViewLoading");
+    $("#pano-bar").hidden = false;
+    document.body.classList.add("is-pano");
+    $("#pano-back").focus();
     const info = await this.streetView.open(shop);
     if (request !== this.streetViewRequest) return;
     if (this.card.current?.slug !== shop.slug) {
@@ -537,6 +541,8 @@ export class App {
       return;
     }
     if (!info) {
+      $("#pano-bar").hidden = true;
+      document.body.classList.remove("is-pano");
       trackEvent("street_view_failed");
       this.card.setStreetView("unavailable", this.streetView.unavailableReason(shop));
       toast(t("streetViewFailed"));
