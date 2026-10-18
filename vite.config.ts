@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
-import { viteStaticCopy } from "vite-plugin-static-copy";
+import { cesiumAssets } from "./scripts/lib/cesium-assets.ts";
 import { ORDERED_SHOPS } from "./src/data/shops.ts";
 import { creditsHtml } from "./src/render/credits.ts";
 import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "./src/render/templates.ts";
@@ -146,19 +146,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      viteStaticCopy({
-        targets: [
-          { src: `${CESIUM_BUILD}/Workers/**/*`, dest: CESIUM_DIR, rename: { stripBase: 4 } },
-          { src: `${CESIUM_BUILD}/ThirdParty/**/*`, dest: CESIUM_DIR, rename: { stripBase: 4 } },
-          { src: `${CESIUM_BUILD}/Widgets/**/*`, dest: CESIUM_DIR, rename: { stripBase: 4 } },
-          {
-            // Includes the bundled global Earth imagery used by the planet opening.
-            src: [`${CESIUM_BUILD}/Assets/**/*`],
-            dest: CESIUM_DIR,
-            rename: { stripBase: 4 },
-          },
-        ],
-      }),
+      cesiumAssets(resolve(CESIUM_BUILD), CESIUM_DIR),
       soupmapHtml(env),
     ],
   };

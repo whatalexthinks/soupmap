@@ -47,6 +47,10 @@
 - The importer generates approximate Latin readings offline using Kuromoji/WanaKana; `npm run data:romanize` can update the existing catalog without downloading a fresh extract. Keep originals, mark generated readings, and leave unreadable proper names in Japanese instead of inventing a translation. Dictionaries never ship to browsers.
 - In-app Street View uses Google's imagery APIs; the always-available external Google Maps link is a fallback when API access or imagery coverage is missing.
 
+## Build dependencies
+
+- Cesium runtime assets use the local Vite plugin rather than `vite-plugin-static-copy`, whose latest release pulled in unpatched `braces` (GHSA-vfj7-8cjw-p6xm). Keep the versioned asset paths without reintroducing that dependency chain.
+
 ## Google Street View setup
 
 - Enable **Maps JavaScript API** for interactive panoramas and nearby-imagery lookup, in the same Cloud project as `VITE_GOOGLE_MAPS_KEY`, with billing active. Street View Static API is not required.
