@@ -6,3 +6,4 @@
 - [Worldwide scope](worldwide-scope.md) — Soupmap is a global soup atlas; Japan is a starting region, not the brand's boundary.
 - [Browser touch checks](browser-touch-verification.md) — explicit CDP touch events avoid a false scrolling failure from synthetic scroll gestures.
 - [Shortlist privacy](shortlist-sharing.md) — sharing is an opt-in snapshot; bearer links cannot be revoked and must never replace recipients' saves.
+- [Street View host behavior](streetview-host.md) — Google mutates host positioning; verify visible imagery and Back to map, not just API success.

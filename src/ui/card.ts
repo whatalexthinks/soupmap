@@ -165,7 +165,7 @@ export class ShopCard {
     const status = this.el.querySelector<HTMLElement>("#street-view-status");
     if (status) status.textContent = state === "unknown" ? "Checking nearby outdoor imagery…"
       : state === "loading" ? "Opening Street View…"
-      : state === "available" ? "Look around outside this shop. Imagery may not show its exact entrance."
+      : state === "available" ? reason ?? "Look around outside this shop. Imagery may not show its exact entrance."
       : reason ?? "In-app imagery is unavailable here. Try Street View in Google Maps.";
   }
 

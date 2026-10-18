@@ -10,32 +10,45 @@ let window: Window;
 let options: google.maps.StreetViewPanoramaOptions | undefined;
 let visible = false;
 let metadataCalls = 0;
+let coverage = "OK";
+let readyStatus = "OK";
+let lookupRadii: number[] = [];
 
 class FakePanorama {
   constructor(_container: HTMLElement, next: google.maps.StreetViewPanoramaOptions) {
+    assert.equal(_container.className,"interactive-streetview__renderer");
+    assert.equal(_container.parentElement?.className,"interactive-streetview");
+    // Match Google's real host mutation: it must not touch the fixed frame.
+    _container.style.position="relative";
     options = next;
     visible = !!next.visible;
   }
   setVisible(next: boolean) { visible = next; }
   addListener() { return {remove(){}}; }
-  getStatus() { return "OK"; }
+  getStatus() { return readyStatus; }
 }
-const library = {StreetViewPanorama: FakePanorama} as unknown as google.maps.StreetViewLibrary;
+class FakeService {
+  async getPanorama(request: google.maps.StreetViewLocationRequest) {
+    metadataCalls++;
+    lookupRadii.push(request.radius!);
+    assert.deepEqual(request.sources, ["google", "outdoor"]);
+    assert.equal(request.preference, "best");
+    if (coverage !== "OK") throw Object.assign(new Error("Unavailable"), {code:coverage});
+    return {data:{location:{pano:"test-panorama",latLng:{lat:()=>shop.lat,lng:()=>shop.lng-0.001}},
+      copyright:"© Google",imageDate:"2024-01"}};
+  }
+}
+const library = {StreetViewPanorama: FakePanorama, StreetViewService:FakeService,
+  StreetViewSource:{GOOGLE:"google",OUTDOOR:"outdoor"},StreetViewPreference:{BEST:"best"},
+} as unknown as google.maps.StreetViewLibrary;
 
 beforeEach(()=>{
   window = new Window();
   for(const [key,value] of Object.entries({window,document:window.document,Event:window.Event})) {
     Object.defineProperty(globalThis,key,{value,configurable:true});
   }
-  options=undefined; visible=false; metadataCalls=0;
-  globalThis.fetch = async input => {
-    metadataCalls++;
-    const url = new URL(String(input));
-    assert.equal(url.searchParams.get("source"),"outdoor");
-    assert.equal(url.searchParams.get("radius"),"100");
-    return new Response(JSON.stringify({status:"OK",pano_id:"test-panorama",
-      location:{lat:shop.lat,lng:shop.lng-0.001},copyright:"© Google",date:"2024-01"}));
-  };
+  options=undefined; visible=false; metadataCalls=0; coverage="OK"; readyStatus="OK"; lookupRadii=[];
+  globalThis.fetch = async () => { throw new Error("Street View must not depend on Static API metadata"); };
 });
 afterEach(async()=>{ globalThis.fetch=realFetch; await window.happyDOM.close(); });
 
@@ -45,9 +58,9 @@ test("native panorama starts wide with connected street movement and no static f
   assert.ok(await view.find(shop));
   assert.ok(await view.find(shop));
   assert.equal(metadataCalls,1);
-  assert.equal(libraryLoads,0);
-  assert.ok(await view.open(shop));
   assert.equal(libraryLoads,1);
+  assert.ok(await view.open(shop));
+  assert.equal(libraryLoads,2);
   assert.equal(options?.zoom,0);
   assert.equal(options?.linksControl,true);
   assert.equal(options?.clickToGo,true);
@@ -88,14 +101,36 @@ test("closing during library loading cancels entry and cannot reopen an old shop
   assert.equal(window.document.querySelector(".interactive-streetview"),null);
 });
 
-test("missing coverage and metadata authorization failure remain distinct and retryable",async()=>{
-  globalThis.fetch=async()=>new Response(JSON.stringify({status:"ZERO_RESULTS"}));
+test("missing coverage widens outdoor search and authorization failures stay retryable",async()=>{
+  coverage="ZERO_RESULTS";
   const view = new StreetView("test-key",async()=>library);
   assert.equal(await view.find(shop),null);
-  assert.match(view.unavailableReason(shop) ?? "",/No outdoor/);
-  globalThis.fetch=async()=>new Response(JSON.stringify({status:"REQUEST_DENIED"}));
+  assert.deepEqual(lookupRadii,[250,500]);
+  assert.match(view.unavailableReason(shop) ?? "",/No official outdoor/);
+  coverage="REQUEST_DENIED";
   assert.equal(await view.find(shop),null);
-  assert.match(view.unavailableReason(shop) ?? "",/Street View Static API/);
+  assert.match(view.unavailableReason(shop) ?? "",/Maps JavaScript API/);
+  coverage="OK";
+  assert.ok(await view.find(shop));
+});
+
+test("viewer failure is not reported as successfully opened",async()=>{
+  readyStatus="UNKNOWN_ERROR";
+  const view = new StreetView("test-key",async()=>library);
+  assert.equal(await view.open(shop),null);
+  assert.equal(view.isOpen,false);
+  assert.match(view.unavailableReason(shop) ?? "",/did not load/);
+  assert.equal(window.document.querySelector(".interactive-streetview"),null);
+});
+
+test("viewer shares the app stacking context so Back to map stays above it",async()=>{
+  const app=window.document.createElement("main");
+  app.id="app";
+  window.document.body.append(app);
+  const view=new StreetView("test-key",async()=>library);
+  assert.ok(await view.open(shop));
+  assert.equal(window.document.querySelector(".interactive-streetview")?.parentElement,app);
+  view.close();
 });
 
 test("initial heading faces the selected shop without tilting upwards",()=>{

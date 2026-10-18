@@ -1,8 +1,8 @@
 /// <reference types="google.maps" />
 /**
  * Native Google Street View, with progressive imagery and connected street navigation.
- * The free Static metadata lookup is retained so selecting a shop doesn't load a
- * billable JavaScript panorama. Interactive imagery loads only after explicit entry.
+ * Resolve official outdoor imagery through the same browser API as the viewer.
+ * No Static API dependency; load the SDK only after explicit entry.
  */
 import type { Shop } from "../data/shops.ts";
 import { loadInteractiveStreetView } from "./google-loader.ts";
@@ -13,13 +13,6 @@ export interface PanoInfo {
   lng: number;
   copyright: string;
   date: string | null;
-}
-interface MetadataResponse {
-  status: string;
-  pano_id?: string;
-  location?: { lat: number; lng: number };
-  copyright?: string;
-  date?: string;
 }
 
 export function headingToShop(from: {lat:number;lng:number}, to: {lat:number;lng:number}): number {
@@ -36,6 +29,7 @@ export class StreetView {
   private container: HTMLDivElement | null = null;
   private request = 0;
   private opening = false;
+  private cancelReady: (() => void) | null = null;
 
   constructor(
     private readonly key: string,
@@ -60,25 +54,35 @@ export class StreetView {
 
   private async lookup(shop: Shop): Promise<PanoInfo | null> {
     this.errors.delete(shop.slug);
-    const params = new URLSearchParams({
-      location: `${shop.lat},${shop.lng}`, radius: "100", source: "outdoor", key: this.key,
-    });
     try {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/streetview/metadata?${params}`, { signal: AbortSignal.timeout(8000) });
-      if (!response.ok) throw new Error("Metadata failed");
-      const data = await response.json() as MetadataResponse;
-      if (data.status !== "OK" || !data.pano_id || !data.location) {
-        this.errors.set(shop.slug, data.status === "REQUEST_DENIED"
-          ? "Google denied the imagery check. Check Street View Static API, billing and website restrictions."
-          : data.status === "OVER_QUERY_LIMIT" ? "Google's Street View request limit was reached. Try Google Maps."
-          : "No outdoor Street View imagery was found within 100 m. Try Google Maps for nearby coverage.");
-        return null;
+      const library = await this.load(this.key);
+      const service = new library.StreetViewService();
+      // A station-basement shop can resolve to an indoor passage even when Google
+      // labels it outdoor. Prefer the best wider-area capture over the nearest.
+      for (const radius of [250, 500]) {
+        const result = await new Promise<google.maps.StreetViewResponse>((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error("Street View lookup timed out")), 12000);
+          void service.getPanorama({
+            location: {lat: shop.lat, lng: shop.lng}, radius,
+            sources: [library.StreetViewSource.GOOGLE, library.StreetViewSource.OUTDOOR],
+            preference: library.StreetViewPreference.BEST,
+          }).then(resolve, reject).finally(() => clearTimeout(timer));
+        }).catch(error => {
+          if ((error as {code?: string})?.code === "ZERO_RESULTS") return {data: {}} as google.maps.StreetViewResponse;
+          throw error;
+        });
+        const data = result.data;
+        const location = data?.location;
+        if (location?.pano && location.latLng) {
+          return {panoId: location.pano, lat: location.latLng.lat(), lng: location.latLng.lng(),
+            copyright: data.copyright ?? "© Google", date: data.imageDate ?? null};
+        }
       }
-      return { panoId: data.pano_id, ...data.location, copyright: data.copyright ?? "© Google", date: data.date ?? null };
+      this.errors.set(shop.slug, "No official outdoor Street View was found within 500 m. Try Google Maps for other imagery.");
     } catch {
-      this.errors.set(shop.slug, "The Street View availability check could not connect. Try the Google Maps link.");
-      return null;
+      this.errors.set(shop.slug, "Street View could not connect. Check Maps JavaScript API access, billing and website restrictions, or try Google Maps.");
     }
+    return null;
   }
 
   async open(shop: Shop): Promise<PanoInfo | null> {
@@ -93,11 +97,17 @@ export class StreetView {
       const container = document.createElement("div");
       container.className = "interactive-streetview";
       container.setAttribute("aria-label", "Interactive Street View. Use arrows to move along connected streets.");
-      document.body.append(container);
+      // Google writes position:relative onto its host. Keep that host inside a
+      // separate fixed frame so its inline styles cannot collapse the overlay.
+      const renderer = document.createElement("div");
+      renderer.className = "interactive-streetview__renderer";
+      container.append(renderer);
+      // Stay in the app's fixed stacking context, below its Back to map bar.
+      (document.querySelector("#app") ?? document.body).append(container);
       this.container = container;
       // Give Google's renderer its full viewport before creating it. Never scale a
       // low-resolution still or reuse the previous shop's zoom.
-      const panorama = new library.StreetViewPanorama(container, {
+      const panorama = new library.StreetViewPanorama(renderer, {
         pano: info.panoId, pov: { heading: headingToShop(info, shop), pitch: 0 }, zoom: 0,
         visible: true, linksControl: true, clickToGo: true, scrollwheel: true,
         panControl: true, zoomControl: true, addressControl: true,
@@ -105,6 +115,28 @@ export class StreetView {
         motionTracking: false, motionTrackingControl: false,
       });
       this.panorama = panorama;
+      const ready = await new Promise<boolean>(resolve => {
+        let listener: google.maps.MapsEventListener | undefined;
+        const finish = (ok: boolean) => {
+          clearTimeout(timer);
+          listener?.remove();
+          this.cancelReady = null;
+          resolve(ok);
+        };
+        const timer = setTimeout(() => finish(false), 15000);
+        this.cancelReady = () => finish(false);
+        listener = panorama.addListener("status_changed", () => {
+          const status = panorama.getStatus();
+          if (status) finish(status === "OK");
+        });
+        if (panorama.getStatus()) finish(panorama.getStatus() === "OK");
+      });
+      if (request !== this.request) return null;
+      if (!ready) {
+        this.close();
+        this.errors.set(shop.slug, "The street panorama did not load. Try again or open Street View in Google Maps.");
+        return null;
+      }
       panorama.addListener("status_changed", () => {
         if (request !== this.request) return;
         const status = panorama.getStatus();
@@ -127,6 +159,7 @@ export class StreetView {
 
   close(): void {
     ++this.request;
+    this.cancelReady?.();
     this.opening = false;
     this.panorama?.setVisible(false);
     if (this.panorama && typeof google !== "undefined") google.maps.event.clearInstanceListeners(this.panorama);

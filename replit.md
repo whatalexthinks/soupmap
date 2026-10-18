@@ -49,9 +49,9 @@
 
 ## Google Street View setup
 
-- Enable **Maps JavaScript API** for interactive panoramas and **Street View Static API** for the free nearby-imagery metadata check, in the same Cloud project as `VITE_GOOGLE_MAPS_KEY`, with billing active.
+- Enable **Maps JavaScript API** for interactive panoramas and nearby-imagery lookup, in the same Cloud project as `VITE_GOOGLE_MAPS_KEY`, with billing active. Street View Static API is not required.
 - **Map Tiles API** is needed for the separate Google photorealistic 3D map. Places API is not used. Street View is an independent native Google viewer with connected-road navigation, not a stationary Cesium cube made of static faces.
-- In the key's API restrictions, allow Maps JavaScript API, Street View Static API and Map Tiles API. Keep application restrictions set to websites, with the exact Preview origin followed by `/*`; add the real published/custom origin when publishing. Do not use a wildcard that authorizes every Replit project.
+- In the key's API restrictions, allow Maps JavaScript API and Map Tiles API. Keep application restrictions set to websites, with the exact Preview origin followed by `/*`; add the real published/custom origin when publishing. Do not use a wildcard that authorizes every Replit project.
 - If requests are denied, check API activation, billing, quota and the actual website referrer in Google Cloud. Keep restrictions in place; do not expose an unrestricted key to troubleshoot.
-- The app checks outdoor coverage within 100 m. A missing panorama is not necessarily a key error, and imagery may not show the precise entrance. Metadata checks do not consume image quota. The JavaScript viewer loads only after explicit entry and uses Google's Dynamic Street View billing. Zoom starts at zero; navigation depends on connected imagery being available.
+- The app requests official Google outdoor imagery, preferring the best capture within 250 m and widening to 500 m if none exists. Google can misclassify station passages as outdoor; imagery may not show the precise entrance. The JavaScript SDK and coverage lookup load only after explicit entry; the panorama uses Google's Dynamic Street View billing. Zoom starts at zero; navigation depends on connected imagery being available.
 - Reference: https://developers.google.com/maps/documentation/javascript/streetview and https://developers.google.com/maps/api-security-best-practices

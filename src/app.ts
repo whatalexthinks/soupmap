@@ -509,7 +509,7 @@ export class App {
     return !!this.streetView;
   }
 
-  /** Show "Stand outside" only if an outdoor panorama exists near the shop. */
+  /** Defer SDK and coverage lookup until the visitor explicitly opens Street View. */
   private async checkStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) {
       this.card.setStreetView("unavailable", this.googleKey
@@ -517,10 +517,7 @@ export class App {
         : "In-app Street View needs a Google Maps key. You can still open it in Google Maps.");
       return;
     }
-    this.card.setStreetView("unknown");
-    const info = await this.streetView.find(shop);
-    if (this.card.current?.slug !== shop.slug) return;
-    this.card.setStreetView(info ? "available" : "unavailable", this.streetView.unavailableReason(shop));
+    this.card.setStreetView("available", "Find nearby official outdoor imagery. Coverage may be a short walk from the entrance.");
   }
 
   private async openStreetView(shop: Shop): Promise<void> {
