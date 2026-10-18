@@ -8,8 +8,11 @@ import { t } from "../i18n.ts";
 import { displayName, getNameLanguage, isRomanizedName } from "../names.ts";
 import { $, esc, prefersReducedMotion } from "./dom.ts";
 import { icon } from "./icons.ts";
+import { HistorySection } from "./history-section.ts";
+import type { HistoryMapPlace } from "../history-coverage.ts";
 
 export interface CardHandlers {
+  onHistoryPlaces?(places: HistoryMapPlace[]): void;
   onClose(): void;
   onSave(shop: Shop): void;
   onStandOutside(shop: Shop): void;
@@ -59,8 +62,10 @@ function provenanceHtml(shop: Shop): string {
 export class ShopCard {
   private readonly el = $("#card");
   private shop: Shop | null = null;
+  private readonly history: HistorySection;
 
   constructor(private readonly handlers: CardHandlers) {
+    this.history = new HistorySection(document.createElement("div"), places => handlers.onHistoryPlaces?.(places));
     this.el.addEventListener("click", (e) => {
       const button = (e.target as Element).closest<HTMLElement>("[data-action]");
       if (!button || !this.shop) return;
@@ -127,6 +132,7 @@ export class ShopCard {
           </dl>
           <p class="blurb">${esc(shop.blurb)}</p>
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
+          <div class="card__history"></div>
           <div class="actions">
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
             ${shop.splatUrl ? `<button type="button" class="btn" data-action="step-inside">${icon("cube")}${shop.splatUrl?.startsWith("procedural:") ? "View bowl demo" : esc(t("stepInside"))}</button>` : ""}
@@ -137,6 +143,11 @@ export class ShopCard {
           <p class="card__fine">${provenanceHtml(shop)}<a href="/credits/">${esc(t("credits"))}</a></p>
         </div>
       </div>`;
+    const historyHost = this.el.querySelector<HTMLElement>(".card__history");
+    if (historyHost) {
+      this.history.attach(historyHost);
+      this.history.show(shop);
+    }
     this.el.hidden = false;
     document.body.classList.add("has-card");
     this.el.querySelector(".card__scroll")?.scrollTo(0, 0);
@@ -145,6 +156,7 @@ export class ShopCard {
 
   close(): void {
     this.shop = null;
+    this.history.close();
     this.el.hidden = true;
     this.el.innerHTML = "";
     document.body.classList.remove("has-card");
@@ -178,5 +190,9 @@ export class ShopCard {
 
   contains(node: Node | null): boolean {
     return !!node && this.el.contains(node);
+  }
+
+  focusHistoryPlace(id: string): void {
+    this.history.focusPlace(id);
   }
 }

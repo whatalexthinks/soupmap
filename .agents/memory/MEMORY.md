@@ -7,3 +7,4 @@
 - [Browser touch checks](browser-touch-verification.md) — explicit CDP touch events avoid a false scrolling failure from synthetic scroll gestures.
 - [Shortlist privacy](shortlist-sharing.md) — sharing is an opt-in snapshot; bearer links cannot be revoked and must never replace recipients' saves.
 - [Street View host behavior](streetview-host.md) — Google mutates host positioning; verify visible imagery and Back to map, not just API success.
+- [History evidence policy](history-evidence.md) — distinguish nearby context, traditions and construction dates; use facts-only official prose and attributed share-alike adaptations.

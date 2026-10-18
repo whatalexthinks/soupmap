@@ -27,6 +27,8 @@ import { BottomSheet } from "./ui/sheet.ts";
 import { SplatModal } from "./ui/splat-modal.ts";
 import type { SharedShortlist } from "./shortlist.ts";
 import { trackEvent } from "./analytics.ts";
+import type { HistoryMapPlace } from "./history-coverage.ts";
+import type { HistoryLayer } from "./map/history-layer.ts";
 
 /** PLATEAU building tilesets by municipality code (from scripts/fetch-plateau-catalog.ts). */
 const PLATEAU_INDEX: ReadonlyMap<string, PlateauTilesetRef> = new Map(
@@ -73,6 +75,9 @@ export class App {
   private readonly broths = new Set<BrothId>();
   private selected: string | null = null;
   private engine: MapEngineImpl | null = null;
+  private historyPlaces: HistoryMapPlace[] = [];
+  private historyLayer: HistoryLayer | null = null;
+  private historyLayerRequest = 0;
   private streetView: StreetView | null = null;
   private streetViewRequest = 0;
   private buildingInfo: BuildingInfo | null = null;
@@ -170,6 +175,7 @@ export class App {
     this.panel.setNameLanguage(getNameLanguage());
 
     this.card = new ShopCard({
+      onHistoryPlaces: places => void this.setHistoryPlaces(places),
       onSave: shop => this.toggleSaved(shop.slug),
       onClose: () => {
         this.trail.stop();
@@ -645,6 +651,24 @@ export class App {
 
   // ── Map ──────────────────────────────────────────────────────────────────
 
+  private async setHistoryPlaces(places: HistoryMapPlace[]): Promise<void> {
+    this.historyPlaces = places;
+    const revision = ++this.historyLayerRequest;
+    if (this.historyLayer) {
+      this.historyLayer.setPlaces(places);
+      return;
+    }
+    if (!places.length || !this.engine) return;
+    try {
+      const { HistoryLayer } = await import("./map/history-layer.ts");
+      if (revision !== this.historyLayerRequest || !this.engine) return;
+      this.historyLayer = new HistoryLayer(this.engine, id => this.card.focusHistoryPlace(id));
+      this.historyLayer.setPlaces(places);
+    } catch {
+      if (revision === this.historyLayerRequest) toast("History notes are available, but their map markers could not load.");
+    }
+  }
+
   private async loadMap(): Promise<void> {
     if (this.mapStarted) return;
     this.mapStarted = true;
@@ -684,6 +708,7 @@ export class App {
         },
       });
       this.engine = engine;
+      void this.setHistoryPlaces(this.historyPlaces);
       this.controls.setEnabled(true);
       // ?debug exposes the engine for inspection in the console and in browser tests.
       if (new URLSearchParams(location.search).has("debug")) Object.assign(window, { soupmap: engine });

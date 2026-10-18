@@ -8,6 +8,7 @@ import "./styles/streetview.css";
 import "./styles/discovery-controls.css";
 import "./styles/mobile-map.css";
 import "./styles/shortlist-share.css";
+import "./styles/history.css";
 import { loadJapaneseFont } from "./fonts.ts";
 
 loadJapaneseFont();

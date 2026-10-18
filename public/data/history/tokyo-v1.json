@@ -1,0 +1,170 @@
+{
+  "city": "Tokyo",
+  "places": [
+    {
+      "id": "sensoji",
+      "nameEn": "Sensoji Temple",
+      "nameJa": "浅草寺",
+      "kind": "landmark",
+      "lat": 35.714556,
+      "lng": 139.796639,
+      "summary": "This Asakusa Buddhist temple traces its sacred image to a discovery in the Sumida River in 628, according to the temple's own tradition. That origin story is not the construction date of today's buildings. Wikidata separately records an inception year of 645 without a reference; the two dates should not be treated as interchangeable.",
+      "summarySourceIds": ["temple", "wikidata"],
+      "dates": [
+        { "label": "Traditional discovery of the Kannon image", "value": "18 March 628 (temple tradition)", "sourceIds": ["temple"] },
+        { "label": "Inception recorded by Wikidata", "value": "645 (unreferenced statement)", "sourceIds": ["wikidata"] },
+        { "label": "Present main hall construction date", "value": null, "sourceIds": [] }
+      ],
+      "sources": [
+        { "id": "temple", "title": "Sensoji — official history", "url": "https://www.senso-ji.jp/english/", "provider": "official", "license": "Facts only; source text and images not reproduced", "licenseUrl": "https://www.senso-ji.jp/english/", "attribution": "Sensoji Temple; original summary by Soupmap", "usage": "facts" },
+        { "id": "wikidata", "title": "Wikidata Q615183 — identity, coordinates and inception", "url": "https://www.wikidata.org/wiki/Q615183", "provider": "wikidata", "license": "CC0 1.0 (structured data only)", "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/", "attribution": "Wikidata contributors", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "ueno-park",
+      "nameEn": "Ueno Park",
+      "nameJa": "上野恩賜公園",
+      "kind": "landmark",
+      "lat": 35.7146,
+      "lng": 139.774,
+      "summary": "Ueno became one of Japan's early public parks in the Meiji period. Its later transfer to Tokyo in 1924 explains the name Onshi, referring to an imperial gift. The park's history is distinct from the dates of its individual museums and temples.",
+      "summarySourceIds": ["tokyo"],
+      "dates": [
+        { "label": "Established as a public park", "value": "1873", "sourceIds": ["tokyo"] },
+        { "label": "Administration transferred to Tokyo", "value": "1924", "sourceIds": ["tokyo"] }
+      ],
+      "sources": [
+        { "id": "tokyo", "title": "GO TOKYO — Tokyo Metropolitan Ueno Park", "url": "https://www.gotokyo.org/en/spot/482/index.html", "provider": "official", "license": "Facts only; copyrighted text and images not reproduced", "licenseUrl": "https://www.gotokyo.org/en/about-tcvb/index.html", "attribution": "Tokyo Convention & Visitors Bureau; original summary by Soupmap", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "yanaka-nezu",
+      "nameEn": "Yanaka and Nezu",
+      "nameJa": "谷中・根津",
+      "kind": "neighbourhood",
+      "lat": 35.724,
+      "lng": 139.766,
+      "summary": "Temple grounds, small shops and residential lanes give this part of Tokyo's old downtown a different character from the city's large commercial centres. GO TOKYO identifies Yanaka Cemetery and Nezu Shrine among its historic places. This is neighbourhood context, not a claim that every house is old or survived a particular disaster.",
+      "summarySourceIds": ["tokyo"],
+      "dates": [
+        { "label": "Single neighbourhood founding date", "value": null, "sourceIds": [] }
+      ],
+      "sources": [
+        { "id": "tokyo", "title": "GO TOKYO — Yanaka and Nezu", "url": "https://www.gotokyo.org/en/destinations/northern-tokyo/yanaka-and-nezu/index.html", "provider": "official", "license": "Facts only; copyrighted text and images not reproduced", "licenseUrl": "https://www.gotokyo.org/en/about-tcvb/index.html", "attribution": "Tokyo Convention & Visitors Bureau; original summary by Soupmap", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "nihonbashi",
+      "nameEn": "Nihonbashi",
+      "nameJa": "日本橋",
+      "kind": "neighbourhood",
+      "lat": 35.684,
+      "lng": 139.7745,
+      "summary": "Nihonbashi Bridge marked the beginning of the Edo Five Routes, linking this commercial area to travel across Japan. River transport was central to Edo's trade. For deeper research, Japan Search catalogues a 1997 compilation containing Nihonbashi Uoichiba Enkaku Kiyo, a history of the fish market; this is a bibliographic lead, not evidence for a bridge construction date.",
+      "summarySourceIds": ["tokyo", "archive"],
+      "dates": [
+        { "label": "Fish-market history compilation publication (not bridge date)", "value": "1997", "sourceIds": ["archive"] },
+        { "label": "Present bridge construction date", "value": null, "sourceIds": [] }
+      ],
+      "sources": [
+        { "id": "tokyo", "title": "GO TOKYO — Historic Waterfront Areas", "url": "https://www.gotokyo.org/en/see-and-do/nature/waterfront/history-by-the-water.html", "provider": "official", "license": "Facts only; copyrighted text and images not reproduced", "licenseUrl": "https://www.gotokyo.org/en/about-tcvb/index.html", "attribution": "Tokyo Convention & Visitors Bureau; original summary by Soupmap", "usage": "facts" },
+        { "id": "archive", "title": "Japan Search / NDL — fish-market history compilation metadata", "url": "https://jpsearch.go.jp/en/item/dignl-13095504", "provider": "japan-search", "license": "Bibliographic facts only; no book text, thumbnails or scans reused; item rights remain separate", "licenseUrl": "https://jpsearch.go.jp/en/item/dignl-13095504", "attribution": "Japan Search; National Diet Library Digital Collections; compilation published by Ryukei Shosha", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "hibiya-park",
+      "nameEn": "Hibiya Park",
+      "nameJa": "日比谷公園",
+      "kind": "landmark",
+      "lat": 35.6739,
+      "lng": 139.756,
+      "summary": "Before becoming a modern public park, this land held feudal residences and later a military parade ground. Its conversion in 1903 belongs to Tokyo's Meiji-era transformation. Nearby offices and restaurants do not inherit that history simply by being close to the park.",
+      "summarySourceIds": ["tokyo"],
+      "dates": [
+        { "label": "Opened as a modern Western-style park", "value": "1903", "sourceIds": ["tokyo"] }
+      ],
+      "sources": [
+        { "id": "tokyo", "title": "GO TOKYO — Hibiya Park", "url": "https://www.gotokyo.org/en/spot/26/index.html", "provider": "official", "license": "Facts only; copyrighted text and images not reproduced", "licenseUrl": "https://www.gotokyo.org/en/about-tcvb/index.html", "attribution": "Tokyo Convention & Visitors Bureau; original summary by Soupmap", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "meiji-jingu",
+      "nameEn": "Meiji Jingu Shrine",
+      "nameJa": "明治神宮",
+      "kind": "landmark",
+      "lat": 35.676111,
+      "lng": 139.699167,
+      "summary": "The shrine was established to commemorate Emperor Meiji and Empress Shoken. Its forest was planted with donated trees from across Japan. The establishment date refers to the shrine precinct, not the age of every tree or the construction date of every structure now on the grounds.",
+      "summarySourceIds": ["shrine", "wikidata"],
+      "dates": [
+        { "label": "Shrine precinct completed", "value": "1 November 1920", "sourceIds": ["shrine", "wikidata"] },
+        { "label": "Present main sanctuary construction date", "value": null, "sourceIds": [] }
+      ],
+      "sources": [
+        { "id": "shrine", "title": "Meiji Jingu — Establishment", "url": "https://www.meijijingu.or.jp/en/about/establishment/", "provider": "official", "license": "Facts only; source text and images not reproduced", "licenseUrl": "https://www.meijijingu.or.jp/en/about/establishment/", "attribution": "Meiji Jingu; original summary by Soupmap", "usage": "facts" },
+        { "id": "wikidata", "title": "Wikidata Q287165 — identity, coordinates and inception", "url": "https://www.wikidata.org/wiki/Q287165", "provider": "wikidata", "license": "CC0 1.0 (structured data only)", "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/", "attribution": "Wikidata contributors", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "shinjuku-gyoen",
+      "nameEn": "Shinjuku Gyoen National Garden",
+      "nameJa": "新宿御苑",
+      "kind": "landmark",
+      "lat": 35.6852,
+      "lng": 139.71,
+      "summary": "Land associated with the Naito family estate later became an agricultural experiment station and then an imperial garden. A redesign completed in 1906 underlies much of today's layout. After wartime destruction, the grounds opened to the public as a national garden in 1949.",
+      "summarySourceIds": ["ministry"],
+      "dates": [
+        { "label": "Imperial garden redesign completed", "value": "1906", "sourceIds": ["ministry"] },
+        { "label": "Opened to the public as a national garden", "value": "21 May 1949", "sourceIds": ["ministry"] }
+      ],
+      "sources": [
+        { "id": "ministry", "title": "Ministry of the Environment — Shinjuku Gyoen history", "url": "https://policies.env.go.jp/national-garden/shinjukugyoen/english/intro/history/", "provider": "official", "license": "Facts only; source prose, archival illustrations and photographs not reproduced", "licenseUrl": "https://policies.env.go.jp/national-garden/shinjukugyoen/english/intro/history/", "attribution": "Ministry of the Environment, Japan; original summary by Soupmap", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "ebisu",
+      "nameEn": "Ebisu",
+      "nameJa": "恵比寿",
+      "kind": "neighbourhood",
+      "lat": 35.6467,
+      "lng": 139.710122,
+      "summary": "Ebisu takes its name from Yebisu beer, once brewed here. The former brewery site was redeveloped as Yebisu Garden Place, which opened in 1994. The area's brewing past helps explain its name, but says nothing about the age of a particular soup shop.",
+      "summarySourceIds": ["wikipedia"],
+      "dates": [
+        { "label": "Yebisu beer brewing began", "value": "1890", "sourceIds": ["tokyo", "wikipedia"] },
+        { "label": "Yebisu Garden Place opened", "value": "1994", "sourceIds": ["wikipedia"] }
+      ],
+      "sources": [
+        { "id": "wikipedia", "title": "Wikipedia — Ebisu, Shibuya (checked revision)", "url": "https://en.wikipedia.org/w/index.php?oldid=1375809551", "provider": "wikipedia", "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/", "attribution": "Adapted and shortened by Soupmap from Ebisu, Shibuya, Wikipedia contributors. This adapted summary is CC BY-SA 4.0; linked article history identifies contributors.", "usage": "adapted-text" },
+        { "id": "tokyo", "title": "GO TOKYO — Ebisu and its brewery site", "url": "https://www.gotokyo.org/en/destinations/southern-tokyo/ebisu/index.html", "provider": "official", "license": "Facts only; copyrighted text and images not reproduced", "licenseUrl": "https://www.gotokyo.org/en/about-tcvb/index.html", "attribution": "Tokyo Convention & Visitors Bureau", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    },
+    {
+      "id": "kagurazaka",
+      "nameEn": "Kagurazaka",
+      "nameJa": "神楽坂",
+      "kind": "neighbourhood",
+      "lat": 35.7015,
+      "lng": 139.7355,
+      "summary": "Kagurazaka's past as a geisha entertainment district remains part of its identity. Traditional ryotei restaurants and narrow lanes sit alongside newer businesses. Zenkokuji Temple has been a local landmark since the eighteenth century; this does not establish a single founding date for the whole neighbourhood.",
+      "summarySourceIds": ["tokyo"],
+      "dates": [
+        { "label": "Zenkokuji identified as a local landmark", "value": "Since the 18th century", "sourceIds": ["tokyo"] },
+        { "label": "Single neighbourhood founding date", "value": null, "sourceIds": [] }
+      ],
+      "sources": [
+        { "id": "tokyo", "title": "GO TOKYO — Kagurazaka", "url": "https://www.gotokyo.org/en/destinations/central-tokyo/kagurazaka/index.html", "provider": "official", "license": "Facts only; copyrighted text and images not reproduced", "licenseUrl": "https://www.gotokyo.org/en/about-tcvb/index.html", "attribution": "Tokyo Convention & Visitors Bureau; original summary by Soupmap", "usage": "facts" }
+      ],
+      "verifiedOn": "2026-10-18"
+    }
+  ]
+}
