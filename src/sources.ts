@@ -285,6 +285,9 @@ export const SOURCES = [
     notes: [
       "Each Places record lists its own sources[].dataset and license. The discovery script keeps both.",
       "Shops seeded from Overture carry dataSource \"overture\" and the Overture ID in sourceId.",
+      "Addresses, postcodes, phone numbers, websites and social links shown on shop cards are copied from the source record (aggregator and review-site links are dropped). They may be out of date.",
+      "Derived during import, with provenance shown in the interface: prefecture (from the record's region, address or postcode prefix, else its nearest neighbours), bowl style (only when the shop's own name says it, e.g. 味噌 or 家系), chain (the same brand at 6+ locations in 3+ municipalities) and English names (chain brand names we know, otherwise an approximate reading).",
+      "Records with an Overture confidence below 0.3 are left out as likely closed or duplicated.",
     ],
     verify: ["Confirm the exact license for the Overture release you pull, on the attribution page."],
     checked: "2026-10-16",

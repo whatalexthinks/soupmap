@@ -229,3 +229,23 @@ body.is-pano .map {inset:0;border-radius:0}
   body.has-card .panel {visibility:hidden;pointer-events:none}
   body.has-card .map-heading {opacity:1;visibility:visible}
 }
+
+/* ── Open-data shop facts ──────────────────────────────────────────────── */
+.card__where .ja {margin-left:6px;color:var(--steam-3)}
+.broth-chip__note {margin-left:6px;padding-left:6px;border-left:1px solid currentColor;color:inherit;opacity:.78;font-size:9px;letter-spacing:.02em}
+.style-tags .card__fine {margin:12px 0 6px}
+.style-tags ul {display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.style-tags li {border:1px solid var(--line-strong);border-radius:4px;padding:3px 8px;font-size:10px;cursor:help}
+.style-tags li .ja {margin-left:3px;color:var(--steam-3)}
+.chain-badge {display:inline-flex;gap:6px;align-items:baseline;margin:10px 0 0;padding:4px 8px;border-radius:4px;background:#ecebe2;font-size:10px;color:var(--steam-2)}
+.chain-badge strong {font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--steam)}
+.card__contact {margin-top:4px}
+.card__contact .card__fine:first-child {margin-top:10px}
+.facts--contact {margin-top:12px}
+.facts--contact dd {overflow-wrap:anywhere}
+.facts--contact a {color:var(--steam)}
+
+/* Desktop hover label for map markers. */
+.map-tooltip {position:absolute;z-index:30;pointer-events:none;transform:translate(-50%,calc(-100% - 14px));display:grid;gap:2px;max-width:260px;padding:7px 10px;border-radius:5px;background:rgba(37,44,39,.94);color:#fffaf0;box-shadow:0 6px 20px #252c2733;font-size:11px;line-height:1.3;white-space:nowrap}
+.map-tooltip strong {font-weight:650;overflow:hidden;text-overflow:ellipsis}
+.map-tooltip span {color:#d9d6c8;font-size:10px;overflow:hidden;text-overflow:ellipsis}

@@ -24,6 +24,7 @@ export interface PanelHandlers {
   onSort(sort: SortOrder): void;
   onCuisine(cuisine: CuisineId | "all"): void;
   onNameLanguage(language: NameLanguage): void;
+  onHideChains(hide: boolean): void;
   onReset(): void;
   onSurprise(): void;
 }
@@ -37,6 +38,7 @@ export class Panel {
   private readonly cuisine = $<HTMLSelectElement>("#cuisine-filter");
   private readonly nameLanguage = $<HTMLSelectElement>("#name-language");
   private readonly sort = $<HTMLSelectElement>("#shop-sort");
+  private readonly hideChains = $<HTMLInputElement>("#hide-chains");
   private readonly trail = $<HTMLButtonElement>("#trail-btn");
   private pageLimit = 100;
   private lastShops: readonly Shop[] = [];
@@ -121,6 +123,7 @@ export class Panel {
     this.sort.addEventListener('change', e => handlers.onSort((e.target as HTMLSelectElement).value as SortOrder));
     this.cuisine.addEventListener("change", () => handlers.onCuisine(this.cuisine.value as CuisineId | "all"));
     this.nameLanguage.addEventListener("change", () => handlers.onNameLanguage(this.nameLanguage.value as NameLanguage));
+    this.hideChains.addEventListener("change", () => handlers.onHideChains(this.hideChains.checked));
   }
 
   renderList(shops: readonly Shop[], selected: string | null, saved: ReadonlySet<string>, savedOnly: boolean): void {
@@ -192,6 +195,10 @@ export class Panel {
 
   setCuisine(cuisine: CuisineId | "all"): void {
     this.cuisine.value = cuisine;
+  }
+
+  setHideChains(hide: boolean): void {
+    this.hideChains.checked = hide;
   }
 
   setNameLanguage(language: NameLanguage): void {

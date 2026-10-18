@@ -112,6 +112,10 @@
                 <option value="distance">Nearest me</option>
               </select>
             </label>
+            <label class="discovery-toggle" for="hide-chains">
+              <input type="checkbox" id="hide-chains" />
+              <span>Hide chains <small>Show independent shops only</small></span>
+            </label>
           </section>
           <div class="section-heading"><h2 class="section-label" id="city-label">Choose your city</h2><span class="micro">07 destinations</span></div>
           <nav class="cities" id="city-buttons" aria-labelledby="city-label"><!--soupmap:cities--></nav>
@@ -148,6 +152,7 @@
       <div class="map-caption"><span class="map-caption__mark">＋</span><span>THE WORLD IS BETTER<br /><strong>ONE BOWL AT A TIME.</strong></span></div>
       <div class="map-help">Drag to explore <span>·</span> Scroll to zoom <span>·</span> Right-drag to tilt</div>
       <article class="card glass" id="card" aria-labelledby="card-title" hidden></article>
+      <div class="map-tooltip" id="map-tooltip" role="tooltip" hidden></div>
 
       <div class="controls" id="controls">
         <div class="status-chip glass" id="status-chip" role="status" hidden></div>

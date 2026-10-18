@@ -23,14 +23,26 @@ export const ShopSchema = z.strictObject({
   nameJa: z.string().min(1),
   /** Generated phonetic reading, not an official English translation. */
   nameRomanized: z.string().min(1).optional(),
+  /** "brand": nameRomanized starts with the chain's own English name. */
+  nameSource: z.enum(["brand"]).optional(),
   cuisine: z.enum(["ramen", "udon", "soba", "oden", "other"]).optional(),
   city: z.string().min(1),
   /** 5-digit Japanese municipality code (ward code inside designated cities). Finds the PLATEAU tileset. */
   cityCode: z.string().regex(/^\d{5}$/),
   neighborhood: z.string().min(1),
+  /** English place name for the locality, e.g. "Chuo, Osaka" (open-data records). */
+  localityRomanized: z.string().min(1).optional(),
+  /** English prefecture name, derived from the source address or postcode. */
+  prefecture: z.string().min(1).optional(),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   broth: z.enum(BROTH_IDS),
+  /** "name": the broth is suggested by the shop's own name, not checked on a menu. */
+  brothSource: z.enum(["name"]).optional(),
+  /** Style tags suggested by the shop's name (src/data/styles.ts). */
+  styles: z.array(z.string().min(1)).optional(),
+  /** Brand name shared by many catalog locations. */
+  chain: z.string().min(1).optional(),
   signatureBowl: z.string().min(1),
   priceYen: z
     .tuple([z.number().int().positive(), z.number().int().positive()])
@@ -47,6 +59,12 @@ export const ShopSchema = z.strictObject({
    */
   splatUrl: z.string().min(1).nullable(),
   googleMapsUrl: z.url(),
+  /** Contact details copied from the source record (open data); never typed in by hand. */
+  address: z.string().min(1).max(160).optional(),
+  postcode: z.string().regex(/^\d{3}-\d{4}$/).optional(),
+  phone: z.string().regex(/^\+81\d{9,10}$/).optional(),
+  website: z.url({ protocol: /^https?$/ }).optional(),
+  socials: z.array(z.url({ protocol: /^https?$/ })).max(3).optional(),
   dataSource: z.enum(["manual", "overture", "osm"]),
   /** ID in the upstream dataset (Overture GERS ID / OSM element), for provenance. */
   sourceId: z.string().min(1).nullable().optional(),

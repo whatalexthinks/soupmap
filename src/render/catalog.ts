@@ -2,9 +2,10 @@
 import type { Shop } from "../data/schema.ts";
 import { CITIES } from "../data/cities.ts";
 import { BROTHS } from "../data/broths.ts";
-import { isIndexableShop, shopPath } from "../data/indexation.ts";
+import { isEditorial, isIndexableShop, shopPath } from "../data/indexation.ts";
 import { displayName, isRomanizedName } from "../names.ts";
 import { getSource } from "../sources.ts";
+import { STYLE_BY_ID } from "../data/styles.ts";
 import { esc } from "../ui/dom.ts";
 
 export const CATALOG_PAGE_SIZE = 100;
@@ -38,10 +39,26 @@ function cityLinks(shops: readonly Shop[]): string {
     `<li><a href="/city/${c.slug}/">${esc(c.name)} <span lang="ja">${esc(c.nameJa)}</span></a></li>`).join("")}</ul></nav>`;
 }
 
+/** What the open record itself says, plus derived hints that say where they came from. */
+function sourceFacts(shop: Shop): string {
+  const styles = (shop.styles ?? []).map(id => STYLE_BY_ID.get(id)?.label).filter(Boolean);
+  const facts = [
+    styles.length ? `Style suggested by the name: ${esc(styles.join(", "))}` : "",
+    shop.chain ? `Chain: ${esc(shop.chain)}` : "",
+    shop.address ? `Address (source record): ${shop.postcode ? `〒${esc(shop.postcode)} ` : ""}${esc(shop.address)}` : "",
+  ].filter(Boolean);
+  return facts.length ? `<p>${facts.join(" · ")}</p>` : "";
+}
+
+function placeText(shop: Shop): string {
+  if (isEditorial(shop)) return `${esc(shop.city)} · ${esc(shop.neighborhood)}`;
+  return `${esc(shop.localityRomanized ?? shop.city)}${shop.prefecture ? `, ${esc(shop.prefecture)}` : ""} · <span lang="ja">${esc(shop.neighborhood)}</span>`;
+}
+
 function directoryRows(shops: readonly Shop[], start: number): string {
   return `<ol start="${start + 1}">${shops.map(shop => `<li class="source">
     <h2><a href="${esc(shopPath(shop))}">${names(shop)}</a></h2>
-    <p>${esc(shop.city)} · ${esc(shop.neighborhood)} · ${shop.lat.toFixed(5)}, ${shop.lng.toFixed(5)}</p>
+    <p>${placeText(shop)} · ${shop.lat.toFixed(5)}, ${shop.lng.toFixed(5)}</p>${sourceFacts(shop)}
     <p>${isIndexableShop(shop) ? esc(shop.blurb) : "Open-data location only. Menu, prices, opening hours and current trading status have not been independently verified."}</p>
     <p>${shop.verified ? "Verified on the ground." : "Unverified location."} ${provenance(shop)}</p>
     ${!isIndexableShop(shop) ? "<p>Basic listing: the name opens this location on the interactive map, not a standalone shop page.</p>" : ""}

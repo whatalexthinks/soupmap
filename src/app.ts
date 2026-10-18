@@ -3,7 +3,8 @@
  * The UI works on its own; the map attaches when its chunk arrives.
  */
 import { discover, parseSaved, SAVED_KEY, type SortOrder } from "./discovery.ts";
-import type { BrothId } from "./data/broths.ts";
+import { BROTHS, type BrothId } from "./data/broths.ts";
+import type { MapHover } from "./map/types.ts";
 import { CITIES, cityBySlug } from "./data/cities.ts";
 import plateauData from "./data/plateau-tilesets.json" with { type: "json" };
 import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops.ts";
@@ -16,6 +17,7 @@ import { StreetView } from "./map/streetview.ts";
 import { type CuisineId } from "./cuisines.ts";
 import { displayName, restoreNameLanguage, getNameLanguage, setNameLanguage, type NameLanguage } from "./names.ts";
 import { router } from "./router.ts";
+import { isEditorial } from "./data/indexation.ts";
 import { TrailPlayer } from "./trail.ts";
 import { BuildingPanel } from "./ui/building-panel.ts";
 import { ShopCard } from "./ui/card.ts";
@@ -56,6 +58,7 @@ export class App {
   private navigationRevision = 0;
   private sort: SortOrder = 'guide';
   private cuisine: CuisineId | 'all' = 'all';
+  private hideChains = false;
   private origin: {lat:number;lng:number} | null = null;
   private locationRequest = 0;
   private savedOnly = false;
@@ -157,6 +160,12 @@ export class App {
         this.cuisine = cuisine;
         this.refresh();
         trackEvent("filter_changed", {filter:"cuisine",value:cuisine});
+      },
+      onHideChains: hide => {
+        this.trail.stop();
+        this.hideChains = hide;
+        this.refresh();
+        trackEvent("filter_changed", {filter:"chains",value:hide ? "hidden" : "shown"});
       },
       onNameLanguage: language => {
         this.changeNameLanguage(language);
@@ -275,7 +284,7 @@ export class App {
     }) : ORDERED_SHOPS;
     return discover(source, { query: this.query, city: this.city, sort: this.sort,
       broths: this.broths, savedOnly: this.savedOnly, saved: this.saved,
-      cuisine: this.cuisine, origin: this.origin });
+      cuisine: this.cuisine, origin: this.origin, hideChains: this.hideChains });
   }
 
   private refresh(): void {
@@ -284,8 +293,10 @@ export class App {
     this.panel.renderList(shops, this.selected, this.saved, this.savedOnly);
     this.panel.setCity(this.city);
     this.panel.setCuisine(this.cuisine);
-    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && this.cuisine === 'all';
+    this.panel.setHideChains(this.hideChains);
+    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && this.cuisine === 'all' && !this.hideChains;
     this.engine?.setShops(shops);
+    this.engine?.setSaved(this.saved);
     if (this.selected && !shops.some(shop => shop.slug === this.selected)) this.closeCard();
   }
 
@@ -365,7 +376,7 @@ export class App {
   private resetFilters(): void {
     ++this.navigationRevision;
     this.trail.stop();
-    this.query = ''; this.city = 'all'; this.broths.clear(); this.cuisine = 'all';
+    this.query = ''; this.city = 'all'; this.broths.clear(); this.cuisine = 'all'; this.hideChains = false;
     this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
     this.refresh(); this.updateLocation();
     this.turnOffBuilding();
@@ -397,7 +408,7 @@ export class App {
         this.sharedActive = false;
         router.clearShortlist();
       }
-      this.query = ''; this.broths.clear(); this.savedOnly = false; this.cuisine = 'all';
+      this.query = ''; this.broths.clear(); this.savedOnly = false; this.cuisine = 'all'; this.hideChains = false;
       this.city = CITIES.find(c => c.name === shop.city)?.slug ?? 'all';
       this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
       this.refresh(); this.updateLocation();
@@ -720,12 +731,14 @@ export class App {
       if (new URLSearchParams(location.search).has("debug")) Object.assign(window, { soupmap: engine });
       this.trackCreditBar();
       engine.onShopPicked((slug) => this.select(slug, { fly: true, focus: false }));
+      engine.onHover(hover => this.showTooltip(hover));
       engine.onUserInteraction(() => {
         ++this.navigationRevision;
         this.trail.stop();
         if (isMobileLayout() && !this.selected) this.sheet.setSnap("peek");
       });
       engine.setShops(this.filtered());
+      engine.setSaved(this.saved);
       engine.setSelected(this.selected);
       this.loader.done();
 
@@ -758,6 +771,26 @@ export class App {
       console.warn("[soupmap] 3D map unavailable", error);
       this.loader.fail(t("mapUnavailable"));
     }
+  }
+
+  /** Desktop hover: name the marker under the pointer instead of labelling every dot. */
+  private showTooltip(hover: MapHover | null): void {
+    const tip = $('#map-tooltip');
+    const shop = hover ? shopBySlug.get(hover.slug) : undefined;
+    if (!hover || !shop || hover.slug === this.selected) {
+      tip.hidden = true;
+      return;
+    }
+    const broth = BROTHS[shop.broth];
+    const where = isEditorial(shop) ? shop.neighborhood : (shop.localityRomanized ?? shop.city);
+    tip.innerHTML = `<strong>${esc(displayName(shop))}</strong><span>${isEditorial(shop) ? "Editor's pick · " : ''}${
+      shop.broth === 'other' ? '' : `${esc(broth.label)} · `}${esc(where)}${shop.chain ? ' · Chain' : ''}</span>`;
+    // The tooltip lives in the app frame; hover coordinates are canvas pixels.
+    const frame = $('#app').getBoundingClientRect();
+    const canvas = $('#cesium').getBoundingClientRect();
+    tip.style.left = `${canvas.left - frame.left + hover.x}px`;
+    tip.style.top = `${canvas.top - frame.top + hover.y}px`;
+    tip.hidden = false;
   }
 
   /** Keep panels clear of Cesium's credit bar so attribution is never covered. */

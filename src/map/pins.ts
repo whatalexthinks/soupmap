@@ -28,7 +28,10 @@ import {
 } from "cesium";
 import { ShopPinIndex, type MapBounds } from "./pin-index.ts";
 import type { Shop } from "../data/shops.ts";
-import { CLUSTER_SIZE, PIN_SIZE, clusterGlyph, clusterLabel, pinGlyph } from "./glyph.ts";
+import {
+  MARKER_SIZE, SELECTED_SIZE, clusterGlyph, clusterHeight, clusterLabel, markerColor, markerGlyph,
+  markerImageId, markerKind, selectedGlyph, type MarkerKind,
+} from "./glyph.ts";
 
 export type PickId = { kind: "shop"; slug: string } | { kind: "cluster"; clusterId: number };
 
@@ -37,10 +40,15 @@ interface Pin {
   billboard: Billboard;
   label: Label;
   lastSeen: number;
+  /** Appearance key, so unchanged pins are not re-uploaded on every refresh. */
+  look: string;
 }
 
-/** Keep shop names for close navigation, not as a city-wide layer. */
-const LABEL_DISTANCE = 2100;
+/**
+ * Names are for close navigation, not a city-wide layer: imported locations only
+ * label at street level, editor's picks a little further out, the selection always.
+ */
+const LABEL_DISTANCE: Record<MarkerKind, number> = { dot: 300, saved: 900, pick: 2500 };
 const SELECTED_LABEL_DISTANCE = 14_000;
 /** Bounded reuse cache: active pins plus recently visited viewports. */
 const MAX_CACHED_PINS = 360;
@@ -62,6 +70,7 @@ export class PinLayer {
   private refreshTimer: ReturnType<typeof setTimeout> | undefined;
   private visible = new Set<string>();
   private selected: string | null = null;
+  private saved: ReadonlySet<string> = new Set();
   private pinClock = 0;
 
   constructor(
@@ -129,11 +138,23 @@ export class PinLayer {
 
   setSelected(slug: string | null): void {
     const prev = this.selected ? this.pins.get(this.selected) : undefined;
-    if (prev) this.setPinSelected(prev, false);
     this.selected = slug;
+    if (prev) this.applyLook(prev);
     const next = slug ? this.pins.get(slug) : undefined;
-    if (next) this.setPinSelected(next, true);
+    if (next) this.applyLook(next);
     this.refresh();
+  }
+
+  /** Shops in any of the visitor's lists get a vermilion ring. */
+  setSaved(saved: ReadonlySet<string>): void {
+    this.saved = new Set(saved);
+    for (const pin of this.pins.values()) this.applyLook(pin);
+    this.viewer.scene.requestRender();
+  }
+
+  /** The shop under a screen position, for hover tooltips. */
+  shopAt(slug: string): Shop | undefined {
+    return this.catalog.get(slug);
   }
 
   /** Leaves of a cluster as a bounding sphere, for "zoom into cluster". */
@@ -152,31 +173,41 @@ export class PinLayer {
     return BoundingSphere.fromPoints(points);
   }
 
-  private setPinSelected(pin: Pin, selected: boolean): void {
-    pin.billboard.setImage(`bowl:${pin.shop.broth}:${selected}`, pinGlyph(pin.shop.broth, selected));
-    pin.label.distanceDisplayCondition = new DistanceDisplayCondition(
-      0,
-      selected ? SELECTED_LABEL_DISTANCE : LABEL_DISTANCE,
-    );
-    pin.label.scale = selected ? 1.08 : 1;
+  private applyLook(pin: Pin): void {
+    const { shop, billboard, label } = pin;
+    const selected = shop.slug === this.selected;
+    const kind = markerKind(shop, this.saved.has(shop.slug));
+    const color = markerColor(shop);
+    const look = `${selected ? "selected" : kind}:${color}`;
+    if (look === pin.look) return;
+    pin.look = look;
+    if (selected) {
+      billboard.setImage(`selected:${color}`, selectedGlyph(color));
+      billboard.width = SELECTED_SIZE.width;
+      billboard.height = SELECTED_SIZE.height;
+      billboard.verticalOrigin = VerticalOrigin.BOTTOM;
+    } else {
+      // Canvas images otherwise get a new random atlas ID for every billboard.
+      billboard.setImage(markerImageId(kind, color), markerGlyph(kind, color));
+      billboard.width = billboard.height = MARKER_SIZE[kind];
+      billboard.verticalOrigin = VerticalOrigin.CENTER;
+    }
+    label.pixelOffset = new Cartesian2(0, selected ? -(SELECTED_SIZE.height + 4) : -(MARKER_SIZE[kind] / 2 + 4));
+    label.distanceDisplayCondition = new DistanceDisplayCondition(0, selected ? SELECTED_LABEL_DISTANCE : LABEL_DISTANCE[kind]);
+    label.scale = selected ? 1.08 : 1;
+    this.viewer.scene.requestRender();
   }
 
   private createPin(shop: Shop): Pin {
     const position = Cartesian3.fromDegrees(shop.lng, shop.lat, 0);
-    const selected = shop.slug === this.selected;
     const billboard = this.pinCollection.add({
       position,
-      width: PIN_SIZE.width,
-      height: PIN_SIZE.height,
-      verticalOrigin: VerticalOrigin.BOTTOM,
       heightReference: this.heightRef,
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      scaleByDistance: new NearFarScalar(800, 1.15, 3.0e6, 0.75),
+      scaleByDistance: new NearFarScalar(600, 1.15, 2.0e6, 0.8),
       id: { kind: "shop", slug: shop.slug } satisfies PickId,
       show: true,
     });
-    // Canvas images otherwise get a new random atlas ID for every billboard.
-    billboard.setImage(`bowl:${shop.broth}:${selected}`, pinGlyph(shop.broth, selected));
     const label = this.labelCollection.add({
       position,
       text: displayName(shop),
@@ -190,19 +221,14 @@ export class PinLayer {
       backgroundPadding: new Cartesian2(6, 3),
       horizontalOrigin: HorizontalOrigin.CENTER,
       verticalOrigin: VerticalOrigin.BOTTOM,
-      pixelOffset: new Cartesian2(0, -(PIN_SIZE.height + 4)),
-      scaleByDistance: new NearFarScalar(250, 1, LABEL_DISTANCE, 0.82),
+      scaleByDistance: new NearFarScalar(250, 1, 3500, 0.82),
       heightReference: this.heightRef,
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      distanceDisplayCondition: new DistanceDisplayCondition(
-        0,
-        selected ? SELECTED_LABEL_DISTANCE : LABEL_DISTANCE,
-      ),
       id: { kind: "shop", slug: shop.slug } satisfies PickId,
       show: true,
-      scale: selected ? 1.08 : 1,
     });
-    const pin = { shop, billboard, label, lastSeen: ++this.pinClock };
+    const pin: Pin = { shop, billboard, label, lastSeen: ++this.pinClock, look: "" };
+    this.applyLook(pin);
     this.pins.set(shop.slug, pin);
     return pin;
   }
@@ -247,14 +273,15 @@ export class PinLayer {
       const props = feature.properties as { cluster?: boolean; cluster_id?: number; point_count?: number; slug?: string };
       if (props.cluster && props.cluster_id !== undefined && props.point_count) {
         const [lng, lat] = feature.geometry.coordinates as [number, number];
+        const glyph = clusterGlyph(props.point_count);
         const billboard = this.clusterCollection.add({
           position: Cartesian3.fromDegrees(lng, lat, 0),
-          width: CLUSTER_SIZE,
-          height: CLUSTER_SIZE,
+          width: glyph.width,
+          height: glyph.height,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           id: { kind: "cluster", clusterId: props.cluster_id } satisfies PickId,
         });
-        billboard.setImage(`cluster:${clusterLabel(props.point_count)}`, clusterGlyph(props.point_count));
+        billboard.setImage(`cluster:${clusterLabel(props.point_count)}:${clusterHeight(props.point_count)}`, glyph.canvas);
       } else if (props.slug) {
         individually.add(props.slug);
       }

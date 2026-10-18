@@ -17,3 +17,11 @@ export function isIndexableShop(shop: Shop): boolean {
 export function shopPath(shop: Shop): string {
   return isIndexableShop(shop) ? `/shop/${shop.slug}/` : `/#${shop.slug}`;
 }
+
+/**
+ * Hand-written records (editor's picks). `dataSource` says where a location came from,
+ * and curated shops took their starting coordinates from Overture too, so it can't tell.
+ */
+export function isEditorial(shop: Pick<Shop, "slug">): boolean {
+  return !shop.slug.startsWith("open-");
+}
