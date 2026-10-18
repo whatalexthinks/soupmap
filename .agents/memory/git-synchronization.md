@@ -8,3 +8,9 @@ Finish any interrupted rebase before installing or changing a Replit runtime mod
 **Why:** Runtime installation modifies `.replit`; that unrelated working-tree change can block `git rebase --continue` even after all merge conflicts are resolved.
 
 **How to apply:** Inspect `git status` first when pulling GitHub updates. Preserve local setup changes while reconciling upstream, then update runtime and workflow configuration.
+
+Finish the active rebase rather than replacing it with a merge when reconciling GitHub sync. Preserve resolutions that exist only in earlier merge commits.
+
+**Why:** GitHub synchronization here has run `pull --rebase` after a completed local merge. Standard rebases do not replay merge commits, so their manual homepage resolutions can disappear and the same conflicts recur against newer upstream work.
+
+**How to apply:** Inspect the current rebase and latest upstream before editing. Reapply any still-required merge-only resolutions explicitly, keep newer upstream features, and continue until Git reports a branch rather than an active rebase. Do not remove rebase metadata or force-push as a shortcut.

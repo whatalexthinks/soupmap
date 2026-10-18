@@ -11,3 +11,4 @@
 - [Public home and accounts](public-home-and-accounts.md) — explain and promote signup without gating the map; private lists sync, guest-save imports stay explicit.
 - [Journal policy](journal-policy.md) — personal voice, factual, no invented experiences; follow content/journal/README.md.
 - [Lockfile registry](lockfile-registry.md) — keep package-lock.json on registry.npmjs.org, never Replit's internal mirror.
+- [Homepage visual direction](homepage-visual-direction.md) — Japanese minimalism + brutalism; real app screenshots over artificial map and alley imagery.
