@@ -38,7 +38,9 @@
 
 - `/catalog/` and its numbered pages expose all reported locations without JavaScript. The seven featured cities have equivalent `/city/<slug>/` directories.
 - Standalone `/shop/<slug>/` pages are limited to substantive records with shop-specific editorial notes and menu context. Generic imported location placeholders stay in directories and on the map; do not create thin detail pages just to increase sitemap size.
-- Static documents reuse the credits layout, disclose verification status and source attribution, and are emitted as directory `index.html` files. Keep sirv's real-path serving (no homepage fallback for missing shop URLs). Use one eligibility policy for page generation, ordinary shop links and share URLs.
+- Static documents reuse the credits layout, disclose verification status and source attribution, and are emitted as directory `index.html` files. Keep sirv's real-path serving (no homepage fallback for missing shop URLs). Use one eligibility policy for page generation, catalog-document links and share URLs.
+- Main-map shop rows must use map fragment destinations, even before JavaScript initializes. Keep crawlable shop documents linked from the separate catalog; SEO must not send ordinary map browsing to a different information page.
+- Link the app stylesheet directly from the HTML head. Do not move base styling back into JavaScript imports: slow or failed startup previously exposed unstyled HTML and an oversized loading illustration.
 
 - The downloadable source-attributed catalog is `public/data/open-shops.json.gz`; keep it compressed in Git. Raw extracts belong in `/tmp`, not the repository.
 - Refresh explicitly with `python3 scripts/fetch-open-places.py --release 2026-09-23.1 --output /tmp/soupmap-overture.json`, followed by `node --import tsx scripts/import-open-places.ts --input /tmp/soupmap-overture.json`. Python/DuckDB is only for this data-maintenance step; the app still runs on Vite/TypeScript.

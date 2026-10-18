@@ -23,9 +23,9 @@ test("indexation gates out thin locations, not merely unverified records", () =>
   assert.equal(shopPath(OPEN_SHOPS[0]!), `/#${OPEN_SHOPS[0]!.slug}`);
 });
 
-test("real page anchors replace fragment links only where a shop document exists", () => {
+test("app rows stay on the map while separate city and shop documents remain crawlable", () => {
   const shop = CURATED_SHOPS[0]!;
-  assert.ok(shopRowHtml(shop, false).includes(`href="/shop/${shop.slug}/"`));
+  assert.ok(shopRowHtml(shop, false).includes(`href="/#${shop.slug}"`));
   assert.ok(shopRowHtml(OPEN_SHOPS[0]!, false).includes('href="/#open-'));
   const cities = cityButtonsHtml(ORDERED_SHOPS);
   assert.match(cities, /<a href="\/catalog\/"/);
