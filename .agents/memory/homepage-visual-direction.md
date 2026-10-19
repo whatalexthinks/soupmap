@@ -24,4 +24,4 @@ The iPhone preview should show the screenshot edge to edge, without separate bla
 
 **Why:** The user explicitly rejected the black status and home-indicator bands.
 
-**How to apply:** Overlay the Dynamic Island and home indicator on the screenshot rather than adding display height above or below it.
+**How to apply:** Keep the screenshot edge to edge with an overlaid home indicator. Do not add a Dynamic Island; the user explicitly asked to remove it.
