@@ -71,6 +71,14 @@
 - Personal voice, but never invented experiences, people or quotes; legends are hedged; no prices or opening hours. Further reading uses Wikipedia search links.
 - Article map buttons use `/map/?q=<words>` (the app opens with that nationwide search). Writers may type the short form `/?q=`; it is normalised.
 
+## Your Soupmap dashboard (/me/)
+
+- `me/index.html` + `src/me/` is the personal dashboard: trip planner, saved trips, saved places with "Mark visited", passport (broth stamps + 17 regional bowls) and "For you" suggestions. It must keep working with no account: guest data lives in localStorage (`soupmap:saved:v1`, `soupmap:passport:v1`, `soupmap:trips:v1`, `soupmap:planner:v1`).
+- It only *reads* auth through `GET /api/me` (200 signed in, 401 guest, anything else means accounts unavailable) and writes through the existing list endpoints. It does not import Clerk, so auth changes in `src/account.tsx` and `server/` don't need dashboard changes as long as `/api/me` keeps its shape (`{lists:[{id,name,kind,ids}]}`).
+- After sign-in it is a good landing page: set Clerk's `signInFallbackRedirectUrl` / `signUpFallbackRedirectUrl` to `/me/` if you want people to land there instead of `/account`.
+- The sign-up and sign-in buttons on it link to `/sign-up` and `/sign-in`. Keep those routes, or update `src/me/view.ts`.
+- `/map/?open=passport` (or `?open=chapters`) opens the map with that dialog.
+
 ## Lockfile
 
 - Keep every `resolved` URL in `package-lock.json` on `https://registry.npmjs.org/`. Installing inside Replit can rewrite them to `http://package-firewall.replit.internal/...`, which breaks `npm ci` everywhere else (Cloudflare Pages, CI, fresh clones). A test (`tests/catalog-quality.test.ts`) fails if that happens; fix it with `sed -i 's#http://package-firewall.replit.internal/npm/#https://registry.npmjs.org/#g' package-lock.json`.

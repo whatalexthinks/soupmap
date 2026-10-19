@@ -17,3 +17,8 @@ interface ImportMeta {
 interface Window {
   CESIUM_BASE_URL?: string;
 }
+
+declare module "virtual:soupmap-journal" {
+  const index: readonly { slug: string; title: string; dek: string; category: string; mark: string }[];
+  export default index;
+}

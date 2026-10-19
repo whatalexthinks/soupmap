@@ -11,6 +11,22 @@ import { loadJournal } from "./src/journal/load.ts";
 import { journalBody, journalDocument, journalFeed, journalHead, journalPages } from "./src/render/journal.ts";
 import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
 
+const JOURNAL_MODULE = "virtual:soupmap-journal";
+
+/** The journal's index (no bodies) for pages that link to articles, such as /me/. */
+export function journalIndex(): Plugin {
+  const resolved = `\0${JOURNAL_MODULE}`;
+  return {
+    name: "soupmap-journal-index",
+    resolveId: id => id === JOURNAL_MODULE ? resolved : null,
+    load(id) {
+      if (id !== resolved) return null;
+      const index = loadJournal().map(({ slug, title, dek, category, mark }) => ({ slug, title, dek, category, mark }));
+      return `export default ${JSON.stringify(index)};`;
+    },
+  };
+}
+
 const cesiumVersion: string = JSON.parse(readFileSync("node_modules/cesium/package.json", "utf8")).version;
 // Versioned path, so /cesium/<version>/ can be cached as immutable forever.
 const CESIUM_DIR = `cesium/${cesiumVersion}`;
@@ -104,7 +120,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
           source: journalDocument(page, siteUrl, articles, journalStyles) });
       }
       this.emitFile({ type: "asset", fileName: "journal/feed.xml", source: journalFeed(articles, siteUrl) });
-      const pages = ["/", "/map/", "/credits/", ...journal.map(page => page.path), ...documents.map(page => page.path)];
+      const pages = ["/", "/map/", "/me/", "/credits/", ...journal.map(page => page.path), ...documents.map(page => page.path)];
       this.emitFile({
         type: "asset",
         fileName: "sitemap.xml",
@@ -175,11 +191,13 @@ export default defineConfig(({ mode }) => {
           credits: resolve(import.meta.dirname, "credits/index.html"),
           moderate: resolve(import.meta.dirname, "moderate/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),
+          me: resolve(import.meta.dirname, "me/index.html"),
         },
       },
     },
     plugins: [
       cesiumAssets(resolve(CESIUM_BUILD), CESIUM_DIR),
+      journalIndex(),
       soupmapHtml(env),
     ],
   };
