@@ -12,3 +12,4 @@
 - [Journal policy](journal-policy.md) — personal voice, factual, no invented experiences; follow content/journal/README.md.
 - [Lockfile registry](lockfile-registry.md) — keep package-lock.json on registry.npmjs.org, never Replit's internal mirror.
 - [Homepage visual direction](homepage-visual-direction.md) — Japanese minimalism + brutalism; real app screenshots over artificial map and alley imagery.
+- [Preview routing](preview-routing.md) — check the Preview address for an internal port before changing a healthy server.
