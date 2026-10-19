@@ -9,6 +9,16 @@ const homepageHtml=()=>readFileSync(new URL("../index.html",import.meta.url),"ut
   .replace("<!--soupmap:home-cities-->",homeCitiesHtml())
   .replace("<!--soupmap:home-featured-->",homeCityHtml());
 
+test("homepage and stylesheet contain no unresolved Git conflict markers",()=>{
+  for(const path of ["index.html","src/styles/home.css"]) {
+    assert.doesNotMatch(
+      readFileSync(new URL(`../${path}`,import.meta.url),"utf8"),
+      /^(?:<{7}|={7}|>{7})/m,
+      `Unresolved Git conflict in ${path}`,
+    );
+  }
+});
+
 test("photo-led homepage keeps exploration public and all trail links real", async()=>{
   const window=new Window();
   try {
