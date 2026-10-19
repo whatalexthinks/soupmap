@@ -4,6 +4,7 @@ import {readFileSync, statSync} from "node:fs";
 import {Window} from "happy-dom";
 import {shopBySlug} from "../src/data/shops.ts";
 import {homeCitiesHtml,homeCityHtml} from "../src/render/home.ts";
+import {assertNoConflictMarkers} from "../scripts/lib/source-integrity.ts";
 
 const homepageHtml=()=>readFileSync(new URL("../index.html",import.meta.url),"utf8")
   .replace("<!--soupmap:home-cities-->",homeCitiesHtml())
@@ -11,11 +12,7 @@ const homepageHtml=()=>readFileSync(new URL("../index.html",import.meta.url),"ut
 
 test("homepage and stylesheet contain no unresolved Git conflict markers",()=>{
   for(const path of ["index.html","src/styles/home.css"]) {
-    assert.doesNotMatch(
-      readFileSync(new URL(`../${path}`,import.meta.url),"utf8"),
-      /^(?:<{7}|={7}|>{7})/m,
-      `Unresolved Git conflict in ${path}`,
-    );
+    assertNoConflictMarkers(readFileSync(new URL(`../${path}`,import.meta.url),"utf8"),path);
   }
 });
 
@@ -38,6 +35,25 @@ test("photo-led homepage keeps exploration public and all trail links real", asy
       assert.ok(id&&document.getElementById(id),`Broken section link: #${id}`);
     }
     assert.match(document.body.textContent??"",/AI.generated/i,"Generated photographs must be disclosed");
+  } finally {
+    await window.happyDOM.close();
+  }
+});
+
+test("prerendered homepage has unique IDs, one headline and one coherent page shell",async()=>{
+  const window=new Window();
+  try {
+    window.document.write(homepageHtml());
+    const document=window.document;
+    const ids=[...document.querySelectorAll("[id]")].map(element=>element.id);
+    assert.equal(new Set(ids).size,ids.length,`Duplicate homepage IDs: ${ids.filter((id,index)=>ids.indexOf(id)!==index).join(", ")}`);
+    assert.equal(document.querySelectorAll("h1").length,1,"Keep one primary headline");
+    assert.equal(document.querySelector("h1")?.id,"hero-title");
+    assert.equal(document.querySelectorAll("main").length,1);
+    assert.equal(document.querySelectorAll(".home-page > header").length,1);
+    assert.equal(document.querySelectorAll(".home-page > footer").length,1);
+    assert.equal(document.querySelectorAll(".city-index a[href^='/city/']").length,7,"Keep crawlable, prerendered city navigation");
+    assert.ok(document.querySelector("a[href='/catalog/']"),"Keep crawlable catalog navigation");
   } finally {
     await window.happyDOM.close();
   }
