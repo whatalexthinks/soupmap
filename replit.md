@@ -64,3 +64,13 @@
 - If requests are denied, check API activation, billing, quota and the actual website referrer in Google Cloud. Keep restrictions in place; do not expose an unrestricted key to troubleshoot.
 - The app requests official Google outdoor imagery, preferring the best capture within 250 m and widening to 500 m if none exists. Google can misclassify station passages as outdoor; imagery may not show the precise entrance. The JavaScript SDK and coverage lookup load only after explicit entry; the panorama uses Google's Dynamic Street View billing. Zoom starts at zero; navigation depends on connected imagery being available.
 - Reference: https://developers.google.com/maps/documentation/javascript/streetview and https://developers.google.com/maps/api-security-best-practices
+
+## Journal (/journal/)
+
+- 64 static essays from `content/journal/*.md`, prerendered by the Vite plugin (`src/render/journal.ts`). The writing, voice and fact rules live in `content/journal/README.md`; the build fails on invalid frontmatter or broken internal links.
+- Personal voice, but never invented experiences, people or quotes; legends are hedged; no prices or opening hours. Further reading uses Wikipedia search links.
+- Article map buttons use `/map/?q=<words>` (the app opens with that nationwide search). Writers may type the short form `/?q=`; it is normalised.
+
+## Lockfile
+
+- Keep every `resolved` URL in `package-lock.json` on `https://registry.npmjs.org/`. Installing inside Replit can rewrite them to `http://package-firewall.replit.internal/...`, which breaks `npm ci` everywhere else (Cloudflare Pages, CI, fresh clones). A test (`tests/catalog-quality.test.ts`) fails if that happens; fix it with `sed -i 's#http://package-firewall.replit.internal/npm/#https://registry.npmjs.org/#g' package-lock.json`.
