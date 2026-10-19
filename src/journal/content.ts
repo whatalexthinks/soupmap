@@ -62,13 +62,17 @@ export class JournalError extends Error {
 
 export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const JAPANESE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
-/** Map links the app understands: a search, or one of the featured city directories. */
-export const MAP_LINK = /^\/(?:\?q=[a-z0-9%-]+(?:\+[a-z0-9%-]+)*|city\/[a-z]+\/)$/;
+/** Map links the app understands: a search on /map/, or one of the static city directories. */
+export const MAP_LINK = /^\/(?:map\/\?q=[a-z0-9%-]+(?:\+[a-z0-9%-]+)*|city\/[a-z]+\/)$/;
 
-/** Writers may type "/?q=okinawa soba"; URLs need "+" for the space. */
+/**
+ * Writers may type "/?q=okinawa soba" (the guide's short form); the map lives at /map/
+ * and URLs need "+" for the space.
+ */
 export function normalizeHref(href: string): string {
   const value = href.trim();
-  return value.startsWith("/?q=") ? `/?q=${value.slice(4).trim().toLowerCase().replace(/\s+/g, "+")}` : value;
+  const search = value.match(/^\/(?:map\/)?\?q=(.*)$/);
+  return search ? `/map/?q=${search[1]!.trim().toLowerCase().replace(/\s+/g, "+")}` : value;
 }
 
 type Frontmatter = Record<string, string | string[]>;
@@ -151,7 +155,7 @@ export function parseArticle(slug: string, source: string): Article {
   const rawMap = text("map", false);
   const map = rawMap ? normalizeHref(rawMap) : undefined;
   const mapLabel = text("mapLabel", false);
-  if (map && !MAP_LINK.test(map)) throw new JournalError(slug, `map must be /?q=<words> or /city/<slug>/, got "${map}"`);
+  if (map && !MAP_LINK.test(map)) throw new JournalError(slug, `map must be /map/?q=<words> or /city/<slug>/, got "${map}"`);
   if (!!map !== !!mapLabel) throw new JournalError(slug, "map and mapLabel go together");
   const glance = list("glance", 3, 6).map(line => {
     const at = line.indexOf(":");
@@ -185,7 +189,7 @@ export function validateJournal(articles: readonly Article[], extraPaths: Readon
       if (journal) {
         const exists = journal[1] ? categoryById.has(journal[2]!) : slugs.has(journal[2]!);
         if (!exists) problems.push(`${article.slug}: link to missing page ${href}`);
-      } else if (!MAP_LINK.test(href) && href !== "/catalog/" && href !== "/journal/" && !extraPaths.has(href)) {
+      } else if (!MAP_LINK.test(href) && !["/catalog/", "/journal/", "/map/"].includes(href) && !extraPaths.has(href)) {
         problems.push(`${article.slug}: unsupported link ${href}`);
       }
     }

@@ -44,7 +44,7 @@ Fields:
 | `category` | yes | One of the ids below. |
 | `mark` | yes | Shown as a large vertical mark: kanji for Japanese topics (味噌, 蕎麦), katakana for foreign dishes as Japanese magazines write them (フォー, ボルシチ). Must be correct Japanese. 1–4 characters is ideal; up to 8 are allowed and longer marks are set smaller. |
 | `date` | yes | `YYYY-MM-DD`, the publication date. |
-| `map` | no | A link into the map: `/?q=<search words>` or `/city/<sapporo\|kitakata\|tokyo\|kyoto\|osaka\|wakayama\|fukuoka>/`. Only for topics our Japan catalog can actually show. |
+| `map` | no | A link into the map: `/map/?q=<search words>` (the short form `/?q=` also works) or `/city/<sapporo\|kitakata\|tokyo\|kyoto\|osaka\|wakayama\|fukuoka>/`. Only for topics our Japan catalog can actually show. |
 | `mapLabel` | with `map` | Button text, e.g. "Find tsukemen shops on the map". |
 | `glance` | yes | 3–5 short "Label: fact" lines for the *At a glance* box. Facts only. |
 | `further` | yes | 2–4 Wikipedia article titles for further reading (rendered as Wikipedia links). Use titles you are confident exist, in English, e.g. `Ramen`, `Dashi`, `Pho`. |
@@ -66,7 +66,7 @@ Fields:
 
 `## Heading`, `### Subheading`, paragraphs, `- bullet` and `1. numbered` lists, `> pull quote`
 (one paragraph), `**bold**`, `*italic*`, and links `[text](url)`. Internal links use
-`/journal/<slug>/`, the map (`/?q=…`, `/city/<slug>/`) or `/catalog/`. No HTML, images,
+`/journal/<slug>/`, the map (`/map/?q=…`, `/city/<slug>/`) or `/catalog/`. No HTML, images,
 tables or footnotes. Japanese text can be written inline (味噌, とんこつ); it is tagged for the
 right font automatically. Give the romanized word first and the Japanese in parentheses on
 first use: *kaedama* (替え玉).

@@ -1,0 +1,11 @@
+/* Load the app's appearance from HTML, before JavaScript or the catalog is ready. */
+@import "@fontsource-variable/fraunces/soft.css";
+@import "@fontsource-variable/instrument-sans";
+@import "./main.css";
+@import "./atlas.css";
+@import "./catalog.css";
+@import "./streetview.css";
+@import "./discovery-controls.css";
+@import "./mobile-map.css";
+@import "./shortlist-share.css";
+@import "./history.css";

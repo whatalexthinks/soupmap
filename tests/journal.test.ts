@@ -55,7 +55,7 @@ test("frontmatter mistakes fail the build with a useful message", () => {
   assert.throws(() => parseArticle("bad", minimal().replace("mark: 味噌", "mark: miso")), /Japanese/);
   assert.throws(() => parseArticle("Bad_Slug", minimal()), /kebab/);
   assert.throws(() => parseArticle("bad", minimal("", "# A second title")), /only h1/);
-  assert.equal(parseArticle("ok", minimal("map: /?q=okinawa soba\nmapLabel: Go\n")).map, "/?q=okinawa+soba");
+  assert.equal(parseArticle("ok", minimal("map: /?q=okinawa soba\nmapLabel: Go\n")).map, "/map/?q=okinawa+soba");
   assert.deepEqual(validateJournal([parseArticle("ok", minimal("", "See [this](/journal/missing/) and [that](ftp://x)."))]),
     ["ok: link to missing page /journal/missing/", "ok: unsupported link ftp://x"]);
 });
@@ -64,7 +64,7 @@ test("markdown is escaped and only safe links survive", () => {
   const html = renderMarkdown("Hi <script>alert(1)</script> [x](javascript:alert(1)) [map](/?q=iekei) [w](https://example.org) 味噌");
   assert.ok(!html.includes("<script>"));
   assert.ok(!html.includes("javascript:"));
-  assert.ok(html.includes('<a href="/?q=iekei">map</a>'));
+  assert.ok(html.includes('<a href="/map/?q=iekei">map</a>'));
   assert.ok(html.includes('href="https://example.org" target="_blank" rel="noopener"'));
   assert.ok(html.includes('<span lang="ja">味噌</span>'));
 });

@@ -14,6 +14,7 @@ import { t } from "./i18n.ts";
 import type { MapEngineImpl } from "./map/engine.ts";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
 import { StreetView } from "./map/streetview.ts";
+import { accountSaved, changeAccountSaved } from "./personal-saves.ts";
 import { type CuisineId } from "./cuisines.ts";
 import { displayName, restoreNameLanguage, getNameLanguage, setNameLanguage, type NameLanguage } from "./names.ts";
 import { router } from "./router.ts";
@@ -72,6 +73,8 @@ export class App {
   private buildingRequest = 0;
   private mapStarted = false;
   private readSaved(): Set<string> {
+    const remote = accountSaved();
+    if (remote) return new Set(remote);
     try { return parseSaved(localStorage.getItem(SAVED_KEY), new Set(shopBySlug.keys())); }
     catch { return new Set(); }
   }
@@ -282,6 +285,11 @@ export class App {
       this.saved.clear(); saved.forEach(slug => this.saved.add(slug));
       this.refresh(); this.card.setSaved(!!this.selected && this.saved.has(this.selected));
     });
+    window.addEventListener("soupmap:account-saves", () => {
+      const saved = this.readSaved();
+      this.saved.clear(); saved.forEach(slug => this.saved.add(slug));
+      this.refresh(); this.card.setSaved(!!this.selected && this.saved.has(this.selected));
+    });
     afterFirstPaint(() => void this.loadMap());
   }
 
@@ -366,6 +374,15 @@ export class App {
   private toggleSaved(slug: string): void {
     const shop = shopBySlug.get(slug);
     if (!shop) return;
+    if (accountSaved()) {
+      const saved = !this.saved.has(slug);
+      void changeAccountSaved(slug, saved).then(changed => {
+        if (!changed) return;
+        trackEvent("save_changed", {saved, persistent:true, shared_list:this.sharedActive, city:shop.city, broth:shop.broth});
+        toast(saved ? "Saved to your account" : "Removed from your account saves");
+      }).catch(error => toast(error instanceof Error ? error.message : "Your change could not be saved.", 5000));
+      return;
+    }
     if (this.saved.has(slug)) this.saved.delete(slug); else this.saved.add(slug);
     let persistent = true;
     try { localStorage.setItem(SAVED_KEY, JSON.stringify([...this.saved])); }

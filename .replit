@@ -1,4 +1,4 @@
-modules = ["web", "nodejs-22", "python-base-3.13"]
+modules = ["web", "nodejs-22", "python-base-3.13", "postgresql-16"]
 
 [nix]
 channel = "stable-25_05"
@@ -38,6 +38,14 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 5051
+externalPort = 3002
+
+[[ports]]
+localPort = 24678
+externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"

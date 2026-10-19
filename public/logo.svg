@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 58" role="img" aria-labelledby="title">
+  <title id="title">Soupmap</title>
+  <rect x="3" y="8" width="42" height="42" rx="3" fill="#b7442c" transform="rotate(-4 24 29)"/>
+  <text x="24" y="38" text-anchor="middle" fill="#fff7e8" font-family="serif" font-size="28">湯</text>
+  <text x="57" y="43" fill="#292e27" font-family="Georgia,serif" font-size="39" font-weight="600" letter-spacing="-2.5">soupmap</text>
+  <circle cx="262" cy="40" r="3" fill="#b7442c"/>
+</svg>

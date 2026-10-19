@@ -101,7 +101,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
           source: journalDocument(page, siteUrl, articles, journalStyles) });
       }
       this.emitFile({ type: "asset", fileName: "journal/feed.xml", source: journalFeed(articles, siteUrl) });
-      const pages = ["/", "/credits/", ...journal.map(page => page.path), ...documents.map(page => page.path)];
+      const pages = ["/", "/map/", "/credits/", ...journal.map(page => page.path), ...documents.map(page => page.path)];
       this.emitFile({
         type: "asset",
         fileName: "sitemap.xml",
@@ -167,6 +167,8 @@ export default defineConfig(({ mode }) => {
       rolldownOptions: {
         input: {
           main: resolve(import.meta.dirname, "index.html"),
+          map: resolve(import.meta.dirname, "map/index.html"),
+          account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),
         },

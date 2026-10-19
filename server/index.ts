@@ -1,0 +1,55 @@
+import express from "express";
+import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
+import { publishableKeyFromHost } from "@clerk/shared/keys";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import sirv from "sirv";
+import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware.ts";
+import { personalApi } from "./api.ts";
+import { ListStore } from "./lists.ts";
+
+const app = express();
+app.disable("x-powered-by");
+app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+app.use(cors({credentials:true, origin: false}));
+app.use(express.json({limit:"64kb"}));
+app.use(express.urlencoded({extended:true, limit:"64kb"}));
+// Public map/content do not depend on the identity provider being reachable.
+app.use("/api", clerkMiddleware((req) => ({
+  publishableKey: publishableKeyFromHost(
+    getClerkProxyHost(req) ?? "",
+    process.env.CLERK_PUBLISHABLE_KEY,
+  ),
+})));
+app.use("/api", personalApi(new ListStore()));
+app.use("/api", (_req, res) => { res.status(404).json({error:"Not found."}); });
+
+const production = process.env.NODE_ENV === "production";
+if (!production) {
+  const {createServer} = await import("vite");
+  const vite = await createServer({server:{middlewareMode:true}, appType:"mpa"});
+  app.use(async (req, res, next) => {
+    if (!/^\/(?:account|sign-in|sign-up)(?:\/|$)/.test(req.path)) { next(); return; }
+    const html = await readFile(resolve("account/index.html"), "utf8");
+    res.type("html").send(await vite.transformIndexHtml(req.originalUrl, html));
+  });
+  app.use(vite.middlewares);
+} else {
+  app.use((req, res, next) => {
+    if (/^\/(?:account|sign-in|sign-up)(?:\/|$)/.test(req.path)) {
+      res.setHeader("Cache-Control", "no-store");
+      res.sendFile(resolve("dist/account/index.html"));
+    } else next();
+  });
+  app.use(sirv("dist", {etag:true}));
+}
+app.use((_req, res) => { res.status(404).type("text").send("Page not found."); });
+app.use((error: Error & {status?: number}, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const limited = error.message === "LIST_LIMIT";
+  const status = limited ? 409 : error.status && error.status >= 400 && error.status < 500 ? error.status : 500;
+  if (status === 500) console.error("Request failed:", error.name);
+  res.status(status).json({error:limited ? "A list can hold up to 1,000 places." : status === 500
+    ? "Your changes could not be saved. Please try again." : "Invalid request."});
+});
+app.listen(Number(process.env.PORT) || 5000, "0.0.0.0", () => console.log("Soupmap serving on port " + (process.env.PORT || 5000)));
