@@ -3,6 +3,7 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { readFile } from "node:fs/promises";
+import { createServer as createHttpServer } from "node:http";
 import { resolve } from "node:path";
 import sirv from "sirv";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware.ts";
@@ -13,6 +14,7 @@ import { ReviewStore } from "./reviews.ts";
 import { readdirSync } from "node:fs";
 
 const app = express();
+const httpServer = createHttpServer(app);
 app.disable("x-powered-by");
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(cors({credentials:true, origin: false}));
@@ -34,7 +36,12 @@ app.use("/api", (_req, res) => { res.status(404).json({error:"Not found."}); });
 const production = process.env.NODE_ENV === "production";
 if (!production) {
   const {createServer} = await import("vite");
-  const vite = await createServer({server:{middlewareMode:true}, appType:"mpa"});
+  // Share the forwarded HTTP server; a separate HMR port is not reachable
+  // through the HTTPS Preview proxy.
+  const vite = await createServer({
+    server: { middlewareMode: true, ws: { server: httpServer } },
+    appType: "mpa",
+  });
   app.use(async (req, res, next) => {
     if (!/^\/(?:account|sign-in|sign-up)(?:\/|$)/.test(req.path)) { next(); return; }
     const html = await readFile(resolve("account/index.html"), "utf8");
@@ -61,4 +68,4 @@ app.use((error: Error & {status?: number}, _req: express.Request, res: express.R
 // Respect the standard dev-server --port flag used by preview hosts. PORT remains authoritative.
 const portArg = process.argv.indexOf("--port");
 const port = Number(process.env.PORT || (portArg >= 0 ? process.argv[portArg + 1] : undefined)) || 5000;
-app.listen(port, "0.0.0.0", () => console.log("Soupmap serving on port " + port));
+httpServer.listen(port, "0.0.0.0", () => console.log("Soupmap serving on port " + port));

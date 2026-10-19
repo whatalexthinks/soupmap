@@ -22,6 +22,7 @@
     "photos:recipes": "node --import tsx scripts/fetch-recipe-photos.ts",
     "licenses": "node --import tsx scripts/print-licenses.ts",
     "test": "node --import tsx --test tests/*.test.ts",
+    "test:preview": "node tests/browser/preview.mjs",
     "test:streetview": "node tests/browser/streetview.mjs",
     "test:streetview:live": "node tests/browser/streetview.mjs --live"
   },
