@@ -7,6 +7,7 @@
  * used when there's no key or Google tiles fail. Never a blank screen.
  */
 import "cesium/Build/Cesium/Widgets/widgets.css";
+import "../styles/map-polish.css";
 import {
   Color,
   Cartesian2 as ScreenPoint,
@@ -23,9 +24,11 @@ import {
   Rectangle,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
+  TileMapServiceImageryProvider,
   UrlTemplateImageryProvider,
   Viewer,
   createGooglePhotorealistic3DTileset,
+  buildModuleUrl,
   defined,
   type Cartesian2,
   type Cesium3DTileset,
@@ -34,6 +37,7 @@ import type { City } from "../data/cities.ts";
 import type { Shop } from "../data/shops.ts";
 import { creditHtml, getSource } from "../sources.ts";
 import { CameraDirector } from "./camera.ts";
+import { citySurfaceActive, movingScreenSpaceError, renderBudget } from "./render-policy.ts";
 import { PinLayer, type PickId } from "./pins.ts";
 import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types.ts";
 
@@ -43,6 +47,11 @@ export interface EngineOptions {
   creditViewport: HTMLElement;
   googleKey: string;
   shops: readonly Shop[];
+  initialVisibleShops?: readonly Shop[];
+  initialLocation?: {lat:number;lng:number};
+  initialCity?: City;
+  initialShop?: Shop;
+  playOpening: boolean;
   reducedMotion: boolean;
   /** Phones and low-end devices: fewer, coarser tiles. */
   lowPower: boolean;
@@ -91,6 +100,10 @@ export class MapEngineImpl implements MapEngine {
   readonly viewer: Viewer;
   readonly pins: PinLayer;
   readonly director: CameraDirector;
+  private googleSurfaceReady = false;
+  private citySurface = false;
+  private graphicsLost = false;
+  private cameraMoving = false;
   googleTileset: Cesium3DTileset | undefined;
 
   private _mode: MapMode = "google";
@@ -118,20 +131,34 @@ export class MapEngineImpl implements MapEngine {
       // Render only when something changes: saves battery on phones.
       requestRenderMode: true,
       maximumRenderTimeChange: Number.POSITIVE_INFINITY,
+      useBrowserRecommendedResolution: false,
       msaaSamples: options.lowPower ? 1 : 4,
       creditViewport: options.creditViewport,
     });
+    // Cesium's default backing buffer is 1× CSS pixels, which softens text and
+    // billboards on retina displays. Cap the multiplier to keep mobile GPUs cool.
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    this.viewer.resolutionScale = Math.min(dpr, options.lowPower ? 1 : 2) / dpr;
+    this.viewer.targetFrameRate = options.lowPower ? 30 : 60;
 
     const scene = this.viewer.scene;
+    if (options.lowPower) {
+      scene.highDynamicRange = false;
+      scene.postProcessStages.fxaa.enabled = false;
+    }
     scene.globe.baseColor = Color.fromCssColorString("#dfe3d8");
     scene.backgroundColor = Color.fromCssColorString("#cdd8ce");
     scene.globe.maximumScreenSpaceError = options.lowPower ? 3 : 2;
     const controller = scene.screenSpaceCameraController;
     controller.minimumZoomDistance = 25;
-    controller.maximumZoomDistance = 2.0e7;
+    controller.maximumZoomDistance = 5.0e7;
 
-    this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE);
-    this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives);
+    this.pins = new PinLayer(this.viewer, options.shops, HeightReference.CLAMP_TO_3D_TILE, options.lowPower);
+    this.director = new CameraDirector(this.viewer, options.reducedMotion, () => this.pins.primitives, options.initialLocation);
+    if (options.playOpening || (!options.initialCity && !options.initialShop)) this.director.showPlanet();
+    else if (options.initialShop) void this.director.shop(options.initialShop,0);
+    else if (options.initialCity) void this.director.city(options.initialCity,0);
+    this.viewer.camera.changed.addEventListener(()=>this.syncGlobeVisibility());
     this.installInput();
   }
 
@@ -141,6 +168,13 @@ export class MapEngineImpl implements MapEngine {
 
   /** Load Google 3D tiles, or fall back to GSI. Resolves once a layer is in place. */
   async start(): Promise<void> {
+    // Bundled global imagery makes the opening Earth visible even before Google
+    // tiles arrive, and outside Japan when the regional GSI fallback is active.
+    const earth = await TileMapServiceImageryProvider.fromUrl(
+      buildModuleUrl("Assets/Textures/NaturalEarthII"),
+      {credit:new Credit("Natural Earth II · public domain")},
+    );
+    this.viewer.imageryLayers.addImageryProvider(earth,0);
     const key = this.options.googleKey;
     if (!key) {
       this.enableFallback("No Google Maps key configured");
@@ -154,8 +188,7 @@ export class MapEngineImpl implements MapEngine {
           { key, onlyUsingWithGoogleGeocoder: true },
           {
             enableCollision: true, // required for CLAMP_TO_3D_TILE pins and camera collision
-            maximumScreenSpaceError: this.options.lowPower ? 24 : 16,
-            cacheBytes: (this.options.lowPower ? 256 : 512) * 1024 * 1024,
+            ...renderBudget(this.options.lowPower),
           },
         ),
         GOOGLE_TIMEOUT_MS,
@@ -166,16 +199,32 @@ export class MapEngineImpl implements MapEngine {
         return;
       }
       this.googleTileset = this.viewer.scene.primitives.add(tileset);
+      tileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, this.cameraMoving);
+      this.syncGlobeVisibility();
       this.watchGoogleTiles(tileset);
-      tileset.initialTilesLoaded.addEventListener(() => {
-        if (this._mode !== "google") return;
-        this.viewer.scene.globe.show = false;
+      const surfaceReady = () => {
+        if (this._mode !== "google" || !this.citySurface || this.googleSurfaceReady) return;
+        this.googleSurfaceReady = true;
+        this.syncGlobeVisibility();
         this.viewer.scene.requestRender();
-      });
+      };
+      tileset.initialTilesLoaded.addEventListener(surfaceReady);
+      tileset.allTilesLoaded.addEventListener(surfaceReady);
       this.options.onStatus({ kind: "ready", mode: "google" });
     } catch (error) {
       console.warn("[soupmap] Google 3D tiles unavailable, using GSI fallback.", error);
       this.enableFallback("Google 3D tiles could not load");
+    }
+  }
+
+  private syncGlobeVisibility(): void {
+    this.citySurface=citySurfaceActive(this.viewer.camera.positionCartographic.height,this.citySurface);
+    if(!this.citySurface) this.googleSurfaceReady=false;
+    if(this.googleTileset) this.googleTileset.show=this.citySurface;
+    const show = this._mode !== "google" || !this.citySurface || !this.googleSurfaceReady;
+    if (this.viewer.scene.globe.show !== show) {
+      this.viewer.scene.globe.show = show;
+      this.viewer.scene.requestRender();
     }
   }
 
@@ -240,7 +289,30 @@ export class MapEngineImpl implements MapEngine {
 
   private installInput(): void {
     const canvas = this.viewer.scene.canvas;
-    const notify = () => this.interactionHandlers.forEach((h) => h());
+    document.addEventListener("visibilitychange",()=>{
+      if(document.hidden) this.director.cancel();
+      this.viewer.useDefaultRenderLoop = !document.hidden && !this.graphicsLost;
+    });
+    canvas.addEventListener("webglcontextlost",(event)=>{
+      event.preventDefault();
+      this.graphicsLost = true;
+      this.director.cancel();
+      this.viewer.useDefaultRenderLoop=false;
+      this.options.onStatus({kind:"error",message:"The 3D map paused. Shop search, saved places and directions are still available."});
+    });
+    const setMoving = (moving: boolean) => {
+      this.cameraMoving = moving;
+      if (this.googleTileset) {
+        this.googleTileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, moving);
+        this.viewer.scene.requestRender();
+      }
+    };
+    this.viewer.camera.moveStart.addEventListener(() => setMoving(true));
+    this.viewer.camera.moveEnd.addEventListener(() => setMoving(false));
+    const notify = () => {
+      this.director.cancel();
+      this.interactionHandlers.forEach((h) => h());
+    };
     canvas.addEventListener("pointerdown", notify, { passive: true });
     canvas.addEventListener("wheel", notify, { passive: true });
 
@@ -321,8 +393,8 @@ export class MapEngineImpl implements MapEngine {
 
   faceNorth(): void { this.reframe(0, this.viewer.camera.pitch); }
 
-  playIntro(): Promise<void> {
-    return this.director.intro();
+  playIntro(city: City): Promise<void> {
+    return this.director.intro(city);
   }
 
   cancelFlight(): void {
@@ -340,7 +412,7 @@ export class MapEngineImpl implements MapEngine {
 
 export async function createMapEngine(options: EngineOptions): Promise<MapEngineImpl> {
   const engine = new MapEngineImpl(options);
-  engine.setShops(options.shops);
+  engine.setShops(options.initialVisibleShops ?? options.shops);
   await engine.start();
   return engine;
 }

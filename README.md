@@ -77,7 +77,7 @@ All are read at **build time** (Vite inlines `VITE_*` values), so change them, t
 |---|---|---|
 | `VITE_GOOGLE_MAPS_KEY` | No | Google Maps Platform key (Map Tiles API + Street View Static API). Empty = GSI fallback. |
 | `VITE_CF_ANALYTICS_TOKEN` | No | Cloudflare Web Analytics site token. Empty = no analytics script at all. |
-| `VITE_SITE_URL` | No | Public origin for canonical/OG tags and the sitemap. Defaults to `https://soupmap.com`. |
+| `VITE_SITE_URL` | No | Public origin for canonical/OG tags, sitemap, and `/llms.txt`. Defaults to `https://soupmap.com`. |
 
 ---
 
@@ -181,8 +181,55 @@ or you'll count every visit twice.)
 
 `public/_headers` caches `/assets/*` (content-hashed) and `/cesium/<version>/*` forever. Cesium's
 runtime files are copied into a **versioned** folder (`/cesium/1.146.0/`), so upgrading Cesium
-changes the path and old caches can't serve stale workers. There is deliberately no `404.html`:
-Pages then serves `index.html` for unknown paths, which is what future `/shop/<slug>` pages need.
+changes the path and old caches can't serve stale workers.
+The current Replit production command serves real files from `dist/` using sirv, without an
+SPA fallback. Shop, city and catalog URLs have generated directory `index.html` documents;
+missing shop URLs must return 404 rather than the homepage. If moving to Cloudflare Pages,
+configure a real 404 response instead of relying on its implicit SPA fallback.
+
+### 3.6 AI search and crawler access
+
+The current `.replit` production target is **Replit Autoscale**. The following review applies
+only if using the Cloudflare Pages hosting described above or proxying the site through
+Cloudflare. Adding Cloudflare Web Analytics alone does not put these edge controls in front
+of the site.
+
+- Review the Cloudflare zone's **AI crawler/bot controls**, WAF rules, and challenges. Allow
+  the search/indexing and user-initiated retrieval agents intended to read and cite the public
+  atlas; do not blanket-allow all automation or disable general abuse protections.
+- Decide **training permissions separately** from search/retrieval access. Check each
+  provider's current agent documentation rather than assuming all of its agents have the
+  same purpose. Record chosen agents, allowed purposes, intentional exclusions, reasons, and
+  review date in the release notes or deployment policy record. No intentional exclusions
+  are established here; the deployment owner must record the decision.
+- Verify the chosen agents can retrieve the homepage, `/credits/`, `/llms.txt`, and
+  `/data/open-shops.json.gz` without an edge denial or JavaScript challenge. Use provider
+  verification tools and edge logs where available; a successful browser request or a
+  spoofed user-agent alone does not prove access by the actual crawler.
+
+The generated `robots.txt` permits all user agents, but cannot override an edge block or
+challenge. This is a **potential configuration risk, not a confirmed live block**: no
+Cloudflare dashboard state or production responses were inspected for this source-only
+change.
+
+The build also emits `/llms.txt` with canonical resource links and Japan pilot data
+limitations. This emerging convention is optional, not an indexing requirement or a grant
+of crawling/training permission. It links to the crawlable `/catalog/` directory and sitemap;
+interactive map fragments are not published documents.
+
+### 3.7 Static catalog pages
+
+The build emits `/catalog/` with numbered pagination for all nationwide records, equivalent
+directories for the seven featured cities at `/city/<slug>/`, and `/shop/<slug>/` documents
+only for substantive records. Basic imported locations remain visible in directory HTML
+with names, reported coordinates, source IDs, licenses and unverified notices, but do not
+receive thin standalone pages. Shop pages retain original names, editorial notes, known
+facts and explicit unknowns. All generated documents include unique metadata, canonical
+URLs and structured data, and are listed in the sitemap. They work without JavaScript.
+
+Eligibility lives in `src/data/indexation.ts`; page content in `src/render/catalog.ts` reuses
+the existing data and credits document layout. Keep page generation, shop/share links and
+sitemap inclusion aligned when changing the policy.
 
 ---
 
@@ -406,7 +453,6 @@ no MSAA, and request-render mode (frames are drawn only when something changes).
 | Our own vertical video per shop | `videoUrl` on the shop; the card already plays it (muted, no autoplay with reduced motion). |
 | More broth trails | Add an entry to `src/data/trails.ts`. |
 | "Step inside" captures | `splatUrl` (see [§6](#6-splat-capture-pipeline-step-inside)). |
-| Prerendered `/shop/<slug>` and `/city/<slug>` pages | Reuse `src/render/templates.ts` in the Vite plugin; the router already reads `/shop/<slug>`, and Pages serves `index.html` for unknown paths. |
 | EN / JA / RU | Add dictionaries in `src/i18n.ts`; every visible string goes through `t()`. |
 | Expansion beyond Japan | Add cities (with bbox) in `src/data/cities.ts`; relax `cityCode` in the schema for non-JP shops; enable the planned OSM tile fallback in `sources.ts`. |
 | Accounts, check-ins, owner claims, sponsorship, tours | Needs a backend; the client only depends on `shops.json`'s shape, which can move behind an API later. |

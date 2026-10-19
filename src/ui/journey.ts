@@ -1,6 +1,6 @@
 import { CITIES } from '../data/cities.ts';
 import { HUBS, collectionUrl, type Hub } from '../data/hubs.ts';
-import { ORDERED_SHOPS, shopBySlug, type Shop } from '../data/shops.ts';
+import { CURATED_SHOPS, ORDERED_SHOPS, shopBySlug, type Shop } from '../data/shops.ts';
 import { PASSPORT_KEY, achievements, localDate, parseVisits, passportStats, validDate, type Visits } from '../passport.ts';
 import { communityRequest, DRAFT_KEY, NOTE_LABELS, RECEIPTS_KEY, readReceipts, type Contribution, type NoteKind, type PublicNote, type Receipt } from '../community.ts';
 import { $, esc } from './dom.ts';
@@ -49,7 +49,7 @@ export class Journey {
       if(target.id==='note-kind') {this.togglePlaceFields();this.saveDraft(false);}
       if(target.id==='note-shop'){
         const shop=shopBySlug.get(target.value);const city=$<HTMLInputElement>('#note-city');if(shop)city.value=shop.city;
-        this.saveDraft(false);this.focusedShop=target.value;void this.loadCommunity();
+        this.saveDraft(false);this.focusedShop=target.value;this.notes=[];this.renderNotes();void this.loadCommunity();
       }
       if(target.id==='passport-import')void this.importPassport(target.files?.[0]);
     });
@@ -122,11 +122,13 @@ export class Journey {
     if(shop)draft={...(draft.shop===shop.slug?draft:{author:draft.author}),shop:shop.slug,city:shop.city,kind};
     if(kind==='place')draft={...(draft.kind==='place'?draft:{author:draft.author}),kind:'place',shop:''};
     const selected=shopBySlug.get(typeof draft.shop==='string'?draft.shop:'')??shop??ORDERED_SHOPS[0]!;
+    this.focusedShop=selected.slug;
+    const selectable=[selected,...CURATED_SHOPS.filter(s=>s.slug!==selected.slug)];
     const selectedKind=Object.keys(NOTE_LABELS).includes(draft.kind??'')?draft.kind!:kind;
     const value=(v:unknown)=>typeof v==='string'?esc(v):'';
     this.content.innerHTML=`<div class="journey-intro"><p>A useful detail can make someone else’s day.<br>Short, specific, and based on your own experience.</p></div><p id="community-status" class="community-status" role="status">Checking the community guide…</p><div id="community-missions"></div>
       <form id="field-note-form" class="journey-form"><label>What would you like to share?<select id="note-kind" name="kind">${Object.entries(NOTE_LABELS).map(([id,label])=>`<option value="${id}" ${id===selectedKind?'selected':''}>${label}</option>`).join('')}</select></label>
-      <label id="note-shop-field">Place in the guide<select id="note-shop" name="shop">${ORDERED_SHOPS.map(s=>`<option value="${s.slug}" ${selected.slug===s.slug?'selected':''}>${esc(s.name)} · ${esc(s.city)}</option>`).join('')}</select></label>
+      <label id="note-shop-field">Place in the guide<select id="note-shop" name="shop">${selectable.map(s=>`<option value="${s.slug}" ${selected.slug===s.slug?'selected':''}>${esc(s.name)} · ${esc(s.city)}</option>`).join('')}</select></label>
       <div id="new-place-fields" hidden><label>Place name<input name="placeName" maxlength="100" value="${value(draft.placeName)}" placeholder="The shop’s name"></label><label>City<input id="note-city" name="city" maxlength="80" value="${value(draft.city)||esc(selected.city)}" placeholder="Which city?"></label><label>Google Maps or OpenStreetMap link<input name="mapUrl" type="url" maxlength="1000" value="${value(draft.mapUrl)}" placeholder="https://…"></label></div>
       <label>Your field note<textarea name="body" minlength="15" maxlength="600" required placeholder="What should the next person know?">${value(draft.body)}</textarea></label>
       <label>When was this? <small>Required for personal observations</small><input name="date" type="date" min="1900-01-01" max="${localDate()}" value="${value(draft.date)}"></label>

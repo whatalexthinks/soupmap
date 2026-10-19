@@ -1,6 +1,9 @@
 # dependencies & build output
 node_modules/
+.pythonlibs/
+__pycache__/
 dist/
+/generated-artifacts/
 *.tsbuildinfo
 
 # secrets: never commit API keys

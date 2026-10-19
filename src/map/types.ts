@@ -29,7 +29,7 @@ export interface MapEngine {
   flyToCity(city: City, options?: FlyOptions): Promise<void>;
   flyToOverview(options?: FlyOptions): Promise<void>;
   /** Cinematic opening flight; resolves when it ends or is interrupted. */
-  playIntro(): Promise<void>;
+  playIntro(city: City): Promise<void>;
   cancelFlight(): void;
   setFallbackStyle(style: FallbackStyle): void;
   /** Called when a pin is clicked on the map. */

@@ -21,7 +21,7 @@ export function collectionFromUrl(search: string, valid: ReadonlySet<string>): {
   return slugs.length ? {slugs} : null;
 }
 export function collectionUrl(origin: string, slugs: readonly string[], hub?: string): string {
-  const url = new URL('/',origin);
+  const url = new URL('/map/',origin);
   if (hub && hubBySlug.has(hub)) url.searchParams.set('hub',hub);
   else url.searchParams.set('collection',[...new Set(slugs)].slice(0,30).join(','));
   return url.href;

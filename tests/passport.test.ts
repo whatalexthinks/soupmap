@@ -21,6 +21,7 @@ test('hub definitions resolve to real shops and match their city',()=>{
 });
 test('collection links round-trip without private passport data and reject unknown slugs',()=>{
   const url=new URL(collectionUrl('https://example.com',['afuri-ebisu','afuri-ebisu','ginza-kagari']));
+  assert.equal(url.pathname,'/map/');
   assert.deepEqual(collectionFromUrl(url.search,new Set(shopBySlug.keys()))?.slugs,['afuri-ebisu','ginza-kagari']);
   assert.equal(url.search.includes('Private'),false);
   assert.equal(collectionFromUrl('?collection=unknown',new Set(shopBySlug.keys())),null);

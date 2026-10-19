@@ -1,4 +1,4 @@
-/** Floating map controls: status chip, fallback style switch, building info, overview. */
+/** Floating map controls, fallback style switch and temporary notices. */
 import type { EngineStatus, FallbackStyle } from "../map/types.ts";
 import { t } from "../i18n.ts";
 import { $, esc } from "./dom.ts";
@@ -14,7 +14,6 @@ export interface ControlHandlers {
 
 export class MapControls {
   private status: EngineStatus | null = null;
-  private buildingsReady = false;
   private flashTimer = 0;
   private readonly chip = $("#status-chip");
   private readonly styleSwitch = $("#fallback-style");
@@ -56,20 +55,14 @@ export class MapControls {
     this.renderStatus();
   }
 
-  setBuildingsReady(ready: boolean): void {
-    this.buildingsReady = ready;
-    clearTimeout(this.flashTimer);
-    this.renderStatus();
-  }
-
   private renderStatus(): void {
     const fallback = this.status?.kind === 'ready' && this.status.mode === 'fallback';
     this.styleSwitch.hidden = !fallback;
-    this.chip.hidden = this.status === null;
-    const title = this.buildingsReady ? 'PLATEAU 3D' : fallback ? 'Aerial map' : 'Photorealistic 3D';
-    const description = this.buildingsReady ? 'Buildings ready to explore' : fallback ? 'GSI imagery · 3D where available' : 'Google 3D Tiles';
-    this.chip.innerHTML = `<span class="dot" aria-hidden="true"></span><span><strong>${esc(title)}</strong> · ${esc(description)}</span>`;
-    this.chip.title = fallback && this.status?.kind === 'ready' ? this.status.reason ?? '' : '';
+    // No permanent rendering-mode badge. Keep this live region only for
+    // temporary, actionable notices; Cesium owns the required map attribution.
+    this.chip.hidden = true;
+    this.chip.replaceChildren();
+    this.chip.removeAttribute("title");
   }
 
   flash(message: string, ms = 4000): void {

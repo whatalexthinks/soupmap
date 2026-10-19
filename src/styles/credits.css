@@ -1,14 +1,9 @@
 /* The /credits page: a calm, readable document in the Soupmap palette. */
-@import "@fontsource-variable/fraunces/soft.css";
 @import "@fontsource-variable/instrument-sans";
 @import "./tokens.css";
 
 body {
-  background:
-    radial-gradient(80% 40% at 80% 0%, rgba(242, 165, 65, 0.1), transparent 70%),
-    radial-gradient(60% 40% at 0% 30%, rgba(70, 60, 160, 0.16), transparent 70%),
-    var(--ink-0);
-  background-attachment: fixed;
+  background: var(--paper);
   line-height: 1.6;
 }
 
@@ -17,7 +12,7 @@ body {
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  max-width: 920px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 28px 20px 0;
 }
@@ -25,10 +20,10 @@ body {
 .wordmark {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 30px;
   letter-spacing: -0.03em;
-  font-variation-settings: "SOFT" 100;
+
 }
 
 .wordmark a {
@@ -45,16 +40,18 @@ body {
 }
 
 .page {
-  max-width: 920px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 24px 20px 40px;
+  padding: 56px 20px 64px;
 }
 
 h1 {
   margin: 12px 0 8px;
   font-family: var(--font-display);
-  font-variation-settings: "SOFT" 100;
-  font-size: clamp(34px, 6vw, 52px);
+
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 500;
+  max-width: 20ch;
   line-height: 1.05;
   letter-spacing: -0.02em;
 }
@@ -74,7 +71,7 @@ h1 {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
   font-family: var(--font-display);
-  font-variation-settings: "SOFT" 100;
+
   font-size: 24px;
 }
 
@@ -88,7 +85,7 @@ h1 {
   padding: 16px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
-  background: rgba(13, 12, 30, 0.72);
+  background: var(--paper-light);
 }
 
 .source header {
@@ -124,7 +121,7 @@ h1 {
 
 .status {
   padding: 2px 10px;
-  border-radius: 999px;
+  border-radius: 2px;
   border: 1px solid var(--line-strong);
   color: var(--steam-2);
   font-size: 12.5px;
@@ -153,6 +150,31 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+/* Directory records share the credits document layout, including on phones. */
+.page ol {
+  padding-left: 24px;
+}
+
+.source {
+  overflow-wrap: anywhere;
+}
+
+.source h2 {
+  font-size: 21px;
+  margin: 0 0 10px;
+}
+
+@media (max-width: 520px) {
+  .source dl {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .source dd {
+    margin-bottom: 8px;
+  }
+}
+
 .notes {
   margin: 10px 0 0;
   padding-left: 18px;
@@ -162,7 +184,7 @@ h1 {
 }
 
 .foot {
-  max-width: 920px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 20px 20px 40px;
   border-top: 1px solid var(--line);
@@ -179,3 +201,11 @@ h1 {
     margin-top: 6px;
   }
 }
+
+.page h1 {overflow-wrap:anywhere}
+.source {padding:24px;border-color:var(--rule);box-shadow:0 3px 0 var(--stone)}
+.source h2 a {color:var(--soot);text-decoration:none}
+.source h2 a:hover {color:var(--clay);text-decoration:underline}
+.source dl {grid-template-columns:minmax(130px,.4fr) 1fr;gap:12px 24px;padding-top:12px}
+.block>h2 {font-weight:550;letter-spacing:-.025em;font-size:27px}
+@media(max-width:560px){.page{padding-top:36px}.source{padding:20px}.source dl{grid-template-columns:1fr;gap:4px}.source dd{margin-bottom:10px}}

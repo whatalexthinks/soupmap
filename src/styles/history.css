@@ -1,0 +1,255 @@
+/* History nearby: compact editorial context that sits naturally inside a shop card. */
+.history {
+  margin-top: 18px;
+  padding: 13px 14px 12px;
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--lantern);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.history__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history__eyebrow {
+  margin: 0 0 3px;
+  color: var(--steam-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.history__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.15;
+}
+
+.history__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--steam);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.history__toggle input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--lantern);
+}
+
+.history__toggle:focus-within,
+.history__retry:focus-visible,
+.history__sources summary:focus-visible {
+  outline: 2px solid var(--lantern);
+  outline-offset: 2px;
+}
+
+.history__intro,
+.history__caveat,
+.history__status {
+  margin: 9px 0 0;
+  color: var(--steam-2);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.history__content {
+  margin-top: 10px;
+}
+
+.history__status {
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.history__place {
+  padding: 12px 0 10px;
+  border-top: 1px solid var(--line);
+}
+
+.history__place:first-child {
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.history__place-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.history__place h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.history__ja {
+  margin: 3px 0 0;
+  color: var(--steam-3);
+  font-size: 12px;
+}
+
+.history__distance {
+  max-width: 115px;
+  color: var(--steam-3);
+  font-size: 10.5px;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.history__kind {
+  margin: 7px 0 0;
+  color: var(--lantern-hi);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history__summary {
+  margin: 6px 0 0;
+  color: var(--steam-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.history__refs,
+.history__dates a {
+  font-size: 11px;
+}
+
+.history__refs a,
+.history__sources a {
+  color: var(--lantern-hi);
+  text-underline-offset: 2px;
+}
+
+.history__dates {
+  display: grid;
+  gap: 5px;
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+.history__date {
+  display: grid;
+  grid-template-columns: minmax(75px, 0.7fr) minmax(0, 1.3fr);
+  gap: 8px;
+}
+
+.history__date dt {
+  color: var(--steam-3);
+}
+
+.history__date dd {
+  min-width: 0;
+  margin: 0;
+}
+
+.history__unknown {
+  color: var(--steam-3);
+  font-style: italic;
+}
+
+.history__date .history__refs {
+  display: block;
+  margin-top: 2px;
+}
+
+.history__sources {
+  margin-top: 9px;
+  color: var(--steam-2);
+  font-size: 11.5px;
+}
+
+.history__sources summary {
+  min-height: 30px;
+  padding: 6px 0;
+  color: var(--steam);
+  cursor: pointer;
+}
+
+.history__sources ul {
+  display: grid;
+  gap: 7px;
+  margin: 2px 0 0;
+  padding: 0 0 0 16px;
+}
+
+.history__source-meta {
+  display: block;
+  margin-top: 2px;
+  color: var(--steam-3);
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.history__verified {
+  margin: 8px 0 0;
+  color: var(--steam-3);
+  font-size: 10.5px;
+}
+
+.history__caveat {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+}
+
+.history__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--steam-2);
+  font-size: 13px;
+}
+
+.history__error p {
+  margin: 0;
+}
+
+.history__retry {
+  min-height: 38px;
+  padding: 6px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--steam);
+  font: inherit;
+  cursor: pointer;
+}
+
+.history__retry:hover {
+  border-color: var(--lantern);
+}
+
+@media (max-width: 760px) {
+  .history {
+    margin-top: 14px;
+    padding: 11px 12px 10px;
+  }
+
+  .history__place-heading {
+    gap: 7px;
+  }
+}

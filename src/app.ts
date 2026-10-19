@@ -10,10 +10,14 @@ import { CITIES, cityBySlug } from "./data/cities.ts";
 import plateauData from "./data/plateau-tilesets.json" with { type: "json" };
 import { ORDERED_SHOPS, shopBySlug, type Shop } from "./data/shops.ts";
 import { TRAILS } from "./data/trails.ts";
+import { STARTUP_CITY_SLUG, claimOpening } from "./startup.ts";
 import { t } from "./i18n.ts";
 import type { MapEngineImpl } from "./map/engine.ts";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
-import type { StreetView } from "./map/streetview.ts";
+import { StreetView } from "./map/streetview.ts";
+import { accountSaved, changeAccountSaved } from "./personal-saves.ts";
+import { type CuisineId } from "./cuisines.ts";
+import { displayName, restoreNameLanguage, getNameLanguage, setNameLanguage, type NameLanguage } from "./names.ts";
 import { router } from "./router.ts";
 import { TrailPlayer } from "./trail.ts";
 import { BuildingPanel } from "./ui/building-panel.ts";
@@ -24,6 +28,10 @@ import { Loader, toast } from "./ui/feedback.ts";
 import { Panel } from "./ui/panel.ts";
 import { BottomSheet } from "./ui/sheet.ts";
 import { SplatModal } from "./ui/splat-modal.ts";
+import type { SharedShortlist } from "./shortlist.ts";
+import { trackEvent } from "./analytics.ts";
+import type { HistoryMapPlace } from "./history-coverage.ts";
+import type { HistoryLayer } from "./map/history-layer.ts";
 
 /** PLATEAU building tilesets by municipality code (from scripts/fetch-plateau-catalog.ts). */
 const PLATEAU_INDEX: ReadonlyMap<string, PlateauTilesetRef> = new Map(
@@ -47,9 +55,18 @@ export class App {
   private query = "";
   private collection: {slugs:readonly string[];hub?:Hub}|null=null;
   private readonly journey: Journey;
-  private city = 'tokyo';
+  private searchAnalyticsTimer = 0;
+  private trackedSharedSignature = "";
+  private city: string = STARTUP_CITY_SLUG;
+  private navigationRevision = 0;
   private sort: SortOrder = 'guide';
+  private cuisine: CuisineId | 'all' = 'all';
+  private origin: {lat:number;lng:number} | null = null;
+  private locationRequest = 0;
   private savedOnly = false;
+  private shared: SharedShortlist | null = null;
+  private sharedActive = false;
+  private sharedHash = '';
   private readonly saved = this.readSaved();
   private inspectBuildings = false;
   private autoBuildings = true;
@@ -57,13 +74,19 @@ export class App {
   private buildingRequest = 0;
   private mapStarted = false;
   private readSaved(): Set<string> {
+    const remote = accountSaved();
+    if (remote) return new Set(remote);
     try { return parseSaved(localStorage.getItem(SAVED_KEY), new Set(shopBySlug.keys())); }
     catch { return new Set(); }
   }
   private readonly broths = new Set<BrothId>();
   private selected: string | null = null;
   private engine: MapEngineImpl | null = null;
+  private historyPlaces: HistoryMapPlace[] = [];
+  private historyLayer: HistoryLayer | null = null;
+  private historyLayerRequest = 0;
   private streetView: StreetView | null = null;
+  private streetViewRequest = 0;
   private buildingInfo: BuildingInfo | null = null;
   private lowPower = false;
   private readonly googleKey = (import.meta.env?.VITE_GOOGLE_MAPS_KEY ?? "").trim();
@@ -83,11 +106,31 @@ export class App {
   });
 
   constructor() {
+    $(".brand").addEventListener("click",event=>{
+      if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      this.sharedActive = false;
+      router.clearShortlist();
+      this.resetFilters();
+    });
+    restoreNameLanguage();
+    if (this.googleKey) this.streetView = new StreetView(this.googleKey);
     this.panel = new Panel(ORDERED_SHOPS, {
       onQuery: (q) => {
+        const changed = q !== this.query;
         this.trail.stop();
         this.query = q;
         this.refresh();
+        if (changed) {
+          window.clearTimeout(this.searchAnalyticsTimer);
+          if (q) this.searchAnalyticsTimer = window.setTimeout(() => {
+            if (this.query !== q) return;
+            trackEvent("search_performed", {
+              result_count: this.filtered().length, city: this.city,
+              cuisine: this.cuisine, shared_list: this.sharedActive,
+            });
+          }, 600);
+        }
       },
       onToggleBroth: (id) => {
         this.trail.stop();
@@ -95,6 +138,7 @@ export class App {
         else this.broths.add(id);
         this.panel.setBrothPressed(this.broths);
         this.refresh();
+        trackEvent("filter_changed", {filter:"broth",value:id,enabled:this.broths.has(id)});
       },
       onCity: (slug) => this.jumpToCity(slug),
       onSelect: (slug) => {
@@ -105,19 +149,37 @@ export class App {
       onSave: slug => this.toggleSaved(slug),
       onSavedOnly: savedOnly => {
         this.trail.stop();
+        this.sharedActive = false;
+        router.clearShortlist();
         this.savedOnly = savedOnly;
+        trackEvent("collection_viewed", {collection:savedOnly ? "saved" : "explore"});
         this.resetFilters();
         this.closeCard();
         this.sheet.ensureOpen();
       },
-      onSort: sort => { this.sort = sort; this.refresh(); },
-      onReset: () => this.resetFilters(),
+      onShared: () => this.showShared(),
+      onSort: sort => { void this.changeSort(sort); },
+      onCuisine: cuisine => {
+        this.trail.stop();
+        this.cuisine = cuisine;
+        this.refresh();
+        trackEvent("filter_changed", {filter:"cuisine",value:cuisine});
+      },
+      onNameLanguage: language => {
+        this.changeNameLanguage(language);
+        trackEvent("filter_changed", {filter:"name_language",value:language});
+      },
+      onReset: () => {
+        this.resetFilters();
+        trackEvent("filter_changed", {filter:"reset",value:"all"});
+      },
       onSurprise: () => {
         const choices = this.filtered().filter(s => s.slug !== this.selected);
         const shop = choices[Math.floor(Math.random() * choices.length)] ?? this.filtered()[0];
         if (shop) { this.trail.stop(); this.select(shop.slug, { fly: true, focus: true }); }
       },
     });
+    this.panel.setNameLanguage(getNameLanguage());
 
     this.journey = new Journey({
       select: slug => this.select(slug,{fly:true,focus:true}),
@@ -130,6 +192,7 @@ export class App {
     this.card = new ShopCard({
       onVisit: shop => {this.trail.stop();this.journey.showVisit(shop);},
       onContribute: shop => {this.trail.stop();this.journey.showContribution(shop);},
+      onHistoryPlaces: places => void this.setHistoryPlaces(places),
       onSave: shop => this.toggleSaved(shop.slug),
       onClose: () => {
         this.trail.stop();
@@ -168,8 +231,14 @@ export class App {
   start(): void {
     this.collection=collectionFromUrl(location.search,new Set(shopBySlug.keys()));
     if(this.collection)this.city=this.collection.hub?.city??'all';
+    this.shared = router.shortlist();
+    this.trackSharedShortlist();
+    if (this.shared) this.sharedHash = location.hash;
+    this.sharedActive = !!this.shared;
+    if (this.shared) this.city = 'all';
+    if(this.shared)this.clearCollection();
     const initial = router.initial();
-    if (initial) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
+    if (initial && !this.shared) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
     this.refresh();
     this.updateLocation();
     this.renderCollection();
@@ -180,7 +249,21 @@ export class App {
       if(button?.dataset.collectionAction==='share'&&this.collection)void this.shareCollection();
     });
     if (initial) this.select(initial, { fly: false, focus: false });
-    router.onChange((slug) => (slug ? this.select(slug, { fly: true, focus: false }) : this.closeCard()));
+    if (this.shared) this.sheet.ensureOpen();
+    router.onChange((slug) => {
+      const shared = router.shortlist();
+      if (shared) {
+        this.shared = shared;
+        this.trackSharedShortlist();
+        this.sharedHash = location.hash;
+        this.showShared(false);
+      } else if (this.sharedActive) {
+        this.sharedActive = false;
+        this.resetFilters();
+      }
+      if (slug) this.select(slug, { fly: true, focus: false });
+      else this.closeCard();
+    });
 
     document.addEventListener("keydown", (e) => {
       if(this.journey.open)return;
@@ -192,9 +275,25 @@ export class App {
     });
     this.panel.searchInput.addEventListener("focus", () => this.sheet.ensureOpen());
     $("#pano-back").addEventListener("click", () => this.closeStreetView());
+    window.addEventListener("soupmap:google-auth-error", () => {
+      this.closeStreetView();
+      this.card.setStreetView("unavailable", "Google denied the interactive viewer. Enable Maps JavaScript API on this project and key, check billing and website restrictions, then reload.");
+      toast("Google denied interactive Street View. Check Maps JavaScript API access.", 5000);
+    });
+    window.addEventListener("soupmap:streetview-error", () => {
+      const shop = this.card.current;
+      this.closeStreetView();
+      if (shop) this.card.setStreetView("unavailable", this.streetView?.unavailableReason(shop));
+      toast("This panorama could not load. Try the Google Maps link.");
+    });
 
     window.addEventListener('storage', e => {
       if (e.key !== SAVED_KEY && e.key !== null) return;
+      const saved = this.readSaved();
+      this.saved.clear(); saved.forEach(slug => this.saved.add(slug));
+      this.refresh(); this.card.setSaved(!!this.selected && this.saved.has(this.selected));
+    });
+    window.addEventListener("soupmap:account-saves", () => {
       const saved = this.readSaved();
       this.saved.clear(); saved.forEach(slug => this.saved.add(slug));
       this.refresh(); this.card.setSaved(!!this.selected && this.saved.has(this.selected));
@@ -203,37 +302,113 @@ export class App {
   }
 
   private filtered(): readonly Shop[] {
-    const source=this.collection?this.collection.slugs.flatMap(s=>shopBySlug.get(s)??[]):ORDERED_SHOPS;
+    const source = this.sharedActive ? (this.shared?.ids ?? []).flatMap(id => {
+      const shop = shopBySlug.get(id);
+      return shop ? [shop] : [];
+    }) : this.collection ? this.collection.slugs.flatMap(s => shopBySlug.get(s) ?? []) : ORDERED_SHOPS;
     return discover(source, { query: this.query, city: this.city, sort: this.sort,
-      broths: this.broths, savedOnly: this.savedOnly, saved: this.saved });
+      broths: this.broths, savedOnly: this.savedOnly, saved: this.saved,
+      cuisine: this.cuisine, origin: this.origin });
   }
 
   private refresh(): void {
     const shops = this.filtered();
+    this.panel.setShared(this.shared, this.sharedActive);
     this.panel.renderList(shops, this.selected, this.saved, this.savedOnly);
     this.panel.setCity(this.city);
-    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && !this.collection;
+    this.panel.setCuisine(this.cuisine);
+    $('#clear-filters').hidden = !this.query && !this.broths.size && this.city === 'all' && this.cuisine === 'all' && !this.collection;
     this.engine?.setShops(shops);
     if (this.selected && !shops.some(shop => shop.slug === this.selected)) this.closeCard();
   }
 
+  private showShared(updateUrl = true): void {
+    if (!this.shared) return;
+    if (updateUrl) history.replaceState(null, '', `${location.pathname}${location.search}${this.sharedHash}`);
+    this.sharedActive = true;
+    this.savedOnly = false;
+    this.closeCard();
+    this.resetFilters();
+    this.sheet.ensureOpen();
+  }
+
+  private trackSharedShortlist(): void {
+    if (!this.shared) return;
+    // The signature is local only; never send bearer links or selected shop IDs.
+    const signature = JSON.stringify([this.shared.ids, this.shared.missing, !!this.shared.error]);
+    if (signature === this.trackedSharedSignature) return;
+    this.trackedSharedSignature = signature;
+    trackEvent("shared_shortlist_opened", {
+      shop_count: this.shared.ids.length, missing_count: this.shared.missing, valid: !this.shared.error,
+    });
+  }
+
+  private changeNameLanguage(language: NameLanguage): void {
+    setNameLanguage(language);
+    this.panel.setNameLanguage(language);
+    this.refresh();
+    this.engine?.pins.refreshNames();
+    if (this.selected) this.select(this.selected, {fly:false, focus:false});
+  }
+
+  private async changeSort(sort: SortOrder): Promise<void> {
+    const request = ++this.locationRequest;
+    if (sort === "distance" && !this.origin) {
+      this.panel.setSort(this.sort);
+      if (!navigator.geolocation) {
+        toast("Location is unavailable in this browser. Choose another sort.");
+        return;
+      }
+      toast("Allow location access to sort the current results by distance.");
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve,reject) =>
+          navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:12000,maximumAge:300000,enableHighAccuracy:false}));
+        if (request !== this.locationRequest) return;
+        this.origin = {lat:position.coords.latitude,lng:position.coords.longitude};
+      } catch {
+        if (request === this.locationRequest) toast("Location was unavailable or not allowed. Your previous sort is unchanged.", 4000);
+        return;
+      }
+    }
+    if (request !== this.locationRequest) return;
+    this.sort = sort;
+    this.panel.setSort(sort);
+    this.refresh();
+    trackEvent("filter_changed", {filter:"sort",value:sort});
+  }
+
   private toggleSaved(slug: string): void {
-    if (!shopBySlug.has(slug)) return;
+    const shop = shopBySlug.get(slug);
+    if (!shop) return;
+    if (accountSaved()) {
+      const saved = !this.saved.has(slug);
+      void changeAccountSaved(slug, saved).then(changed => {
+        if (!changed) return;
+        trackEvent("save_changed", {saved, persistent:true, shared_list:this.sharedActive, city:shop.city, broth:shop.broth});
+        toast(saved ? "Saved to your account" : "Removed from your account saves");
+      }).catch(error => toast(error instanceof Error ? error.message : "Your change could not be saved.", 5000));
+      return;
+    }
     if (this.saved.has(slug)) this.saved.delete(slug); else this.saved.add(slug);
     let persistent = true;
     try { localStorage.setItem(SAVED_KEY, JSON.stringify([...this.saved])); }
     catch { persistent = false; }
     this.refresh();
     if (this.selected === slug) this.card.setSaved(this.saved.has(slug));
+    trackEvent("save_changed", {
+      saved: this.saved.has(slug), persistent, shared_list: this.sharedActive,
+      city:shop.city, broth:shop.broth,
+    });
     const saveButton = [...document.querySelectorAll<HTMLButtonElement>('[data-save]')].find(b => b.dataset.save === slug);
     if (!document.body.classList.contains('has-card')) saveButton?.focus({ preventScroll: true });
     toast(persistent ? (this.saved.has(slug) ? 'Added to your saved places' : 'Removed from saved places') : 'Saved for this session. Browser storage is unavailable.');
   }
 
   private resetFilters(): void {
+    ++this.navigationRevision;
     this.trail.stop();
     this.clearCollection();
-    this.query = ''; this.city = 'all'; this.broths.clear();
+    this.query = ''; this.city = 'all'; this.broths.clear(); this.cuisine = 'all';
     this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
     this.refresh(); this.updateLocation();
     this.turnOffBuilding();
@@ -248,7 +423,10 @@ export class App {
   }
 
   private openCollection(slugs:readonly string[],hub?:Hub):void {
+    ++this.navigationRevision;
+    this.sharedActive=false;router.clearShortlist();
     this.trail.stop();this.closeCard();
+    this.cuisine='all';this.sort='guide';this.panel.setSort(this.sort);
     this.query='';this.broths.clear();this.savedOnly=false;
     this.panel.searchInput.value='';this.panel.setBrothPressed(this.broths);
     this.collection=hub?{slugs,hub}:{slugs};this.city=hub?.city??'all';
@@ -271,6 +449,14 @@ export class App {
   }
 
   private saveCollection(slugs:readonly string[]):void {
+    if(accountSaved()) {
+      // Launch against the current account session; the save helper discards stale responses.
+      void Promise.all(slugs.filter(slug=>shopBySlug.has(slug)&&!this.saved.has(slug))
+        .map(slug=>changeAccountSaved(slug,true)))
+        .then(results=>toast(results.every(Boolean)?'Collection added to your account.':'Some saves changed while you were saving. Check your account list.'))
+        .catch(()=>toast('Some places could not be saved. Please retry; existing saves are kept.',5000));
+      return;
+    }
     slugs.forEach(slug=>{if(shopBySlug.has(slug))this.saved.add(slug);});
     let persistent=true;try{localStorage.setItem(SAVED_KEY,JSON.stringify([...this.saved]));}catch{persistent=false;}
     this.refresh();this.card.setSaved(!!this.selected&&this.saved.has(this.selected));
@@ -286,26 +472,40 @@ export class App {
 
   private updateLocation(): void {
     const city = cityBySlug.get(this.city);
-    $('#map-city').textContent = city?.name ?? 'Japan';
-    $('#map-city-ja').textContent = city?.nameJa ?? '日本';
-    $('#map-coordinates').textContent = city ? `${city.lat.toFixed(4)}° N · ${city.lng.toFixed(4)}° E` : 'HOKKAIDO TO KYUSHU';
-    $('#map-summary').textContent = this.savedOnly ? 'Your personal collection of places worth a detour.' : 'A city best discovered one bowl at a time.';
+    $('#map-city').textContent = city?.name ?? 'Earth';
+    $('#map-city-ja').textContent = city?.nameJa ?? '';
+    $('#map-coordinates').textContent = city
+      ? `${Math.abs(city.lat).toFixed(4)}° ${city.lat < 0 ? 'S' : 'N'} · ${Math.abs(city.lng).toFixed(4)}° ${city.lng < 0 ? 'W' : 'E'}`
+      : 'A WORLD OF SOUPS';
+    $('#map-summary').textContent = this.sharedActive ? 'A shared soup shortlist · Save only the shops you want.'
+      : this.savedOnly ? 'Your saved places, one bowl at a time.'
+      : city ? `Japan pilot · ${city.slug === STARTUP_CITY_SLUG ? 'Tokyo test destination' : city.name}` : 'Worldwide atlas · Current listings: Japan pilot';
   }
 
   // ── Selection ────────────────────────────────────────────────────────────
 
   select(slug: string, options: { fly: boolean; focus: boolean }): void {
+    ++this.navigationRevision;
+    if (slug !== this.selected && (this.streetView?.isOpen || this.streetView?.isLoading)) this.closeStreetView();
     const shop = shopBySlug.get(slug);
     if (!shop) return;
     // Deep links and trail stops must remain visible in the current discovery state.
     if (!this.filtered().some(s => s.slug === slug)) {
       this.clearCollection();
-      this.query = ''; this.broths.clear(); this.savedOnly = false;
+      if (this.sharedActive && !this.shared?.ids.includes(slug)) {
+        this.sharedActive = false;
+        router.clearShortlist();
+      }
+      this.query = ''; this.broths.clear(); this.savedOnly = false; this.cuisine = 'all';
       this.city = CITIES.find(c => c.name === shop.city)?.slug ?? 'all';
       this.panel.searchInput.value = ''; this.panel.setBrothPressed(this.broths);
       this.refresh(); this.updateLocation();
     }
+    if (this.selected !== slug) trackEvent("shop_opened", {
+      city:shop.city, broth:shop.broth, shared_list:this.sharedActive,
+    });
     this.selected = slug;
+    this.sheet.setCovered(true);
     this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug), visited: !!this.journey.visits[shop.slug] });
     this.panel.markSelected(slug);
     router.set(slug);
@@ -325,28 +525,35 @@ export class App {
   }
 
   closeCard(): void {
+    if (this.streetView?.isOpen || this.streetView?.isLoading) this.closeStreetView();
     const previous = this.selected;
     const hadFocus = this.card.contains(document.activeElement);
     this.selected = null;
     this.card.close();
+    this.sheet.setCovered(false);
     this.panel.markSelected(null);
     router.set(null);
     this.engine?.setSelected(null);
-    if (previous && hadFocus) this.panel.focusRow(previous);
+    if (previous && hadFocus) {
+      if(isMobileLayout()) this.sheet.focusHandle();
+      else this.panel.focusRow(previous);
+    }
   }
 
   private onEscape(): void {
     if (this.journey.open || this.splat.open) return; // the dialog handles its own Escape
     if (this.trail.playing) this.trail.stop();
-    else if (this.streetView?.isOpen) this.closeStreetView();
+    else if (this.streetView?.isOpen || this.streetView?.isLoading) this.closeStreetView();
     else if (this.buildingPanel.open) this.turnOffBuilding();
     else if (this.selected) this.closeCard();
   }
 
   private jumpToCity(slug: string): void {
+    ++this.navigationRevision;
     this.trail.stop();
     this.clearCollection();
     this.city = slug;
+    trackEvent("filter_changed", {filter:"city",value:slug});
     this.closeCard(); this.refresh(); this.updateLocation();
     if (isMobileLayout()) this.sheet.setSnap('peek');
     if (slug === 'all') {
@@ -364,6 +571,7 @@ export class App {
   private async copyLink(shop: Shop): Promise<void> {
     try {
       await navigator.clipboard.writeText(router.shareUrl(shop.slug));
+      trackEvent("shop_link_copied");
       toast(t("linkCopied"));
     } catch {
       toast(t("copyFailed"), 3500);
@@ -380,6 +588,8 @@ export class App {
     this.clearCollection();
     const trail = TRAILS[0];
     if (!trail) return;
+    this.sharedActive = false;
+    router.clearShortlist();
     // Show the trail's broth on the map while touring.
     this.query = "";
     this.savedOnly = false;
@@ -403,39 +613,52 @@ export class App {
   // ── Street View ("Stand outside") ────────────────────────────────────────
 
   private streetViewUsable(): boolean {
-    return !!this.streetView && this.engine?.mode === "google";
+    return !!this.streetView;
   }
 
-  /** Show "Stand outside" only if an outdoor panorama exists near the shop. */
+  /** Defer SDK and coverage lookup until the visitor explicitly opens Street View. */
   private async checkStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) {
-      this.card.setStreetView("unavailable");
+      this.card.setStreetView("unavailable", this.googleKey
+        ? "Interactive Street View is unavailable. You can also open it in Google Maps."
+        : "In-app Street View needs a Google Maps key. You can still open it in Google Maps.");
       return;
     }
-    this.card.setStreetView("unknown");
-    const info = await this.streetView.find(shop);
-    if (this.card.current?.slug !== shop.slug) return;
-    this.card.setStreetView(info ? "available" : "unavailable");
+    this.card.setStreetView("available", "Find nearby official outdoor imagery. Coverage may be a short walk from the entrance.");
   }
 
   private async openStreetView(shop: Shop): Promise<void> {
     if (!this.streetViewUsable() || !this.streetView) return;
+    const request = ++this.streetViewRequest;
     this.card.setStreetView("loading");
+    $("#pano-label").textContent = t("streetViewLoading");
+    $("#pano-bar").hidden = false;
+    document.body.classList.add("is-pano");
+    $("#pano-back").focus();
     const info = await this.streetView.open(shop);
+    if (request !== this.streetViewRequest) return;
+    if (this.card.current?.slug !== shop.slug) {
+      this.streetView.close();
+      return;
+    }
     if (!info) {
-      this.card.setStreetView("unavailable");
+      $("#pano-bar").hidden = true;
+      document.body.classList.remove("is-pano");
+      trackEvent("street_view_failed");
+      this.card.setStreetView("unavailable", this.streetView.unavailableReason(shop));
       toast(t("streetViewFailed"));
       return;
     }
-    const date = info.date ? ` · ${esc(info.date)}` : "";
-    $("#pano-label").innerHTML = `<strong>${esc(t("streetViewOf", { name: shop.name }))}</strong> · ${esc(info.copyright)}${date}`;
+    $("#pano-label").innerHTML = `<strong>Exploring near ${esc(displayName(shop))}</strong><span class="pano__hint">Arrows to move · Drag to look · +/− to zoom</span>`;
     $("#pano-bar").hidden = false;
     document.body.classList.add("is-pano");
+    trackEvent("street_view_opened", {city:shop.city,broth:shop.broth});
     $("#pano-back").focus();
   }
 
   private closeStreetView(): void {
-    if (!this.streetView?.isOpen) return;
+    if (!this.streetView) return;
+    ++this.streetViewRequest;
     this.streetView.close();
     $("#pano-bar").hidden = true;
     document.body.classList.remove("is-pano");
@@ -502,7 +725,6 @@ export class App {
     this.buildingRequest++;
     this.inspectBuildings = false;
     this.buildingInfo?.disable();
-    this.controls.setBuildingsReady(false);
     this.buildingPanel.hide();
     this.updateBuildingToggles(this.selected ? shopBySlug.get(this.selected) : undefined);
   }
@@ -511,12 +733,10 @@ export class App {
     const dataView = !!this.buildingInfo?.isDataView;
     switch (event.kind) {
       case "loading":
-        this.controls.setBuildingsReady(false);
         if (!this.inspectBuildings) break;
         this.buildingPanel.show({ kind: "loading" }, dataView, this.engine?.mode === "google");
         break;
       case "ready":
-        this.controls.setBuildingsReady(true);
         if (!this.inspectBuildings) break;
         this.buildingPanel.show({ kind: "hint" }, dataView, this.engine?.mode === "google");
         break;
@@ -529,7 +749,6 @@ export class App {
         this.buildingPanel.show({ kind: "facts", facts: event.facts }, dataView, this.engine?.mode === "google");
         break;
       case "unavailable":
-        this.controls.setBuildingsReady(false);
         this.buildingPanel.hide();
         this.controls.flash(t("buildingUnavailable"));
         break;
@@ -539,6 +758,24 @@ export class App {
 
   // ── Map ──────────────────────────────────────────────────────────────────
 
+  private async setHistoryPlaces(places: HistoryMapPlace[]): Promise<void> {
+    this.historyPlaces = places;
+    const revision = ++this.historyLayerRequest;
+    if (this.historyLayer) {
+      this.historyLayer.setPlaces(places);
+      return;
+    }
+    if (!places.length || !this.engine) return;
+    try {
+      const { HistoryLayer } = await import("./map/history-layer.ts");
+      if (revision !== this.historyLayerRequest || !this.engine) return;
+      this.historyLayer = new HistoryLayer(this.engine, id => this.card.focusHistoryPlace(id));
+      this.historyLayer.setPlaces(places);
+    } catch {
+      if (revision === this.historyLayerRequest) toast("History notes are available, but their map markers could not load.");
+    }
+  }
+
   private async loadMap(): Promise<void> {
     if (this.mapStarted) return;
     this.mapStarted = true;
@@ -547,6 +784,11 @@ export class App {
       return;
     }
     this.lowPower = matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
+    const firstOpening=claimOpening();
+    const initialShop=this.selected ? shopBySlug.get(this.selected) : undefined;
+    const initialCity=cityBySlug.get(this.city);
+    const playOpening=firstOpening && !initialShop && !!initialCity
+      && !matchMedia("(prefers-reduced-motion: reduce)").matches;
     try {
       window.CESIUM_BASE_URL = __CESIUM_BASE_URL__;
       const { createMapEngine } = await import("./map/engine.ts");
@@ -555,10 +797,17 @@ export class App {
         creditViewport: $("#credit-viewport"),
         googleKey: this.googleKey,
         shops: ORDERED_SHOPS,
+        initialVisibleShops: this.filtered(),
+        initialShop,
+        initialCity,
+        playOpening,
+        initialLocation: (this.selected ? shopBySlug.get(this.selected) : undefined)
+          ?? cityBySlug.get(this.city) ?? cityBySlug.get(STARTUP_CITY_SLUG),
         reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
         lowPower: this.lowPower,
         onStatus: status => {
           this.controls.setStatus(status);
+          if(status.kind==="error") toast(status.message,8000);
           if (status.kind === 'ready' && status.mode === 'fallback' && this.engine && this.autoBuildings) {
             const anchor = this.selected ? shopBySlug.get(this.selected) : ORDERED_SHOPS.find(s => s.city === cityBySlug.get(this.city)?.name && PLATEAU_INDEX.has(s.cityCode));
             if (anchor) void this.turnOnBuilding(anchor);
@@ -566,16 +815,14 @@ export class App {
         },
       });
       this.engine = engine;
+      void this.setHistoryPlaces(this.historyPlaces);
       this.controls.setEnabled(true);
       // ?debug exposes the engine for inspection in the console and in browser tests.
       if (new URLSearchParams(location.search).has("debug")) Object.assign(window, { soupmap: engine });
       this.trackCreditBar();
-      if (this.googleKey && engine.mode === "google") {
-        const { StreetView } = await import("./map/streetview.ts");
-        this.streetView = new StreetView(engine, this.googleKey);
-      }
       engine.onShopPicked((slug) => this.select(slug, { fly: true, focus: false }));
       engine.onUserInteraction(() => {
+        ++this.navigationRevision;
         this.trail.stop();
         if (isMobileLayout() && !this.selected) this.sheet.setSnap("peek");
       });
@@ -589,14 +836,24 @@ export class App {
         this.updateBuildingToggles(shop);
       }
       if (shop) {
+        const revision = this.navigationRevision;
         await engine.flyToShop(shop, { duration: 0, bottomInset: this.bottomInset() });
-        void this.syncBuilding(shop);
+        if (revision === this.navigationRevision) void this.syncBuilding(shop);
       } else {
         const city = cityBySlug.get(this.city);
-        if (city) await engine.flyToCity(city, { duration: 0 });
+        const revision = this.navigationRevision;
+        if (city && playOpening) {
+          $('#map-city').textContent = 'Earth';
+          $('#map-city-ja').textContent = '';
+          $('#map-coordinates').textContent = 'A WORLD OF SOUPS';
+          $('#map-summary').textContent = `Flying to ${city.name}${city.slug === STARTUP_CITY_SLUG ? ' · test destination' : ''}`;
+          await engine.playIntro(city);
+          this.updateLocation();
+        }
+        else if(city) await engine.flyToCity(city,{duration:0});
         else await engine.flyToOverview({ duration: 0 });
         const anchor = ORDERED_SHOPS.find(s => s.city === city?.name && PLATEAU_INDEX.has(s.cityCode));
-        if (anchor && engine.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);
+        if (revision === this.navigationRevision && anchor && engine.mode === 'fallback' && this.autoBuildings) void this.turnOnBuilding(anchor);
       }
     } catch (error) {
       console.warn("[soupmap] 3D map unavailable", error);

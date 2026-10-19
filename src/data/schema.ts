@@ -21,6 +21,9 @@ export const ShopSchema = z.strictObject({
   slug,
   name: z.string().min(1),
   nameJa: z.string().min(1),
+  /** Generated phonetic reading, not an official English translation. */
+  nameRomanized: z.string().min(1).optional(),
+  cuisine: z.enum(["ramen", "udon", "soba", "oden", "other"]).optional(),
   city: z.string().min(1),
   /** 5-digit Japanese municipality code (ward code inside designated cities). Finds the PLATEAU tileset. */
   cityCode: z.string().regex(/^\d{5}$/),
@@ -47,6 +50,7 @@ export const ShopSchema = z.strictObject({
   dataSource: z.enum(["manual", "overture", "osm"]),
   /** ID in the upstream dataset (Overture GERS ID / OSM element), for provenance. */
   sourceId: z.string().min(1).nullable().optional(),
+  sourceLicenses: z.array(z.string().min(1)).optional(),
   verified: z.boolean(),
 });
 

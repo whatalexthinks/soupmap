@@ -136,11 +136,20 @@ export function pinGlyph(broth: BrothId, selected = false): HTMLCanvasElement {
   return c;
 }
 
-const clusterCache = new Map<number, HTMLCanvasElement>();
+const clusterCache = new Map<string, HTMLCanvasElement>();
+
+/** A small, reusable badge palette instead of one GPU texture per exact count. */
+export function clusterLabel(count: number): string {
+  if (count < 100) return String(count);
+  const step = 10 ** Math.floor(Math.log10(count));
+  const lower = Math.floor(count / step) * step;
+  return `${lower >= 1_000_000 ? `${lower / 1_000_000}m` : lower >= 1000 ? `${lower / 1000}k` : lower}+`;
+}
 
 /** Cluster badge: lantern ring with a count. */
 export function clusterGlyph(count: number): HTMLCanvasElement {
-  const cached = clusterCache.get(count);
+  const label = clusterLabel(count);
+  const cached = clusterCache.get(label);
   if (cached) return cached;
   const s = CLUSTER_SIZE;
   const [c, ctx] = canvas(s, s);
@@ -170,8 +179,8 @@ export function clusterGlyph(count: number): HTMLCanvasElement {
   ctx.font = "700 17px 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(String(count), s / 2, s / 2 + 5);
+  ctx.fillText(label, s / 2, s / 2 + 5);
 
-  clusterCache.set(count, c);
+  clusterCache.set(label, c);
   return c;
 }

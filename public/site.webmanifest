@@ -1,7 +1,7 @@
 {
   "name": "Soupmap",
   "short_name": "Soupmap",
-  "description": "A field guide to Japan, one bowl at a time.",
+  "description": "A world of soups. Starting in Japan.",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#f3f1e9",

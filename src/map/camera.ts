@@ -8,7 +8,6 @@ import {
   EasingFunction,
   HeadingPitchRange,
   Math as CesiumMath,
-  Matrix4,
   type Viewer,
 } from "cesium";
 import { cityByName, type City } from "../data/cities.ts";
@@ -22,16 +21,15 @@ interface View {
   pitch: number;
 }
 
-/**
- * The whole archipelago. Japan runs south-west to north-east, so landscape screens look
- * north-west (islands left to right, clear of the sidebar) and portrait screens look
- * north-east (islands bottom to top, above the bottom sheet).
- */
-const OVERVIEW_LANDSCAPE = { lng: 134.4, lat: 34.4, heading: -32, pitch: -58, range: 2_450_000 };
-const OVERVIEW_PORTRAIT = { lng: 136.0, lat: 34.2, heading: 38, pitch: -60, range: 3_300_000 };
-const INTRO_START: View = { lng: 136.6, lat: 17.0, height: 4_600_000, heading: -4, pitch: -50 };
-/** South of central Tokyo, looking north over the city. */
-const INTRO_END: View = { lng: 139.745, lat: 35.575, height: 9_000, heading: 6, pitch: -32 };
+export const PLANET_HEIGHT = 22_000_000;
+export const INTRO_HOLD_MS = 1200;
+export const INTRO_FLIGHT_SECONDS = 5.5;
+export const INTRO_APPROACH_HEIGHT = 120_000;
+export const INTRO_APPROACH_SECONDS = 3.5;
+
+function planetView(center: {lat:number;lng:number}): View {
+  return {lng:center.lng,lat:Math.max(-45,Math.min(45,center.lat)),height:PLANET_HEIGHT,heading:0,pitch:-90};
+}
 
 export const SHOP_PITCH = -35;
 export const SHOP_RANGE = 600;
@@ -49,11 +47,14 @@ function viewToCamera(v: View) {
 }
 
 export class CameraDirector {
+  private revision = 0;
+  private introHold: {timer: ReturnType<typeof setTimeout>; resolve:()=>void} | null = null;
   constructor(
     private readonly viewer: Viewer,
     private readonly reducedMotion: boolean,
     /** Primitives to ignore when sampling the ground (our own pins). */
     private readonly excludeFromSampling: () => object[] = () => [],
+    private readonly initialCenter = {lat:20,lng:15},
   ) {}
 
   private duration(requested: number | undefined, fallback: number): number {
@@ -66,6 +67,12 @@ export class CameraDirector {
   }
 
   cancel(): void {
+    ++this.revision;
+    if (this.introHold) {
+      clearTimeout(this.introHold.timer);
+      this.introHold.resolve();
+      this.introHold = null;
+    }
     this.viewer.camera.cancelFlight();
   }
 
@@ -94,38 +101,46 @@ export class CameraDirector {
     });
   }
 
-  private overviewFraming(): [BoundingSphere, HeadingPitchRange] {
-    const canvas = this.viewer.scene.canvas;
-    const o = canvas.clientWidth >= canvas.clientHeight ? OVERVIEW_LANDSCAPE : OVERVIEW_PORTRAIT;
-    return [
-      new BoundingSphere(Cartesian3.fromDegrees(o.lng, o.lat, 0), 1),
-      new HeadingPitchRange(CesiumMath.toRadians(o.heading), CesiumMath.toRadians(o.pitch), o.range),
-    ];
+  showPlanet(center = this.initialCenter): void {
+    this.setView(planetView(center));
   }
 
   overview(duration?: number): Promise<void> {
-    const [sphere, offset] = this.overviewFraming();
+    this.cancel();
     const d = this.duration(duration, 2.5);
     if (d === 0) {
-      this.viewer.camera.viewBoundingSphere(sphere, offset);
-      this.viewer.camera.lookAtTransform(Matrix4.IDENTITY);
-      this.viewer.scene.requestRender();
+      this.showPlanet();
       return Promise.resolve();
     }
-    return this.flyToSphere(sphere, offset, d);
+    return this.flyTo(planetView(this.initialCenter),d);
   }
 
-  /** High over the archipelago, easing toward Tokyo. */
-  async intro(): Promise<void> {
+  /** Show the entire planet, pause briefly, then descend to the chosen city. */
+  async intro(city: City): Promise<void> {
+    this.cancel();
+    const revision = this.revision;
     if (this.reducedMotion) {
-      await this.overview(0);
+      await this.city(city,0);
       return;
     }
-    this.setView(INTRO_START);
-    await this.flyTo(INTRO_END, 9, { maximumHeight: INTRO_START.height });
+    this.showPlanet(city);
+    await new Promise<void>(resolve=>{
+      const timer = setTimeout(()=>{
+        this.introHold=null;
+        resolve();
+      },INTRO_HOLD_MS);
+      this.introHold={timer,resolve};
+    });
+    if (revision !== this.revision) return;
+    await this.flyTo({
+      lng:city.lng,lat:city.lat,height:INTRO_APPROACH_HEIGHT,heading:0,pitch:-90,
+    },INTRO_APPROACH_SECONDS,{maximumHeight:PLANET_HEIGHT});
+    if (revision !== this.revision) return;
+    await this.city(city,INTRO_FLIGHT_SECONDS-INTRO_APPROACH_SECONDS);
   }
 
   city(city: City, duration?: number): Promise<void> {
+    this.cancel();
     const center = Cartesian3.fromDegrees(city.lng, city.lat, city.groundHeight);
     return this.flyToSphere(
       new BoundingSphere(center, 500),
@@ -135,6 +150,7 @@ export class CameraDirector {
   }
 
   sphere(sphere: BoundingSphere, duration?: number): Promise<void> {
+    this.cancel();
     const range = Math.max(sphere.radius * 3.2, 3500);
     return this.flyToSphere(
       sphere,
@@ -153,6 +169,8 @@ export class CameraDirector {
    * of the part of the map that's still visible.
    */
   async shop(shop: Shop, duration?: number, bottomInset = 0): Promise<void> {
+    this.cancel();
+    const revision = this.revision;
     const city = cityByName.get(shop.city);
     const heading = CesiumMath.toRadians(city?.heading ?? 0);
     const guess = city?.groundHeight ?? 40;
@@ -160,6 +178,7 @@ export class CameraDirector {
       ...this.shopFraming(shop, guess, heading, bottomInset),
       this.duration(duration, SHOP_DURATION),
     );
+    if (revision !== this.revision) return;
 
     // Only trust a sampled height inside a plausible band around the city's ground;
     // a bad depth readback must never send the camera underground.

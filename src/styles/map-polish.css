@@ -1,0 +1,110 @@
+/* Map-only finish: quiet paper controls over the live cartography. */
+.map-heading {
+  background: rgba(248, 247, 240, 0.96);
+  border-color: rgba(248, 247, 240, 0.82);
+  box-shadow: 0 8px 28px rgba(31, 39, 33, 0.15), 0 1px 2px rgba(31, 39, 33, 0.12);
+  backdrop-filter: blur(14px) saturate(0.88);
+}
+
+.map-caption,
+.map-help {
+  text-shadow: 0 1px 2px rgba(24, 31, 25, 0.9), 0 2px 8px rgba(24, 31, 25, 0.65);
+}
+
+.map-caption {
+  letter-spacing: 1.15px;
+}
+
+.map-help {
+  color: rgba(255, 250, 240, 0.94);
+  letter-spacing: 0.12px;
+}
+
+.controls {
+  gap: 9px;
+}
+
+.controls__row {
+  padding: 4px;
+  border: 1px solid rgba(37, 44, 39, 0.13);
+  background: rgba(248, 247, 240, 0.97);
+  box-shadow: 0 6px 22px rgba(31, 39, 33, 0.16), 0 1px 2px rgba(31, 39, 33, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.controls .icon-btn {
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.controls .icon-btn:hover {
+  background: #e5e8dd;
+  color: #92311e;
+}
+
+.controls .icon-btn:active {
+  transform: scale(0.94);
+}
+
+.controls .icon-btn:focus-visible,
+.segmented button:focus-visible {
+  outline: 2px solid #b7442c;
+  outline-offset: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.status-chip {
+  color: #343c33;
+  background: rgba(248, 247, 240, 0.97);
+  border: 1px solid rgba(37, 44, 39, 0.14);
+  border-radius: 5px;
+  box-shadow: 0 5px 18px rgba(31, 39, 33, 0.14);
+  backdrop-filter: blur(12px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+.status-chip .dot {
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 3px rgba(111, 130, 88, 0.13);
+}
+
+.segmented {
+  padding: 3px;
+  border: 1px solid rgba(37, 44, 39, 0.14);
+  background: rgba(248, 247, 240, 0.97);
+  box-shadow: 0 5px 18px rgba(31, 39, 33, 0.14);
+  backdrop-filter: blur(12px);
+}
+
+.segmented button {
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.segmented button[aria-pressed="true"] {
+  background: #343c33;
+  color: #f8f7f0;
+}
+
+.segmented button:not([aria-pressed="true"]):hover {
+  background: #e5e8dd;
+}
+
+@media (max-width: 760px) {
+  .map-heading {
+    box-shadow: 0 5px 18px rgba(31, 39, 33, 0.16), 0 1px 2px rgba(31, 39, 33, 0.1);
+  }
+
+  .controls__row,
+  .status-chip,
+  .segmented {
+    box-shadow: 0 4px 14px rgba(31, 39, 33, 0.16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls .icon-btn,
+  .segmented button {
+    transition: none;
+  }
+}

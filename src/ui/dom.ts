@@ -17,5 +17,6 @@ export function prefersReducedMotion(): boolean {
 }
 
 export function isMobileLayout(): boolean {
-  return matchMedia("(max-width: 760px)").matches;
+  return matchMedia("(max-width: 760px)").matches
+    || matchMedia("(max-height: 500px) and (max-width: 1024px)").matches;
 }
