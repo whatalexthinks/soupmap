@@ -11,18 +11,18 @@
 }
 
 .map-heading {
-  background: #f8f7f0;
-  border-color: #d9dbd0;
+  background: var(--paper-light);
+  border-color: var(--rule);
 }
 
 .card {
-  background: #f8f7f0;
+  background: var(--paper-light);
 }
 
 .card__credit,
 .icon-btn {
-  background: #f8f7f0;
-  color: #252c27;
+  background: var(--paper-light);
+  color: var(--soot);
 }
 
 .controls__row,
@@ -30,7 +30,7 @@
 .segmented {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  background-color: #f8f7f0;
+  background-color: var(--paper-light);
 }
 
 @media (max-width: 760px), (max-height: 500px) and (max-width: 1024px) {
@@ -51,9 +51,9 @@
     align-items: center;
     overflow: hidden;
     padding: 8px;
-    border: 1px solid #d7d8cc;
+    border: 1px solid var(--rule);
     border-radius: 10px;
-    background: #f8f7f0;
+    background: var(--paper-light);
     box-shadow: 0 8px 24px rgba(32, 39, 31, 0.2), 0 1px 3px rgba(32, 39, 31, 0.12);
     transition: height 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.22s ease;
     touch-action: none;
@@ -83,8 +83,8 @@
     padding: 0;
     border: 0;
     border-radius: 6px;
-    background: #e9e9df;
-    color: #384037;
+    background: var(--stone);
+    color: var(--soot);
     cursor: grab;
     touch-action: none;
   }
@@ -117,10 +117,10 @@
 
   .search input {
     height: 48px;
-    border-color: #d7d8cc;
+    border-color: var(--rule);
     border-radius: 6px;
-    background: #eeeee5;
-    color: #252c27;
+    background: var(--paper);
+    color: var(--soot);
     font-size: 16px;
   }
 
@@ -132,7 +132,7 @@
     align-items: stretch;
     flex-direction: column;
     padding: 0;
-    border-radius: 16px 16px 0 0;
+    border-radius: 8px 8px 0 0;
     border-bottom: 0;
   }
 
@@ -154,7 +154,7 @@
     width: 36px;
     height: 4px;
     border-radius: 3px;
-    background: #aeb4a5;
+    background: #a49789;
   }
 
   .panel[data-snap="half"] .search,
@@ -229,11 +229,11 @@
   .controls__row,
   .status-chip,
   .segmented {
-    background: #f8f7f0;
+    background: var(--paper-light);
   }
 
   .card {
-    background: #f8f7f0;
+    background: var(--paper-light);
     bottom: calc(var(--credit-h) + env(safe-area-inset-bottom, 0px));
   }
 
@@ -338,7 +338,7 @@
   }
 
   .shop-row {
-    grid-template-columns: minmax(60px, 74px) minmax(0, 1fr) 12px;
+    grid-template-columns: 24px minmax(0, 1fr) 12px;
     gap: 8px;
     min-width: 0;
     overflow: hidden;
@@ -383,7 +383,7 @@
     right: 0;
     width: auto;
     height: auto;
-    border-radius: 18px 18px 0 0;
+    border-radius: 8px 8px 0 0;
     max-height: min(calc(var(--mobile-visible-height) * .68), calc(var(--mobile-visible-height) - var(--mobile-masthead-height) - var(--credit-h, 0px) - var(--mobile-safe-bottom) - 8px));
     min-height: 0;
     overflow: hidden;

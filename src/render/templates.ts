@@ -10,7 +10,6 @@ import { CITIES } from "../data/cities.ts";
 import type { Shop } from "../data/schema.ts";
 import { t } from "../i18n.ts";
 import { icon } from "../ui/icons.ts";
-import { bowlArt } from "./bowl.ts";
 import { esc } from "../ui/dom.ts";
 import { displayName, getNameLanguage, type NameLanguage } from "../names.ts";
 
@@ -24,8 +23,8 @@ export function shopRowHtml(shop: Shop, selected: boolean, saved = false, index 
   const accessibleName = shop.nameJa && shop.nameJa !== primaryName ? `${primaryName} (${shop.nameJa})` : primaryName;
   return `<li class="shop-entry${selected ? ' is-selected' : ''}">
     <a class="shop-row" href="/map/#${esc(shop.slug)}" data-slug="${esc(shop.slug)}" aria-label="${esc(accessibleName)}"${selected ? ' aria-current="true"' : ''}>
-      <span class="shop-row__art" style="--broth:${broth.color}">${bowlArt(shop.broth)}</span>
-      <span class="shop-row__content"><span class="shop-row__kicker">${esc(shop.neighborhood)} <span> / ${String(index + 1).padStart(2, '0')}</span></span>
+      <span class="shop-row__index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>
+      <span class="shop-row__content"><span class="shop-row__kicker">${esc(shop.neighborhood)}</span>
       <span class="shop-row__name" lang="${language === "ja" ? "ja" : "en"}">${esc(primaryName)}</span>
       ${shop.nameJa && shop.nameJa !== primaryName ? `<span class="shop-row__ja" lang="ja">${esc(shop.nameJa)}</span>` : ""}
       <span class="shop-row__meta"><span class="swatch" style="--broth:${broth.color}"></span>${esc(broth.label)}<span class="shop-row__city"> · ${esc(shop.city)}${shop.slug.startsWith("open-") ? " · Open data" : ""}</span></span></span>

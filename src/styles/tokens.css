@@ -1,40 +1,33 @@
-/* Soupmap design tokens and base styles, shared by every page.
-   Late-night ramen alley: deep indigo-black, one lantern-amber accent, steam-white text. */
+/* Shared material palette and accessible defaults. */
+@import "./palette.css";
 
 :root {
-  color-scheme: dark;
-
-  --ink-0: #07060f;
-  --ink-1: #0d0c1e;
-  --ink-2: #15132d;
-  --ink-3: #221f44;
-  --line: rgba(243, 239, 230, 0.12);
-  --line-strong: rgba(243, 239, 230, 0.24);
-
-  --steam: #f3efe6;
-  --steam-2: #d4cfdf;
-  --steam-3: #aaa4bf;
-
-  --lantern: #f2a541;
-  --lantern-hi: #ffc070;
-  --lantern-ink: #1d1204;
-  --lantern-glow: rgba(242, 165, 65, 0.32);
-
-  --panel-bg: rgba(13, 12, 30, 0.86);
-  --panel-solid: #111027;
-  --blur: blur(18px) saturate(140%);
-
-  --radius-lg: 20px;
-  --radius-md: 14px;
-  --radius-sm: 9px;
-  --shadow: 0 22px 60px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.35);
-
-  --font-display: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
+  color-scheme: light;
+  --ink-0: var(--paper);
+  --ink-1: var(--paper-light);
+  --ink-2: var(--stone);
+  --ink-3: var(--rule);
+  --steam: var(--soot);
+  --steam-2: #5f5349;
+  --steam-3: var(--muted);
+  --line: #d8cfc3;
+  --line-strong: #b9ab9b;
+  --lantern: var(--clay);
+  --lantern-hi: var(--clay-dark);
+  --lantern-ink: var(--paper-light);
+  --lantern-glow: #9c49331f;
+  --panel-bg: var(--paper-light);
+  --panel-solid: var(--paper-light);
+  --blur: none;
+  --radius-lg: 4px;
+  --radius-md: 3px;
+  --radius-sm: 2px;
+  --shadow: 0 12px 32px #30282218;
   --font-body: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-body);
   --font-ja: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
-
   --gap: 16px;
-  /* Height of Cesium's credit bar; kept in sync at runtime so panels never cover attribution. */
+  /* Synced at runtime so our controls never cover map attribution. */
   --credit-h: 34px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
