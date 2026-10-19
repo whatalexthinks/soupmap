@@ -39,7 +39,7 @@ import { creditHtml, getSource } from "../sources.ts";
 import { CameraDirector } from "./camera.ts";
 import { citySurfaceActive, movingScreenSpaceError, renderBudget } from "./render-policy.ts";
 import { PinLayer, type PickId } from "./pins.ts";
-import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapMode } from "./types.ts";
+import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapHover, MapMode } from "./types.ts";
 
 export interface EngineOptions {
   container: HTMLElement;
@@ -111,6 +111,7 @@ export class MapEngineImpl implements MapEngine {
   private fallbackLayer: ImageryLayer | undefined;
   private flatGround: number | null = null;
   private readonly pickHandlers: Array<(slug: string) => void> = [];
+  private readonly hoverHandlers: Array<(hover: MapHover | null) => void> = [];
   private readonly interactionHandlers: Array<() => void> = [];
   private readonly clickHandlers: MapClickHandler[] = [];
 
@@ -333,6 +334,39 @@ export class MapEngineImpl implements MapEngine {
         if (claim(picked, event.position)) return;
       }
     }, ScreenSpaceEventType.LEFT_CLICK);
+
+    // Hover names a marker without a permanent label. Mouse only, throttled, and
+    // skipped while the camera moves, so picking never competes with a drag.
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let pending: ScreenPoint | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let hovered: string | null = null;
+    const emit = (hover: MapHover | null) => {
+      if ((hover?.slug ?? null) === hovered && !hover) return;
+      hovered = hover?.slug ?? null;
+      this.hoverHandlers.forEach((h) => h(hover));
+    };
+    handler.setInputAction((event: { endPosition: Cartesian2 }) => {
+      pending = ScreenPoint.clone(event.endPosition, pending);
+      if (timer !== undefined) return;
+      timer = setTimeout(() => {
+        timer = undefined;
+        if (!pending || this.cameraMoving || this.graphicsLost) return emit(null);
+        let id: PickId | undefined;
+        try {
+          const picked: unknown = this.viewer.scene.pick(pending, 6, 6);
+          id = defined(picked) ? (picked as { id?: PickId }).id : undefined;
+        } catch {
+          id = undefined;
+        }
+        canvas.style.cursor = id?.kind === "shop" || id?.kind === "cluster" ? "pointer" : "";
+        emit(id?.kind === "shop" ? { slug: id.slug, x: pending.x, y: pending.y } : null);
+      }, 90);
+    }, ScreenSpaceEventType.MOUSE_MOVE);
+    canvas.addEventListener("pointerleave", () => {
+      canvas.style.cursor = "";
+      emit(null);
+    });
   }
 
   /** Feature modules (PLATEAU building info) register here for map clicks. */
@@ -350,6 +384,10 @@ export class MapEngineImpl implements MapEngine {
 
   setSelected(slug: string | null): void {
     this.pins.setSelected(slug);
+  }
+
+  setSaved(saved: ReadonlySet<string>): void {
+    this.pins.setSaved(saved);
   }
 
   flyToShop(shop: Shop, options?: FlyOptions): Promise<void> {
@@ -403,6 +441,10 @@ export class MapEngineImpl implements MapEngine {
 
   onShopPicked(handler: (slug: string) => void): void {
     this.pickHandlers.push(handler);
+  }
+
+  onHover(handler: (hover: MapHover | null) => void): void {
+    this.hoverHandlers.push(handler);
   }
 
   onUserInteraction(handler: () => void): void {

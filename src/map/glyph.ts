@@ -1,15 +1,46 @@
 /**
- * Bowl glyphs drawn to canvas at runtime: map pins and cluster badges. No Cesium dependency.
+ * Map markers drawn to canvas at runtime. No Cesium dependency.
+ *
+ * Thousands of shops share the map, so the default marker is a small bead in the
+ * shop's style colour. Editor's picks get a slightly larger vermilion bowl badge,
+ * and only the selected shop gets a full pin. Clusters are compact count pills.
+ * Every variant comes from a small, fixed palette so Cesium's texture atlas stays bounded.
  */
-import { BROTHS, type BrothId } from "../data/broths.ts";
+import { BROTHS } from "../data/broths.ts";
+import type { Shop } from "../data/shops.ts";
+import { cuisineOf } from "../cuisines.ts";
+import { isEditorial } from "../data/indexation.ts";
 
 const SCALE = 2; // draw at 2x for crisp rendering on high-DPI screens
-const LACQUER = "#17142c";
-const RIM = "#f3efe6";
-const LANTERN = "#f2a541";
+// From src/styles/palette.css: soot ink, light paper, fired clay.
+const INK = "#302822";
+const CREAM = "#fcf9f3";
+const VERMILION = "#9c4933";
 
-export const PIN_SIZE = { width: 48, height: 60 } as const;
-export const CLUSTER_SIZE = 52;
+export type MarkerKind = "dot" | "saved" | "pick";
+
+export const MARKER_SIZE: Record<MarkerKind, number> = { dot: 16, saved: 20, pick: 26 };
+export const SELECTED_SIZE = { width: 34, height: 44 } as const;
+
+/** Unknown-broth shops are coloured by their main noodle style instead. */
+const CUISINE_COLORS = {
+  ramen: "#d9c3a0",
+  udon: BROTHS.udon.color,
+  soba: BROTHS.soba.color,
+  oden: BROTHS.oden.color,
+  other: "#b9b5c9",
+} as const;
+
+export function markerColor(shop: Pick<Shop, "broth" | "cuisine" | "name" | "nameJa">): string {
+  if (shop.broth !== "other") return BROTHS[shop.broth].color;
+  return CUISINE_COLORS[cuisineOf(shop as Shop)];
+}
+
+/** Curated records with editorial notes stand out from imported locations. */
+export function markerKind(shop: Pick<Shop, "slug">, saved: boolean): MarkerKind {
+  if (isEditorial(shop)) return "pick";
+  return saved ? "saved" : "dot";
+}
 
 function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const c = document.createElement("canvas");
@@ -21,122 +52,96 @@ function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContex
   return [c, ctx];
 }
 
-/** Draws a bowl centred at (cx, rimY) with rim radius rx. */
-function drawBowl(ctx: CanvasRenderingContext2D, cx: number, rimY: number, rx: number, broth: string, selected: boolean) {
-  const ry = rx * 0.3;
-  const depth = rx * 1.05;
-
-  // body
+function circle(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string): void {
   ctx.beginPath();
-  ctx.moveTo(cx - rx, rimY);
-  ctx.bezierCurveTo(cx - rx, rimY + depth * 0.9, cx - rx * 0.45, rimY + depth, cx, rimY + depth);
-  ctx.bezierCurveTo(cx + rx * 0.45, rimY + depth, cx + rx, rimY + depth * 0.9, cx + rx, rimY);
-  ctx.closePath();
-  const body = ctx.createLinearGradient(cx - rx, 0, cx + rx, 0);
-  body.addColorStop(0, "#2b2650");
-  body.addColorStop(0.55, LACQUER);
-  body.addColorStop(1, "#0c0a1c");
-  ctx.fillStyle = body;
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = fill;
   ctx.fill();
-  ctx.lineWidth = 1.6;
-  ctx.strokeStyle = selected ? LANTERN : "rgba(243,239,230,0.85)";
-  ctx.stroke();
+}
 
-  // band of colour on the bowl, a hint of the broth
+/** A tiny bowl: broth surface, body and foot. Reads as "soup" even at 10 px. */
+function miniBowl(ctx: CanvasRenderingContext2D, cx: number, cy: number, w: number, color: string, broth: string): void {
+  const rx = w / 2;
   ctx.beginPath();
-  ctx.ellipse(cx, rimY + depth * 0.42, rx * 0.86, ry * 0.5, 0, 0.15, Math.PI - 0.15);
-  ctx.strokeStyle = broth;
-  ctx.globalAlpha = 0.55;
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-
-  // foot
-  ctx.beginPath();
-  ctx.moveTo(cx - rx * 0.32, rimY + depth - 0.5);
-  ctx.lineTo(cx + rx * 0.32, rimY + depth - 0.5);
-  ctx.lineTo(cx + rx * 0.24, rimY + depth + 3.5);
-  ctx.lineTo(cx - rx * 0.24, rimY + depth + 3.5);
+  ctx.moveTo(cx - rx, cy);
+  ctx.quadraticCurveTo(cx - rx, cy + rx * 1.05, cx, cy + rx * 1.05);
+  ctx.quadraticCurveTo(cx + rx, cy + rx * 1.05, cx + rx, cy);
   ctx.closePath();
-  ctx.fillStyle = LACQUER;
+  ctx.fillStyle = color;
   ctx.fill();
-  ctx.lineWidth = 1.2;
-  ctx.strokeStyle = selected ? LANTERN : "rgba(243,239,230,0.7)";
-  ctx.stroke();
-
-  // broth surface
   ctx.beginPath();
-  ctx.ellipse(cx, rimY, rx, ry, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy, rx, rx * 0.28, 0, 0, Math.PI * 2);
   ctx.fillStyle = broth;
   ctx.fill();
-  ctx.lineWidth = 1.8;
-  ctx.strokeStyle = selected ? LANTERN : RIM;
-  ctx.stroke();
-
-  // a glint of fat on the surface
-  ctx.beginPath();
-  ctx.ellipse(cx - rx * 0.35, rimY - ry * 0.15, rx * 0.16, ry * 0.28, -0.2, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255,255,255,0.45)";
-  ctx.fill();
-}
-
-function drawSteam(ctx: CanvasRenderingContext2D, cx: number, baseY: number, height: number, color: string) {
-  ctx.lineCap = "round";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1;
   ctx.strokeStyle = color;
-  const offsets = [-7, 0, 7];
-  offsets.forEach((dx, i) => {
-    const top = baseY - height + (i === 1 ? 0 : 4);
-    const x = cx + dx;
-    ctx.beginPath();
-    ctx.moveTo(x, baseY);
-    ctx.bezierCurveTo(x - 4, baseY - height * 0.3, x + 4, baseY - height * 0.55, x, top + 4);
-    ctx.quadraticCurveTo(x - 2, top + 1, x + 1, top);
-    ctx.stroke();
-  });
+  ctx.stroke();
+  ctx.fillRect(cx - rx * 0.32, cy + rx * 1.05, rx * 0.64, 1.6);
 }
 
-const pinCache = new Map<string, HTMLCanvasElement>();
+const markerCache = new Map<string, HTMLCanvasElement>();
 
-/** Map pin: steaming bowl over a ground shadow, anchored bottom-centre. */
-export function pinGlyph(broth: BrothId, selected = false): HTMLCanvasElement {
-  const key = `${broth}:${selected}`;
-  const cached = pinCache.get(key);
+export function markerImageId(kind: MarkerKind, color: string): string {
+  return `marker:${kind}:${color}`;
+}
+
+/** Bead, saved bead (vermilion ring) or editor's-pick badge, anchored at its centre. */
+export function markerGlyph(kind: MarkerKind, color: string): HTMLCanvasElement {
+  const key = markerImageId(kind, color);
+  const cached = markerCache.get(key);
   if (cached) return cached;
-
-  const { width: w, height: h } = PIN_SIZE;
-  const [c, ctx] = canvas(w, h);
-  const cx = w / 2;
-  const color = BROTHS[broth].color;
-
-  // ground shadow + stem so the bowl reads as "standing" on the spot
-  ctx.beginPath();
-  ctx.ellipse(cx, h - 3, 9, 2.6, 0, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(0,0,0,0.45)";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(cx, h - 4);
-  ctx.lineTo(cx, h - 13);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = selected ? LANTERN : "rgba(243,239,230,0.9)";
-  ctx.stroke();
-
-  if (selected) {
-    const glow = ctx.createRadialGradient(cx, 32, 4, cx, 32, 24);
-    glow.addColorStop(0, "rgba(242,165,65,0.55)");
-    glow.addColorStop(1, "rgba(242,165,65,0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 6, w, 52);
+  const s = MARKER_SIZE[kind];
+  const [c, ctx] = canvas(s, s);
+  const m = s / 2;
+  if (kind === "pick") {
+    circle(ctx, m, m, m - 0.5, CREAM);
+    circle(ctx, m, m, m - 2.2, VERMILION);
+    miniBowl(ctx, m, m - 2.5, 13, CREAM, color);
+  } else if (kind === "saved") {
+    circle(ctx, m, m, m - 0.5, CREAM);
+    circle(ctx, m, m, m - 2, VERMILION);
+    circle(ctx, m, m, m - 4.6, color);
+  } else {
+    circle(ctx, m, m, m - 0.5, "rgba(252,249,243,0.92)");
+    circle(ctx, m, m, m - 2, INK);
+    circle(ctx, m, m, m - 3.6, color);
   }
-
-  drawSteam(ctx, cx, 21, 15, selected ? "rgba(255,226,180,0.95)" : "rgba(243,239,230,0.85)");
-  drawBowl(ctx, cx, 27, 17, color, selected);
-
-  pinCache.set(key, c);
+  markerCache.set(key, c);
   return c;
 }
 
-const clusterCache = new Map<string, HTMLCanvasElement>();
+const selectedCache = new Map<string, HTMLCanvasElement>();
+
+/** The one prominent pin: an ink teardrop holding a bowl, anchored bottom-centre. */
+export function selectedGlyph(color: string): HTMLCanvasElement {
+  const cached = selectedCache.get(color);
+  if (cached) return cached;
+  const { width: w, height: h } = SELECTED_SIZE;
+  const [c, ctx] = canvas(w, h);
+  const cx = w / 2;
+  const r = w / 2 - 2;
+  const cy = r + 2;
+
+  ctx.beginPath();
+  ctx.ellipse(cx, h - 2.5, 6, 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI * 0.8, Math.PI * 0.2);
+  ctx.quadraticCurveTo(cx + r * 0.45, cy + r * 1.15, cx, h - 3);
+  ctx.quadraticCurveTo(cx - r * 0.45, cy + r * 1.15, cx + r * Math.cos(Math.PI * 0.8), cy + r * Math.sin(Math.PI * 0.8));
+  ctx.closePath();
+  ctx.fillStyle = INK;
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = CREAM;
+  ctx.stroke();
+
+  miniBowl(ctx, cx, cy - 2.5, 17, CREAM, color);
+  selectedCache.set(color, c);
+  return c;
+}
 
 /** A small, reusable badge palette instead of one GPU texture per exact count. */
 export function clusterLabel(count: number): string {
@@ -146,41 +151,44 @@ export function clusterLabel(count: number): string {
   return `${lower >= 1_000_000 ? `${lower / 1_000_000}m` : lower >= 1000 ? `${lower / 1000}k` : lower}+`;
 }
 
-/** Cluster badge: lantern ring with a count. */
-export function clusterGlyph(count: number): HTMLCanvasElement {
+/** Pill height grows gently with magnitude so dense areas read at a glance. */
+export function clusterHeight(count: number): number {
+  return count < 10 ? 20 : count < 100 ? 22 : count < 1000 ? 25 : 28;
+}
+
+const clusterCache = new Map<string, { canvas: HTMLCanvasElement; width: number; height: number }>();
+
+/** Cluster badge: an ink pill with a count. Width follows the label, so "30k+" never overflows. */
+export function clusterGlyph(count: number): { canvas: HTMLCanvasElement; width: number; height: number } {
   const label = clusterLabel(count);
-  const cached = clusterCache.get(label);
+  const height = clusterHeight(count);
+  const key = `${label}:${height}`;
+  const cached = clusterCache.get(key);
   if (cached) return cached;
-  const s = CLUSTER_SIZE;
-  const [c, ctx] = canvas(s, s);
-  const r = s / 2 - 4;
-
+  const fontSize = Math.round(height * 0.5);
+  const font = `700 ${fontSize}px 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif`;
+  const [, measure] = canvas(1, 1);
+  measure.font = font;
+  const width = Math.max(height, Math.ceil(measure.measureText(label).width) + 14);
+  const [c, ctx] = canvas(width, height);
+  const r = height / 2;
+  // Arcs rather than roundRect(), which older Safari lacks.
+  const inset = 0.75, pr = r - inset;
   ctx.beginPath();
-  ctx.arc(s / 2, s / 2, r + 3, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(242,165,65,0.22)";
+  ctx.arc(inset + pr, r, pr, Math.PI / 2, Math.PI * 1.5);
+  ctx.arc(width - inset - pr, r, pr, Math.PI * 1.5, Math.PI / 2);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(48,40,34,0.92)";
   ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(s / 2, s / 2, r, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(15,13,34,0.92)";
-  ctx.fill();
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = LANTERN;
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = CREAM;
   ctx.stroke();
-
-  // a tiny bowl rim above the count
-  ctx.beginPath();
-  ctx.ellipse(s / 2, s / 2 - 9, 8, 2.4, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(243,239,230,0.8)";
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
-
-  ctx.fillStyle = RIM;
-  ctx.font = "700 17px 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif";
+  ctx.fillStyle = CREAM;
+  ctx.font = font;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(label, s / 2, s / 2 + 5);
-
-  clusterCache.set(label, c);
-  return c;
+  ctx.fillText(label, width / 2, r + 0.5);
+  const glyph = { canvas: c, width, height };
+  clusterCache.set(key, glyph);
+  return glyph;
 }

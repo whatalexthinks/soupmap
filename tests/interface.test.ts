@@ -189,7 +189,9 @@ test('search Enter flushes debounce before selecting and creates a shareable car
 test('changing flavor closes an excluded card, reset recovers all results',()=>{
   click('[data-slug="afuri-ebisu"]');
   click('[data-broth="miso"]');
-  assert.equal(rows().length,0);
+  // Only shops whose broth is miso remain (some suggested by their own names); AFURI is shio.
+  assert.ok(rows().length>0);
+  assert.ok(rows().every(r=>ORDERED_SHOPS.find(s=>s.slug===r.dataset.slug)?.broth==='miso'));
   assert.ok(el('#card').hidden);
   click('#clear-filters');
   assert.equal(rows().length,100);
@@ -221,7 +223,8 @@ test('surprise respects visible results and sort order changes without losing sa
   assert.equal(rows()[0]?.dataset.slug,expected[0]?.slug);
   click('[data-broth="shio"]');
   click('#surprise-btn');
-  assert.equal(el('#card-title').textContent,'AFURI Ebisu');
+  const shio = discover(ORDERED_SHOPS, {query:'',city:'tokyo',broths:new Set(['shio']),saved:new Set(),savedOnly:false,sort:'name'});
+  assert.ok(shio.some(s=>displayName(s)===el('#card-title').textContent));
 });
 
 test('pagination expands results and resets when switching cities',()=>{
@@ -560,6 +563,9 @@ test('the logo returns home inside the app without restarting the page',()=>{
 });
 
 test('chapters open on the current map and leave existing discovery filters usable',()=>{
+  const hideChains=el('#hide-chains') as HTMLInputElement;
+  hideChains.checked=true;
+  hideChains.dispatchEvent(new window.Event('change'));
   click('#hubs-tab');
   assert.equal((el('#journey-dialog') as HTMLDialogElement).open,true);
   click('[data-hub="tokyo-first-bowls"]');
@@ -568,10 +574,28 @@ test('chapters open on the current map and leave existing discovery filters usab
   assert.equal(window.location.pathname,'/map/');
   assert.equal(new URLSearchParams(window.location.search).get('hub'),'tokyo-first-bowls');
   assert.equal(el('#collection-banner').hidden,false);
+  assert.equal(hideChains.checked,false);
+  hideChains.checked=true;
+  hideChains.dispatchEvent(new window.Event('change'));
   click('#saved-tab');
   assert.equal(el('#collection-banner').hidden,true);
+  assert.equal(hideChains.checked,false);
   assert.equal(window.location.search,'');
   click('#explore-tab');
+  assert.ok(rows().length>3);
+});
+
+test('reset filters clears both a chapter and the chain filter',()=>{
+  click('#hubs-tab');click('[data-hub="tokyo-first-bowls"]');
+  const hideChains=el('#hide-chains') as HTMLInputElement;
+  hideChains.checked=true;
+  hideChains.dispatchEvent(new window.Event('change'));
+  assert.equal(el('#clear-filters').hidden,false);
+  click('#clear-filters');
+  assert.equal(el('#collection-banner').hidden,true);
+  assert.equal(window.location.search,'');
+  assert.equal(hideChains.checked,false);
+  assert.equal(el('#clear-filters').hidden,true);
   assert.ok(rows().length>3);
 });
 

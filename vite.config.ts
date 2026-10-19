@@ -7,6 +7,8 @@ import { creditsHtml } from "./src/render/credits.ts";
 import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "./src/render/templates.ts";
 import { catalogDocument, catalogPages } from "./src/render/catalog.ts";
 import { esc } from "./src/ui/dom.ts";
+import { loadJournal } from "./src/journal/load.ts";
+import { journalBody, journalDocument, journalFeed, journalHead, journalPages } from "./src/render/journal.ts";
 import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
 
 const cesiumVersion: string = JSON.parse(readFileSync("node_modules/cesium/package.json", "utf8")).version;
@@ -23,14 +25,24 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   const siteUrl = (env.VITE_SITE_URL || "https://soupmap.com").replace(/\/+$/, "");
   const analyticsToken = (env.VITE_CF_ANALYTICS_TOKEN || "").trim();
   const documents = catalogPages(ORDERED_SHOPS);
+  const articles = loadJournal();
+  const journal = journalPages(articles);
+  const journalIndex = journal.find(page => page.path === "/journal/")!;
   return {
     name: "soupmap-html",
     // Run after Vite's HTML emitter so the compiled credits CSS URLs exist.
     enforce: "post",
     configureServer(server) {
       const routes = new Map(documents.map(page => [page.path, page]));
+      const journalRoutes = new Map(journal.filter(page => page !== journalIndex).map(page => [page.path, page]));
       server.middlewares.use((req, res, next) => {
         const url = new URL(req.url || "/", "http://vite.internal");
+        const journalPage = journalRoutes.get(url.pathname);
+        if (journalPage) {
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(journalDocument(journalPage, siteUrl, articles, ["/src/styles/journal.css"]));
+          return;
+        }
         if (!/^\/(?:shop|city|catalog)(?:\/|$)/.test(url.pathname)) return next();
         const path = `${url.pathname.replace(/\/index\.html$/, "").replace(/\/+$/, "")}/`;
         const page = routes.get(path);
@@ -53,6 +65,8 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
     transformIndexHtml(html) {
       let out = html
         .replaceAll("%SITE_URL%", siteUrl)
+        .replace("<!--soupmap:journal-head-->", journalHead(journalIndex, siteUrl, articles))
+        .replace("<!--soupmap:journal-body-->", journalBody(journalIndex))
         .replace("<!--soupmap:home-cities-->", homeCitiesHtml())
         .replace("<!--soupmap:home-featured-->", homeCityHtml())
         .replace("<!--soupmap:chips-->", brothChipsHtml(ORDERED_SHOPS))
@@ -79,7 +93,18 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`,
           source: catalogDocument(page, siteUrl, stylesheets) });
       }
-      const pages = ["/", "/map/", "/credits/", ...documents.map(page => page.path)];
+      // The journal pages reuse the stylesheet Vite compiled for journal/index.html.
+      const journalShell = bundle["journal/index.html"];
+      const journalStyles = journalShell?.type === "asset"
+        ? [...String(journalShell.source).matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(match => match[1]!) : [];
+      if (!journalStyles.length) throw new Error("Missing compiled journal stylesheet.");
+      for (const page of journal) {
+        if (page === journalIndex) continue;
+        this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`,
+          source: journalDocument(page, siteUrl, articles, journalStyles) });
+      }
+      this.emitFile({ type: "asset", fileName: "journal/feed.xml", source: journalFeed(articles, siteUrl) });
+      const pages = ["/", "/map/", "/credits/", ...journal.map(page => page.path), ...documents.map(page => page.path)];
       this.emitFile({
         type: "asset",
         fileName: "sitemap.xml",
@@ -104,6 +129,7 @@ ${pages.map((p) => `  <url><loc>${esc(siteUrl + p)}</loc></url>`).join("\n")}
 ## Public resources
 
 - [Atlas](${siteUrl}/): Public homepage with an initial shop list; interactive map and search explore more listings.
+- [Soupmap Journal](${siteUrl}/journal/): ${articles.length} editorial essays on ramen styles, noodles, Japanese soups, ingredients, history, travel etiquette and soups of the world. Each article lists further reading. RSS: ${siteUrl}/journal/feed.xml
 - [Japan catalog](${siteUrl}/catalog/): Paginated, crawlable nationwide locations and featured city directories. Substantive editorial records have standalone shop pages; basic open-data records do not.
 - [Credits and source limitations](${siteUrl}/credits/): Data sources, attribution, licenses, and verification context.
 - [Open-data catalog](${siteUrl}/data/open-shops.json.gz): Downloadable gzip-compressed JSON of reported locations, with Overture IDs and per-record source licenses. Decompress before reading as JSON.
@@ -148,6 +174,7 @@ export default defineConfig(({ mode }) => {
           account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
           moderate: resolve(import.meta.dirname, "moderate/index.html"),
+          journal: resolve(import.meta.dirname, "journal/index.html"),
         },
       },
     },

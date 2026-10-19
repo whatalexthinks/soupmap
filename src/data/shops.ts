@@ -8,11 +8,17 @@ export type { Shop } from "./schema.ts";
 
 /** Validated at build time by scripts/validate-shops.ts. */
 export const CURATED_SHOPS = raw as unknown as readonly Shop[];
+/** Node (build, tests) reads the full dataset, contact details included; browsers fetch them per shop. */
+export const DETAILS_INLINE = typeof window === "undefined";
 export const OPEN_CATALOG = await loadOpenCatalog();
 export const OPEN_SHOPS: readonly Shop[] = (OPEN_CATALOG.records as OpenPlace[]).map(openPlaceToShop);
 export const SHOPS: readonly Shop[] = [...CURATED_SHOPS, ...OPEN_SHOPS];
 
 export const shopBySlug = new Map(SHOPS.map((s) => [s.slug, s]));
+
+/** Locations per chain in this catalog, for "1 of 443 locations" on the card. */
+export const CHAIN_SIZES: ReadonlyMap<string, number> = SHOPS.reduce((sizes, shop) =>
+  shop.chain ? sizes.set(shop.chain, (sizes.get(shop.chain) ?? 0) + 1) : sizes, new Map<string, number>());
 
 const cityOrder = new Map(CITIES.map((c, i) => [c.name, i]));
 

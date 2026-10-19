@@ -112,6 +112,23 @@ out of Google Maps or Tabelog. All starting coordinates came from Overture 2026-
       (README §6), or remove `splatUrl` from AFURI Ebisu before launch if you'd rather not ship it.
 - [ ] Never ship a third-party splat, photo or video without a confirmed license.
 
+## 5b. Journal and data (new)
+
+- [ ] **Read the journal before promoting it.** Every article was fact-checked for dates and
+      names, but a human read-through catches tone and nuance. Start with the hubs:
+      `regional-ramen-map`, `four-ramen-flavours`, `ramen-history`, `slurping-etiquette`.
+- [ ] Add a real anecdote or your own photo to a few articles (with `photo` credit rules from
+      §5): first-hand experience is what search engines and readers reward most. Never invent one.
+- [ ] Spot-check a few "Further reading" links (they use Wikipedia search, so they never 404,
+      but a vague title lands on results instead of an article).
+- [ ] Google Search Console and Bing Webmaster Tools: verify the domain, submit
+      `/sitemap.xml`, and watch `/journal/` pages get indexed. Submit `/journal/feed.xml` to a
+      feed reader or two.
+- [ ] Spot-check open-data cards in a few prefectures: English name, prefecture, chain badge,
+      "from the name" style, and contact details (they come from Overture and may be stale).
+- [ ] On a real phone: the map's small beads are easy to tap, clusters split when zoomed, and
+      hover names appear on desktop.
+
 ## 6. Legal pages
 
 - [ ] Publish a **privacy policy** (Google Maps Platform terms require one in your app). Mention
