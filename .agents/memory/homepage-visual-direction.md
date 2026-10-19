@@ -13,3 +13,9 @@ Show the genuine app experience in a phone frame instead of generated maps or fi
 **Why:** The user said the generated paper-map trail and alley image were “way too ai” and supplied an actual Soupmap screenshot as the preferred visual reference. They did not reject the ramen mood image.
 
 **How to apply:** Prefer actual app screenshots for product demonstrations. Do not reintroduce the rejected generated map/alley images or invent a replacement map UI. Distinguish any remaining generated food imagery from actual shop photography.
+
+Keep the homepage in the same shared warm paper, ink and clay palette as the other pages.
+
+**Why:** The user objected to the homepage preview's different colors and its awkward phone presentation.
+
+**How to apply:** Use the shared site palette rather than a separate sage/lime theme. Keep real screenshots neatly clipped inside their frame.
