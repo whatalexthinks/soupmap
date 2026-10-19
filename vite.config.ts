@@ -173,6 +173,7 @@ export default defineConfig(({ mode }) => {
           map: resolve(import.meta.dirname, "map/index.html"),
           account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
+          moderate: resolve(import.meta.dirname, "moderate/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),
         },
       },

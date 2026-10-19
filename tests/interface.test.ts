@@ -20,7 +20,7 @@ beforeEach((context)=>{
     : 'https://soupmap.example/'});
   if (initialShared) window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(['ginza-kagari']));
   window.document.write(readFileSync(new URL('../map/index.html',import.meta.url),'utf8'));
-  for (const key of ['document','location','history','localStorage','CSS','HTMLElement','Element','HTMLInputElement','HTMLButtonElement','navigator']) {
+  for (const key of ['Event','document','location','history','localStorage','CSS','HTMLElement','Element','HTMLInputElement','HTMLButtonElement','navigator']) {
     Object.defineProperty(globalThis,key,{value:(window as unknown as Record<string,unknown>)[key],configurable:true});
   }
   Object.defineProperty(globalThis,'window',{value:window,configurable:true});
@@ -560,4 +560,92 @@ test('the logo returns home inside the app without restarting the page',()=>{
   const newTab=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0,ctrlKey:true});
   el('.brand').dispatchEvent(newTab);
   assert.equal(newTab.defaultPrevented,false);
+});
+
+test('chapters open on the current map and leave existing discovery filters usable',()=>{
+  const hideChains=el('#hide-chains') as HTMLInputElement;
+  hideChains.checked=true;
+  hideChains.dispatchEvent(new window.Event('change'));
+  click('#hubs-tab');
+  assert.equal((el('#journey-dialog') as HTMLDialogElement).open,true);
+  click('[data-hub="tokyo-first-bowls"]');
+  assert.equal((el('#journey-dialog') as HTMLDialogElement).open,false);
+  assert.deepEqual(new Set(rows().map(row=>row.dataset.slug)),new Set(['afuri-ebisu','ginza-kagari','rokurinsha-tokyo-station']));
+  assert.equal(window.location.pathname,'/map/');
+  assert.equal(new URLSearchParams(window.location.search).get('hub'),'tokyo-first-bowls');
+  assert.equal(el('#collection-banner').hidden,false);
+  assert.equal(hideChains.checked,false);
+  hideChains.checked=true;
+  hideChains.dispatchEvent(new window.Event('change'));
+  click('#saved-tab');
+  assert.equal(el('#collection-banner').hidden,true);
+  assert.equal(hideChains.checked,false);
+  assert.equal(window.location.search,'');
+  click('#explore-tab');
+  assert.ok(rows().length>3);
+});
+
+test('reset filters clears both a chapter and the chain filter',()=>{
+  click('#hubs-tab');click('[data-hub="tokyo-first-bowls"]');
+  const hideChains=el('#hide-chains') as HTMLInputElement;
+  hideChains.checked=true;
+  hideChains.dispatchEvent(new window.Event('change'));
+  assert.equal(el('#clear-filters').hidden,false);
+  click('#clear-filters');
+  assert.equal(el('#collection-banner').hidden,true);
+  assert.equal(window.location.search,'');
+  assert.equal(hideChains.checked,false);
+  assert.equal(el('#clear-filters').hidden,true);
+  assert.ok(rows().length>3);
+});
+
+test('visit stamps coexist with current shop facts, Street View, history, and local saves',()=>{
+  app.select('afuri-ebisu',{fly:false,focus:false});
+  assert.ok(el('#card [data-action="directions"]'));
+  assert.ok(el('#card [data-action="stand-outside"]'));
+  assert.ok(el('#card .card__history'));
+  click('#card [data-action="visit"]');
+  (el('#visit-form [name="bowl"]') as HTMLInputElement).value='Yuzu shio';
+  (el('#visit-form [name="note"]') as HTMLTextAreaElement).value='My private memory';
+  el('#visit-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  const visits=JSON.parse(window.localStorage.getItem('soupmap:passport:v1')!);
+  assert.equal(visits['afuri-ebisu'].note,'My private memory');
+  assert.equal(window.document.querySelectorAll('.visit-stamp').length,1);
+  assert.ok(el('#card [data-action="visit"]').textContent?.includes('In your passport'));
+  assert.equal(window.localStorage.getItem('soupmap:saved:v1'),null);
+  click('#journey-close');
+  assert.equal((el('#journey-dialog') as HTMLDialogElement).open,false);
+});
+
+test('field notes can target an imported shop without rendering the entire nationwide catalog',async context=>{
+  context.mock.method(globalThis,'fetch',async()=>Response.json({enabled:false}));
+  const shop=OPEN_SHOPS[0]!;
+  app.select(shop.slug,{fly:false,focus:false});
+  click('#card [data-action="contribute"]');
+  const select=el('#note-shop') as HTMLSelectElement;
+  assert.equal(select.value,shop.slug);
+  assert.ok(select.options.length<30);
+  await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal((el('#note-submit') as HTMLButtonElement).disabled,true);
+  assert.match(el('#community-status').textContent??'',/not connected/);
+  (el('#field-note-form [name="body"]') as HTMLTextAreaElement).value='A useful note kept as a private draft.';
+  click('[data-save-draft]');
+  assert.equal(JSON.parse(window.localStorage.getItem('soupmap:field-draft:v1')!).shop,shop.slug);
+  assert.equal(window.localStorage.getItem('soupmap:receipts:v1'),null);
+});
+
+test('saving a chapter while signed in uses account saves and leaves guest storage alone',async context=>{
+  const {setAccountSaved,accountSaved}=await import('../src/personal-saves.ts');
+  const requests:string[]=[];
+  context.mock.method(globalThis,'fetch',async (url:unknown)=>{requests.push(String(url));return Response.json({});});
+  try {
+    window.localStorage.setItem('soupmap:saved:v1',JSON.stringify(['sumire-susukino']));
+    setAccountSaved('test-account',[]);
+    click('#hubs-tab');click('[data-hub="tokyo-first-bowls"]');
+    click('[data-collection-action="save"]');
+    await new Promise(resolve=>setTimeout(resolve,0));
+    assert.equal(requests.filter(url=>url.startsWith('/api/saved/')).length,3);
+    assert.equal(accountSaved()?.size,3);
+    assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!),['sumire-susukino']);
+  } finally {setAccountSaved(null);}
 });

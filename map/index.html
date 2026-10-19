@@ -85,6 +85,12 @@
           <input id="shop-search" type="search" placeholder="A shop, a city, a craving…" autocomplete="off" spellcheck="false" enterkeyhint="search" />
         </div>
         <div class="panel__body" id="panel-body">
+          <nav class="journey-entry" aria-label="Your discoveries">
+            <button type="button" id="hubs-tab" aria-haspopup="dialog">Chapters ↗</button>
+            <button type="button" id="passport-tab" aria-haspopup="dialog">Passport ↗</button>
+            <button type="button" id="contribute-btn" aria-haspopup="dialog">Field notes ↗</button>
+          </nav>
+          <section id="collection-banner" class="collection-banner" hidden></section>
           <section class="discovery-controls" aria-label="Narrow shop results">
             <label class="discovery-control" for="cuisine-filter">
               <span class="discovery-control__label">Main style</span>
@@ -186,6 +192,10 @@
       </div>
     </main>
 
+    <dialog id="journey-dialog" class="journey-dialog" aria-labelledby="journey-title">
+      <header class="journey-header"><div><span id="journey-eyebrow" class="eyebrow"></span><h2 id="journey-title" tabindex="-1"></h2></div><button type="button" id="journey-close" class="icon-btn" aria-label="Close and return to map">×</button></header>
+      <div id="journey-content" class="journey-content"></div>
+    </dialog>
     <div class="credit-viewport" id="credit-viewport"></div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

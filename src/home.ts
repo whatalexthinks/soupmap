@@ -2,7 +2,8 @@ const path = window.location.pathname.replace(/\/+$/, "") || "/";
 const legacySharedLink = path === "/" && !!window.location.hash && window.location.hash !== "#how-it-works"
   && !document.getElementById(window.location.hash.slice(1));
 
-if (legacySharedLink) {
+const legacyCollection = path === '/' && ['hub', 'collection'].some(key => new URLSearchParams(location.search).has(key));
+if (legacySharedLink || legacyCollection) {
   window.location.replace(`/map/${window.location.search}${window.location.hash}`);
 }
 

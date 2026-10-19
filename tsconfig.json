@@ -29,6 +29,7 @@
     "src",
     "scripts",
     "server",
-    "vite.config.ts"
+    "vite.config.ts",
+    "functions"
   ]
 }
