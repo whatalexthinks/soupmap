@@ -19,6 +19,13 @@ export interface FlyOptions {
   bottomInset?: number;
 }
 
+/** A shop under the mouse pointer, in map-container CSS pixels. */
+export interface MapHover {
+  slug: string;
+  x: number;
+  y: number;
+}
+
 export interface MapEngine {
   readonly mode: MapMode;
   /** Shops currently passing the UI filters; pins and clusters follow this set. */
@@ -34,6 +41,10 @@ export interface MapEngine {
   setFallbackStyle(style: FallbackStyle): void;
   /** Called when a pin is clicked on the map. */
   onShopPicked(handler: (slug: string) => void): void;
+  /** Desktop pointer hover over a shop marker (null when it leaves). */
+  onHover(handler: (hover: MapHover | null) => void): void;
+  /** Shops in any of the visitor's lists, drawn with a distinct ring. */
+  setSaved(saved: ReadonlySet<string>): void;
   /** Called on the first user interaction with the map canvas. */
   onUserInteraction(handler: () => void): void;
 }

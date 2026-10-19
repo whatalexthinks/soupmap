@@ -1,7 +1,11 @@
 import { trackEvent } from "../analytics.ts";
 /** The shop card: names, broth, signature bowl, facts, blurb, media and actions. */
 import { BROTHS } from "../data/broths.ts";
-import type { Shop } from "../data/shops.ts";
+import { CHAIN_SIZES, DETAILS_INLINE, type Shop } from "../data/shops.ts";
+import { loadPlaceDetails } from "../data/load-open-catalog.ts";
+import type { OpenPlaceDetails } from "../data/catalog-format.ts";
+import { chainHtml, contactHtml, placeLine, stylesHtml } from "./shop-details.ts";
+import { isEditorial } from "../data/indexation.ts";
 import { getSource } from "../sources.ts";
 import { t } from "../i18n.ts";
 import { displayName, getNameLanguage, isRomanizedName } from "../names.ts";
@@ -116,9 +120,13 @@ export class ShopCard {
         <div class="card__body">
           <h2 class="card__title" id="card-title" tabindex="-1">${esc(displayName(shop))}</h2>
           ${shop.nameJa !== displayName(shop) ? `<p class="card__ja" lang="ja">${esc(shop.nameJa)}</p>` : ""}
-          ${getNameLanguage() === "en" && isRomanizedName(shop) ? '<p class="card__fine">Automatically romanized name; pronunciation may differ. Japanese original above.</p>' : ""}
-          <p class="card__where">${esc(shop.neighborhood)}, ${esc(shop.city)}</p>
-          <span class="broth-chip"><span class="swatch" style="--broth:${broth.ink}" aria-hidden="true"></span>${esc(broth.label)} <span class="ja" lang="ja">${esc(broth.labelJa)}</span></span>
+          ${getNameLanguage() === "en" && isRomanizedName(shop) ? `<p class="card__fine">${shop.nameSource === "brand"
+            ? "English brand name; branch name romanized. Japanese original above."
+            : "Automatically romanized name; pronunciation may differ. Japanese original above."}</p>` : ""}
+          <p class="card__where">${placeLine(shop)}</p>
+          ${chainHtml(shop, shop.chain ? CHAIN_SIZES.get(shop.chain) : undefined)}
+          <span class="broth-chip"><span class="swatch" style="--broth:${broth.ink}" aria-hidden="true"></span>${esc(broth.label)} <span class="ja" lang="ja">${esc(broth.labelJa)}</span>${shop.brothSource === "name" ? '<span class="broth-chip__note">from the name</span>' : ""}</span>
+          ${stylesHtml(shop)}
           <dl class="facts">
             <dt>${esc(t("signatureBowl"))}</dt><dd>${esc(shop.signatureBowl)}</dd>
             <dt>${esc(t("price"))}</dt><dd>${priceText(shop)}</dd>
@@ -133,6 +141,7 @@ export class ShopCard {
             <p id="street-view-status" class="card__fine" role="status">Checking nearby outdoor imagery…</p>
           </div>
           <p class="blurb">${esc(shop.blurb)}</p>
+          ${isEditorial(shop) ? "" : `<section class="card__contact" aria-label="Contact details" aria-busy="true"><p class="card__fine">Loading contact details…</p></section>`}
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
           <div class="card__history"></div>
           <div class="actions">
@@ -149,10 +158,26 @@ export class ShopCard {
       this.history.attach(historyHost);
       this.history.show(shop);
     }
+    if (!isEditorial(shop)) void this.fillContact(shop);
     this.el.hidden = false;
     document.body.classList.add("has-card");
     this.el.querySelector(".card__scroll")?.scrollTo(0, 0);
     if (options.focus) this.el.querySelector<HTMLElement>("#card-title")?.focus({ preventScroll: true });
+  }
+
+  /** Contact details travel separately from the map catalog; fetch them for this shop only. */
+  private async fillContact(shop: Shop): Promise<void> {
+    const inline: OpenPlaceDetails = { address: shop.address, postcode: shop.postcode, phone: shop.phone, website: shop.website, socials: shop.socials };
+    let details: OpenPlaceDetails | undefined = Object.values(inline).some(v => v !== undefined) ? inline : undefined;
+    let failed = false;
+    if (!details && !DETAILS_INLINE && shop.sourceId) {
+      try { details = await loadPlaceDetails(shop.sourceId); } catch { failed = true; }
+    }
+    if (this.shop?.slug !== shop.slug) return;
+    const host = this.el.querySelector<HTMLElement>(".card__contact");
+    if (!host) return;
+    host.removeAttribute("aria-busy");
+    host.innerHTML = failed ? '<p class="card__fine">Contact details could not load. Try again later.</p>' : contactHtml(details);
   }
 
   close(): void {

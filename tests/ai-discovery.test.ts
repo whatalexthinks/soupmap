@@ -14,6 +14,7 @@ function discoveryAssets(siteUrl?: string): Map<string, string> {
     },
   }, {}, {
     "credits/index.html": { type: "asset", source: '<link rel="stylesheet" href="/assets/credits-test.css">' },
+    "journal/index.html": { type: "asset", source: '<link rel="stylesheet" href="/assets/journal-test.css">' },
   });
   return assets;
 }

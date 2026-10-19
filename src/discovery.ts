@@ -4,6 +4,7 @@ import { CITIES } from './data/cities.ts';
 import type { Shop } from './data/shops.ts';
 import { cuisineOf, CUISINES, type CuisineId } from './cuisines.ts';
 import { displayName } from './names.ts';
+import { STYLE_BY_ID } from './data/styles.ts';
 
 export type SortOrder = 'guide' | 'name' | 'city' | 'distance';
 export interface DiscoveryState {
@@ -15,6 +16,8 @@ export interface DiscoveryState {
   sort: SortOrder;
   cuisine?: CuisineId | 'all';
   origin?: { lat: number; lng: number } | null;
+  /** Leave out locations of brands with many branches. */
+  hideChains?: boolean;
 }
 export function distanceMeters(a: {lat:number;lng:number}, b: {lat:number;lng:number}): number {
   const radians = Math.PI / 180;
@@ -30,9 +33,13 @@ export function discover(shops: readonly Shop[], state: DiscoveryState): Shop[] 
     if (state.savedOnly && !state.saved.has(shop.slug)) return false;
     if (state.broths.size && !state.broths.has(shop.broth)) return false;
     if (state.cuisine && state.cuisine !== 'all' && cuisineOf(shop) !== state.cuisine) return false;
+    if (state.hideChains && shop.chain) return false;
+    if (!terms.length) return true;
     const broth = BROTHS[shop.broth];
+    const styles = (shop.styles ?? []).flatMap(id => { const s = STYLE_BY_ID.get(id); return s ? [s.label, s.labelJa] : []; });
     const haystack = [shop.name, shop.nameJa, shop.city, CITIES.find(c => c.name === shop.city)?.nameJa,
-      shop.nameRomanized, shop.neighborhood, shop.signatureBowl, broth.label, broth.labelJa,
+      shop.nameRomanized, shop.neighborhood, shop.localityRomanized, shop.prefecture, shop.chain, ...styles,
+      shop.signatureBowl, broth.label, broth.labelJa,
       CUISINES.find(c=>c.id === cuisineOf(shop))?.label].join(' ').normalize('NFKC').toLocaleLowerCase();
     return terms.every(term => haystack.includes(term));
   });

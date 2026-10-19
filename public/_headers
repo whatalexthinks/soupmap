@@ -11,4 +11,5 @@
   X-Frame-Options: SAMEORIGIN
   # Keeps the origin on cross-origin requests: Google key referrer restrictions depend on it.
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  # geolocation=(self): the "Nearest me" sort asks for location after an explicit choice.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=(), usb=()

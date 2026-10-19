@@ -189,7 +189,9 @@ test('search Enter flushes debounce before selecting and creates a shareable car
 test('changing flavor closes an excluded card, reset recovers all results',()=>{
   click('[data-slug="afuri-ebisu"]');
   click('[data-broth="miso"]');
-  assert.equal(rows().length,0);
+  // Only shops whose broth is miso remain (some suggested by their own names); AFURI is shio.
+  assert.ok(rows().length>0);
+  assert.ok(rows().every(r=>ORDERED_SHOPS.find(s=>s.slug===r.dataset.slug)?.broth==='miso'));
   assert.ok(el('#card').hidden);
   click('#clear-filters');
   assert.equal(rows().length,100);
@@ -221,7 +223,8 @@ test('surprise respects visible results and sort order changes without losing sa
   assert.equal(rows()[0]?.dataset.slug,expected[0]?.slug);
   click('[data-broth="shio"]');
   click('#surprise-btn');
-  assert.equal(el('#card-title').textContent,'AFURI Ebisu');
+  const shio = discover(ORDERED_SHOPS, {query:'',city:'tokyo',broths:new Set(['shio']),saved:new Set(),savedOnly:false,sort:'name'});
+  assert.ok(shio.some(s=>displayName(s)===el('#card-title').textContent));
 });
 
 test('pagination expands results and resets when switching cities',()=>{

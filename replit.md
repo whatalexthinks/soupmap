@@ -43,9 +43,12 @@
 - Link the app stylesheet directly from the HTML head. Do not move base styling back into JavaScript imports: slow or failed startup previously exposed unstyled HTML and an oversized loading illustration.
 
 - The downloadable source-attributed catalog is `public/data/open-shops.json.gz`; keep it compressed in Git. Raw extracts belong in `/tmp`, not the repository.
-- Refresh explicitly with `python3 scripts/fetch-open-places.py --release 2026-09-23.1 --output /tmp/soupmap-overture.json`, followed by `node --import tsx scripts/import-open-places.ts --input /tmp/soupmap-overture.json`. Python/DuckDB is only for this data-maintenance step; the app still runs on Vite/TypeScript.
+- Browsers load `public/data/open-shops-core.json.gz` (compact rows: names, location, style, chain) at startup and fetch a shop's contact details from `public/data/details/<first two hex digits of its Overture ID>.json.gz` only when its card opens. All three files are written together by the importer; never edit them by hand.
+- Refresh explicitly with `python3 scripts/fetch-open-places.py --release 2026-09-23.1 --output /tmp/soupmap-overture.json` (pyarrow; reads only Japan's Parquet row groups from Overture's public S3 bucket), followed by `node --import tsx scripts/import-open-places.ts --input /tmp/soupmap-overture.json`. Python is only for this data-maintenance step; the app still runs on Vite/TypeScript.
+- Addresses, postcodes, phones, websites and social links are copied from the source record; review/aggregator sites (Tabelog, Gurunavi, Hot Pepper…) are never stored as a shop website. Records with Overture confidence below 0.3 are dropped.
+- Derived fields keep their provenance visible: prefecture (region/address/postcode, else nearest neighbours), bowl style only when the shop's own name says it (e.g. 味噌, 家系; shown as "from the name" / `brothSource: "name"`), chain when one brand has 6+ locations in 3+ municipalities, and English chain names only from the curated list in `scripts/lib/brands.ts`.
 - The importer deduplicates locations and allows only explicitly supported CDLA-Permissive-2.0/Apache-2.0 source licenses. Run `npm run validate` and tests after refreshing.
-- Keep open-data listings unverified. Do not invent prices, menus, hours, broth styles or municipality codes. Seven featured city shortcuts remain; All Japan/search reaches the nationwide catalog.
+- Keep open-data listings unverified. Do not invent prices, menus, hours, broth styles or municipality codes; a style stated in the shop's own name is evidence, labelled as such, not a verified menu. Seven featured city shortcuts remain; All Japan/search reaches the nationwide catalog.
 - The importer generates approximate Latin readings offline using Kuromoji/WanaKana; `npm run data:romanize` can update the existing catalog without downloading a fresh extract. Keep originals, mark generated readings, and leave unreadable proper names in Japanese instead of inventing a translation. Dictionaries never ship to browsers.
 - In-app Street View uses Google's imagery APIs; the always-available external Google Maps link is a fallback when API access or imagery coverage is missing.
 
@@ -61,3 +64,13 @@
 - If requests are denied, check API activation, billing, quota and the actual website referrer in Google Cloud. Keep restrictions in place; do not expose an unrestricted key to troubleshoot.
 - The app requests official Google outdoor imagery, preferring the best capture within 250 m and widening to 500 m if none exists. Google can misclassify station passages as outdoor; imagery may not show the precise entrance. The JavaScript SDK and coverage lookup load only after explicit entry; the panorama uses Google's Dynamic Street View billing. Zoom starts at zero; navigation depends on connected imagery being available.
 - Reference: https://developers.google.com/maps/documentation/javascript/streetview and https://developers.google.com/maps/api-security-best-practices
+
+## Journal (/journal/)
+
+- 64 static essays from `content/journal/*.md`, prerendered by the Vite plugin (`src/render/journal.ts`). The writing, voice and fact rules live in `content/journal/README.md`; the build fails on invalid frontmatter or broken internal links.
+- Personal voice, but never invented experiences, people or quotes; legends are hedged; no prices or opening hours. Further reading uses Wikipedia search links.
+- Article map buttons use `/map/?q=<words>` (the app opens with that nationwide search). Writers may type the short form `/?q=`; it is normalised.
+
+## Lockfile
+
+- Keep every `resolved` URL in `package-lock.json` on `https://registry.npmjs.org/`. Installing inside Replit can rewrite them to `http://package-firewall.replit.internal/...`, which breaks `npm ci` everywhere else (Cloudflare Pages, CI, fresh clones). A test (`tests/catalog-quality.test.ts`) fails if that happens; fix it with `sed -i 's#http://package-firewall.replit.internal/npm/#https://registry.npmjs.org/#g' package-lock.json`.

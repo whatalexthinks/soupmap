@@ -231,6 +231,26 @@ Eligibility lives in `src/data/indexation.ts`; page content in `src/render/catal
 the existing data and credits document layout. Keep page generation, shop/share links and
 sitemap inclusion aligned when changing the policy.
 
+### 3.8 The Soupmap Journal (`/journal/`)
+
+64 original essays in seven topics (ramen styles, noodles, Japanese soups, craft and
+ingredients, history, travel etiquette, soups of the world), prerendered as static pages in a
+Japanese-minimalist design: washi background, sumi type, one vermilion accent, a vertical
+mark per article. It works without JavaScript and is the site's main organic-search surface.
+
+- **Write or edit** Markdown in `content/journal/<slug>.md`. The format, voice and fact rules
+  are in [content/journal/README.md](content/journal/README.md): personal voice, no invented
+  experiences, legends hedged, no prices or opening hours.
+- **The build validates everything**: unknown fields, bad categories, broken internal links
+  and unsafe URLs fail `npm run build` with the file and the reason.
+- **Output**: `/journal/`, `/journal/topic/<id>/`, `/journal/<slug>/` and
+  `/journal/feed.xml` (RSS), with canonical URLs, `BlogPosting` and breadcrumb structured
+  data, and sitemap and `llms.txt` entries.
+- **Into the map**: an article's `map:` field becomes a "Find it on the map" button
+  (`/map/?q=iekei` opens the map with that nationwide search).
+- Code: `src/journal/` (parser, Markdown subset), `src/render/journal.ts` (pages),
+  `src/styles/journal.css`, `journal/index.html` (the Vite entry for the stylesheet).
+
 ---
 
 ## 4. Data scripts
@@ -321,6 +341,25 @@ we already list within 75 m). New category matches sort first.
 6. If you add a new city, add it to `src/data/cities.ts` first (centre, rough ground height, bbox).
 
 ---
+
+### 4.4 Refresh the open-data catalog (Overture)
+
+```bash
+pip install pyarrow==25.0.1          # or: uv sync (pyproject.toml)
+python3 scripts/fetch-open-places.py --release 2026-09-23.1 --output /tmp/soupmap-overture.json
+node --import tsx scripts/import-open-places.ts --input /tmp/soupmap-overture.json
+npm run validate && npm test
+```
+
+The fetch reads only the Parquet row groups that overlap Japan, straight from Overture's public
+S3 bucket (about 2–3 minutes). The importer writes three files together, never edit them by hand:
+`public/data/open-shops.json.gz` (the full, downloadable dataset), `open-shops-core.json.gz`
+(what browsers load: names, location, style, chain) and `details/<xx>.json.gz` (contact
+details, fetched per shop when its card opens). It keeps addresses, phones, websites and social
+links from the source (never review-site links), drops records with confidence below 0.3,
+derives prefectures from postcodes, infers styles only from the shop's own name, marks chains
+(6+ locations in 3+ municipalities) and writes English names (`scripts/lib/brands.ts`,
+`scripts/lib/romanize.ts`). `npm run data:romanize` re-runs only the English names.
 
 ## 5. Licensing summary
 
@@ -438,6 +477,12 @@ src/
 scripts/               validate-shops, fetch-plateau-catalog, discover-shops, print-licenses
 public/                icons, OG image, _headers, web manifest
 ```
+
+**Map markers.** Thousands of shops share the map, so a shop is a 16 px bead in its style
+colour, editor's picks a small vermilion bowl badge, saved shops a vermilion ring, and only the
+selected shop a full pin (`src/map/glyph.ts`). Clusters are count pills sized by magnitude.
+Names label only at street level; on desktop, hovering names a marker. All marker images come
+from a small fixed palette with stable IDs, so Cesium's texture atlas stays bounded.
 
 **Performance.** The page shell (list, search, filters) is about 20 KB of gzipped JavaScript plus
 5 KB of render-blocking CSS, and works before the map arrives. Noto Sans JP's 110 KB of
