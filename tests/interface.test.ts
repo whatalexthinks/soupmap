@@ -15,9 +15,10 @@ let window: Window;
 let app: App;
 beforeEach((context)=>{
   const initialShared = context.name.startsWith('initial shared link');
+  const dashboardLink = context.name.startsWith('dashboard link');
   window=new Window({url:initialShared
     ? 'https://soupmap.example/' + shortlistHash(['afuri-ebisu','ichiran-nakasu'])
-    : 'https://soupmap.example/'});
+    : dashboardLink ? 'https://soupmap.example/map/?open=passport' : 'https://soupmap.example/'});
   if (initialShared) window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(['ginza-kagari']));
   window.document.write(readFileSync(new URL('../map/index.html',import.meta.url),'utf8'));
   for (const key of ['Event','document','location','history','localStorage','CSS','HTMLElement','Element','HTMLInputElement','HTMLButtonElement','navigator']) {
@@ -648,4 +649,11 @@ test('saving a chapter while signed in uses account saves and leaves guest stora
     assert.equal(accountSaved()?.size,3);
     assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!),['sumire-susukino']);
   } finally {setAccountSaved(null);}
+});
+
+test('dashboard link: /map/?open=passport opens the passport and tidies the address', () => {
+  const dialog = window.document.querySelector('#journey-dialog') as unknown as HTMLDialogElement;
+  assert.equal(dialog.open, true);
+  assert.equal(window.location.search, '');
+  assert.equal(window.document.querySelector('#journey-title')!.textContent, 'Your Soup Passport.');
 });

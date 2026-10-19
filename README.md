@@ -251,6 +251,41 @@ mark per article. It works without JavaScript and is the site's main organic-sea
 - Code: `src/journal/` (parser, Markdown subset), `src/render/journal.ts` (pages),
   `src/styles/journal.css`, `journal/index.html` (the Vite entry for the stylesheet).
 
+### 3.9 Your Soupmap dashboard (`/me/`)
+
+A personal page that gives visitors a reason to come back: plan a trip, keep places, and
+collect bowls. It works fully without an account (everything stays in the browser) and gets
+better when signed in, using the existing `/api` lists endpoints. No server changes.
+
+- **Plan a trip**: choose a city or prefecture, days (1–7), bowls a day (1–4) and optional
+  cravings (tsukemen, niboshi, udon…). Saved places and editor's picks come first; each day
+  starts somewhere new and is filled with places within a walk (3 km, else 8 km), in a
+  nearest-neighbour order. Every stop says why it was chosen ("Editor's pick", "Tsukemen,
+  from the name", "Independent"). It never claims quality, hours or menus. Plans are
+  deterministic per seed, so **Shuffle** rolls a new one, and they open on the map as
+  `/map/?collection=…`. Code: `src/me/planner.ts`.
+- **Saved trips** (device), **saved places** (account when signed in, otherwise this browser)
+  with **Mark visited**, and **account lists**. Signed in, a saved trip also becomes an
+  account list (`POST /api/lists`, then `PUT /api/lists/:id/items`).
+- **Passport**: nine broth stamps and 17 regional bowls (Sapporo miso, Kitakata, Iekei,
+  Toyama Black, Hakata…), each linked to its journal essay and a map search
+  (`src/me/regional.ts`). `/map/?open=passport` opens the full passport dialog.
+- **For you**: bowl of the day, interesting places near your saves, broth styles you haven't
+  had yet, and journal articles to read next. All of it is computed in the browser from your
+  own saves and visits (`src/me/recommend.ts`).
+- **Your data**: download everything stored in the browser as JSON.
+- **Accounts**: `GET /api/me` decides the state: 200 means signed in, 401 means guest (shows
+  "Create an account"), anything else means accounts are unavailable (no banner, everything
+  local). Device saves are never merged silently; signed-in visitors get an explicit,
+  additive **Import** (`POST /api/import-saves`).
+- Entry points: home nav ("Plan a trip"), the map masthead ("Plan"), the map panel footer
+  ("Your Soupmap"). Storage keys: `soupmap:trips:v1`, `soupmap:planner:v1`, plus the
+  existing `soupmap:saved:v1` and `soupmap:passport:v1`.
+- Code: `me/index.html`, `src/me/` (`main.ts`, `view.ts`, `store.ts`, `planner.ts`,
+  `recommend.ts`, `regional.ts`), `src/styles/me.css`. The journal index reaches the
+  browser through the `virtual:soupmap-journal` module in `vite.config.ts`. Tests:
+  `tests/me.test.ts`.
+
 ---
 
 ## 4. Data scripts

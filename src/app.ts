@@ -267,6 +267,14 @@ export class App {
     });
     if (initial) this.select(initial, { fly: false, focus: false });
     if (this.shared || (search && !initial)) this.sheet.ensureOpen();
+    // The /me/ dashboard links straight to the passport and chapters: /map/?open=passport.
+    const open = new URLSearchParams(location.search).get('open');
+    if (open === 'passport' || open === 'chapters') {
+      const url = new URL(location.href);
+      url.searchParams.delete('open');
+      history.replaceState(history.state, '', url);
+      this.journey.show(open === 'passport' ? 'passport' : 'hubs');
+    }
     router.onChange((slug) => {
       const shared = router.shortlist();
       if (shared) {

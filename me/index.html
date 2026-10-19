@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Your Soupmap — plan trips, keep places, collect bowls</title>
+    <meta name="description" content="Plan a few bowls a day in any Japanese city, keep the places you save, and collect broth styles and regional bowls in your passport. Free, and it works without an account." />
+    <link rel="canonical" href="%SITE_URL%/me/" />
+    <meta name="theme-color" content="#eeeee7" />
+    <meta name="color-scheme" content="light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Soupmap" />
+    <meta property="og:title" content="Your Soupmap — plan the bowls, keep the stories" />
+    <meta property="og:description" content="A free trip planner for ramen, udon, soba and oden in Japan, with a passport for the bowls you've had." />
+    <meta property="og:url" content="%SITE_URL%/me/" />
+    <meta property="og:image" content="%SITE_URL%/social/soupmap-world.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles/me.css" />
+  </head>
+  <body>
+    <a class="me-skip" href="#me-main">Skip to your Soupmap</a>
+    <div class="me-page">
+      <header class="me-header">
+        <a class="me-brand" href="/" aria-label="Soupmap home"><span class="me-brand__seal" aria-hidden="true">湯</span><span>soupmap.</span></a>
+        <a class="me-header__map" href="/map/">Map <span aria-hidden="true">↗</span></a>
+        <nav class="me-nav" aria-label="Your Soupmap">
+          <a href="#plan">Plan a trip</a>
+          <a href="#places">Your places</a>
+          <a href="#passport">Passport</a>
+          <a href="/journal/">Journal</a>
+          <a class="me-nav__map" href="/map/">Open the map <span aria-hidden="true">↗</span></a>
+        </nav>
+      </header>
+      <main class="me-main" id="me-main">
+        <div id="me-root" aria-busy="true">
+          <section class="me-hero" aria-labelledby="me-title">
+            <div class="me-hero__copy">
+              <p class="me-label"><span class="me-dot" aria-hidden="true"></span>YOUR SOUPMAP</p>
+              <h1 id="me-title">Plan the bowls.<br /><span>Keep the stories.</span></h1>
+              <p class="me-dek">Pick a city and what you're craving. We'll lay out a few bowls a day, grouped so you can walk between them, and keep track of where you've eaten.</p>
+              <p class="me-loading" role="status">Loading 31,000 places…</p>
+            </div>
+          </section>
+        </div>
+        <noscript><p class="me-fine">The planner needs JavaScript. You can still <a href="/catalog/">browse the catalog</a> or <a href="/journal/">read the journal</a>.</p></noscript>
+      </main>
+      <footer class="me-footer">
+        <p>No account needed. What you save here stays in this browser until you sign in and choose to import it.</p>
+        <nav aria-label="More from Soupmap"><a href="/">Home</a><a href="/journal/">Journal</a><a href="/catalog/">Catalog</a><a href="/credits/">Data &amp; credits</a><a href="/account">Account</a></nav>
+      </footer>
+    </div>
+    <script type="module" src="/src/me/main.ts"></script>
+  </body>
+</html>

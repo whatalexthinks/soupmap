@@ -175,7 +175,8 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
   const sitemap = assets.get("sitemap.xml")!;
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   const journal = journalPages(loadJournal());
-  assert.equal(locations.length, pages.length + 3 + journal.length);
+  assert.equal(locations.length, pages.length + 4 + journal.length);
+  for (const path of ["/", "/map/", "/me/", "/credits/"]) assert.ok(locations.includes(origin + path));
   for (const page of journal) {
     assert.ok(locations.includes(origin + page.path));
     // The journal index is Vite's own HTML entry; every other journal page is generated.
