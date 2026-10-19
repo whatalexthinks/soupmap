@@ -212,7 +212,7 @@ export function journalHead(page: JournalPage, siteUrl: string, articles: readon
     <title>${esc(page.title)}</title>
     <meta name="description" content="${esc(page.description)}" />
     <link rel="canonical" href="${esc(url)}" /><meta name="robots" content="index,follow" />
-    <meta name="theme-color" content="#f6f3ea" /><meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4efe6" /><meta name="color-scheme" content="light" />
     <meta property="og:type" content="${page.type}" /><meta property="og:site_name" content="Soupmap" />
     <meta property="og:title" content="${esc(page.title)}" /><meta property="og:description" content="${esc(page.description)}" />
     <meta property="og:url" content="${esc(url)}" /><meta property="og:image" content="${esc(image)}" />

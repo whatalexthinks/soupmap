@@ -12,9 +12,10 @@ import { cuisineOf } from "../cuisines.ts";
 import { isEditorial } from "../data/indexation.ts";
 
 const SCALE = 2; // draw at 2x for crisp rendering on high-DPI screens
-const INK = "#252c27";
-const CREAM = "#fffaf0";
-const VERMILION = "#b7442c";
+// From src/styles/palette.css: soot ink, light paper, fired clay.
+const INK = "#302822";
+const CREAM = "#fcf9f3";
+const VERMILION = "#9c4933";
 
 export type MarkerKind = "dot" | "saved" | "pick";
 
@@ -101,7 +102,7 @@ export function markerGlyph(kind: MarkerKind, color: string): HTMLCanvasElement 
     circle(ctx, m, m, m - 2, VERMILION);
     circle(ctx, m, m, m - 4.6, color);
   } else {
-    circle(ctx, m, m, m - 0.5, "rgba(255,250,240,0.92)");
+    circle(ctx, m, m, m - 0.5, "rgba(252,249,243,0.92)");
     circle(ctx, m, m, m - 2, INK);
     circle(ctx, m, m, m - 3.6, color);
   }
@@ -177,7 +178,7 @@ export function clusterGlyph(count: number): { canvas: HTMLCanvasElement; width:
   ctx.arc(inset + pr, r, pr, Math.PI / 2, Math.PI * 1.5);
   ctx.arc(width - inset - pr, r, pr, Math.PI * 1.5, Math.PI / 2);
   ctx.closePath();
-  ctx.fillStyle = "rgba(37,44,39,0.92)";
+  ctx.fillStyle = "rgba(48,40,34,0.92)";
   ctx.fill();
   ctx.lineWidth = 1.5;
   ctx.strokeStyle = CREAM;

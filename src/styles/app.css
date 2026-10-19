@@ -1,5 +1,4 @@
 /* Load the app's appearance from HTML, before JavaScript or the catalog is ready. */
-@import "@fontsource-variable/fraunces/soft.css";
 @import "@fontsource-variable/instrument-sans";
 @import "./main.css";
 @import "./atlas.css";

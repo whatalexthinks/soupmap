@@ -9,6 +9,7 @@ import { catalogDocument, catalogPages } from "./src/render/catalog.ts";
 import { esc } from "./src/ui/dom.ts";
 import { loadJournal } from "./src/journal/load.ts";
 import { journalBody, journalDocument, journalFeed, journalHead, journalPages } from "./src/render/journal.ts";
+import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
 
 const cesiumVersion: string = JSON.parse(readFileSync("node_modules/cesium/package.json", "utf8")).version;
 // Versioned path, so /cesium/<version>/ can be cached as immutable forever.
@@ -66,6 +67,8 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         .replaceAll("%SITE_URL%", siteUrl)
         .replace("<!--soupmap:journal-head-->", journalHead(journalIndex, siteUrl, articles))
         .replace("<!--soupmap:journal-body-->", journalBody(journalIndex))
+        .replace("<!--soupmap:home-cities-->", homeCitiesHtml())
+        .replace("<!--soupmap:home-featured-->", homeCityHtml())
         .replace("<!--soupmap:chips-->", brothChipsHtml(ORDERED_SHOPS))
         .replace("<!--soupmap:cities-->", cityButtonsHtml(ORDERED_SHOPS))
         .replace("<!--soupmap:count-->", resultCountText(ORDERED_SHOPS.filter(s => s.city === "Tokyo").length))

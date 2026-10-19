@@ -1,0 +1,13 @@
+/* One material palette: uncoated paper, soot ink, fired clay, and warm stone. */
+:root {
+  --paper: #f4efe6;
+  --paper-light: #fcf9f3;
+  --stone: #e7dfd2;
+  --soot: #302822;
+  --muted: #6b5f54;
+  --clay: #9c4933;
+  --clay-dark: #783823;
+  --rule: #cec4b7;
+  --dark-paper: #2e2823;
+  --on-dark: #f4ede1;
+}

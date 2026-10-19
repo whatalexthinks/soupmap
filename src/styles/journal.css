@@ -3,18 +3,20 @@
 @import "@fontsource-variable/fraunces/opsz.css";
 @import "@fontsource-variable/fraunces/opsz-italic.css";
 @import "@fontsource-variable/instrument-sans";
+@import "./palette.css";
 
 :root {
   color-scheme: light;
-  --washi: #f6f3ea;
-  --washi-2: #efe9dc;
-  --paper: #fbf9f4;
-  --sumi: #1d1c19;
-  --sumi-2: #4b483f;
-  --sumi-3: #857f72;
-  --hair: #dcd5c5;
-  --shu: #b7442c;
-  --shu-ink: #9a3520;
+  /* The site palette (palette.css), named for the journal's vocabulary. */
+  --washi: var(--paper);
+  --washi-2: var(--stone);
+  --paper-sheet: var(--paper-light);
+  --sumi: var(--soot);
+  --sumi-2: #4f453d;
+  --sumi-3: var(--muted);
+  --hair: var(--rule);
+  --shu: var(--clay);
+  --shu-ink: var(--clay-dark);
   --serif: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
   --sans: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   /* System Mincho faces: elegant Japanese without shipping a CJK font. */
@@ -51,7 +53,7 @@ a { color: inherit; text-decoration-color: color-mix(in srgb, var(--shu) 55%, tr
 a:hover { color: var(--shu-ink); text-decoration-color: var(--shu); }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--shu); outline-offset: 3px; border-radius: 2px; }
 
-.skip-link { position: absolute; left: -999px; top: 8px; background: var(--sumi); color: var(--paper); padding: 8px 14px; z-index: 10; }
+.skip-link { position: absolute; left: -999px; top: 8px; background: var(--sumi); color: var(--paper-sheet); padding: 8px 14px; z-index: 10; }
 .skip-link:focus { left: 8px; }
 
 /* Vertical marks: stacked characters (see verticalText in render/journal.ts). */
@@ -175,7 +177,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--shu); outline-o
 .j-card__link:hover .j-card__mark { transform: translateY(-3px); opacity: 1; }
 
 .j-featured { margin: clamp(36px, 6vw, 64px) 0 0; }
-.j-card--lg { border-top: 0; background: var(--paper); border: 1px solid var(--hair); }
+.j-card--lg { border-top: 0; background: var(--paper-sheet); border: 1px solid var(--hair); }
 .j-card--lg .j-card__link { grid-template-columns: auto 1fr; gap: clamp(20px, 5vw, 64px); padding: clamp(28px, 5vw, 60px); }
 .j-card--lg .j-card__mark { font-size: clamp(48px, 7vw, 92px); letter-spacing: 0.1em; }
 .j-card--lg .j-card__title { font-size: clamp(30px, 4.4vw, 52px); font-weight: 330; line-height: 1.05; letter-spacing: -0.025em; max-width: 18ch; }
@@ -252,10 +254,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--shu); outline-o
   font-weight: 550;
   text-decoration: none;
   color: var(--sumi);
-  background: var(--paper);
+  background: var(--paper-sheet);
   transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
-.j-mapcta a:hover { background: var(--sumi); color: var(--paper); }
+.j-mapcta a:hover { background: var(--sumi); color: var(--paper-sheet); }
 .j-mapcta__seal { display: grid; place-items: center; width: 26px; height: 28px; border-radius: 3px; background: var(--shu); color: #fff6e6; font: 15px var(--mincho); }
 
 .j-article__foot { margin-top: 56px; padding-top: 26px; border-top: 1px solid var(--hair); font-family: var(--sans); }

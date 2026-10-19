@@ -18,3 +18,7 @@ if (accountMount && path === "/") {
       // Public map discovery and the static auth links remain available if auth is offline.
     });
 }
+
+// Keep the homepage lightweight; the nationwide catalog and WebGL load only on the map.
+void import('./ui/home-cities.ts').then(({ mountHomeCities }) => mountHomeCities())
+  .catch(() => { /* The server-rendered directory links still work. */ });
