@@ -19,3 +19,9 @@ Keep the homepage in the same shared warm paper, ink and clay palette as the oth
 **Why:** The user objected to the homepage preview's different colors and its awkward phone presentation.
 
 **How to apply:** Use the shared site palette rather than a separate sage/lime theme. Keep real screenshots neatly clipped inside their frame.
+
+The iPhone preview should show the screenshot edge to edge, without separate black top or bottom bars.
+
+**Why:** The user explicitly rejected the black status and home-indicator bands.
+
+**How to apply:** Overlay the Dynamic Island and home indicator on the screenshot rather than adding display height above or below it.
