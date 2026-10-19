@@ -8,6 +8,12 @@ Soupmap needs a homepage that explains the product and encourages signup, while 
 
 **How to apply:** Never turn public map browsing or shared-list viewing into a mandatory signup flow. Accounts are for private personal lists and cross-device saves, not permission to browse.
 
+Keep the public homepage reachable even after sign-in, and provide clear navigation between home, map, content and accounts on mobile as well as desktop.
+
+**Why:** The user explicitly asked to get back to the main website page or elsewhere while clicking around the application and map.
+
+**How to apply:** Do not auto-redirect signed-in homepage visitors away to their lists. Personal lists remain a separate navigation destination.
+
 Existing device saves must remain independent until the user explicitly imports them into their account; importing adds rather than replaces saves. Signing up does not imply consent to marketing emails.
 
 **Why:** Account adoption must not lose existing guest choices, merge a shared device's private choices silently, or turn authentication into an undisclosed mailing-list subscription.

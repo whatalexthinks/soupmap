@@ -1,3 +1,4 @@
+@import "./site-navigation.css";
 /* One material palette: uncoated paper, soot ink, fired clay, and warm stone. */
 :root {
   --paper: #f4efe6;

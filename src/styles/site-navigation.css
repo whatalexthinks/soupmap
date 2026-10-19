@@ -1,0 +1,204 @@
+/* Shared compact navigation — warm paper, soot ink, fired-clay details. */
+.site-brand-mark { display: block; width: 31px; height: 32px; flex: 0 0 auto; object-fit: contain; }
+.account-brand, .wordmark > a { display: inline-flex; align-items: center; gap: 8px; }
+.wordmark > a { gap: 0; }
+.wordmark .site-brand-mark { margin-right: 8px; }
+.account-settings { max-width: 1000px; margin: auto; padding: 32px 20px; }
+.app > .masthead:has(.site-menu[open]) { z-index: 200; }
+
+@media (max-width: 760px) {
+  .home-header { gap: 12px; flex-wrap: wrap; }
+  .home-header .home-nav { margin-left: auto; }
+  .home-header .site-menu { margin-left: auto; }
+  .app > .masthead { gap: 10px; }
+  .app > .masthead .site-menu summary { min-width: 60px; padding: 0 8px; font-size: 12px; }
+  .app > .masthead .view-tabs .journal-link { display: none; }
+  .j-head:has(.site-menu) { flex-wrap: wrap; gap: 12px; }
+  .j-head:has(.site-menu) .j-head__nav { margin-left: auto; }
+  .j-head:has(.site-menu) .site-menu { margin-left: auto; }
+}
+@media (max-width: 380px) {
+  .site-brand-mark { width: 24px; height: 25px; }
+  .account-nav .account-brand { gap: 5px; }
+  .masthead:has(.wordmark) { flex-wrap: wrap; }
+  .masthead:has(.wordmark) .site-menu { margin-left: auto; }
+  .app > .masthead .brand { font-size: 21px; }
+  .app > .masthead .brand__seal { display: none; }
+  .app > .masthead .view-tabs { gap: 10px; }
+  .j-head { flex-wrap: wrap; gap: 12px; }
+}
+.site-menu {
+  position: relative;
+  z-index: 120;
+  flex: 0 0 auto;
+  color: var(--soot);
+  font: inherit;
+}
+
+.site-menu summary {
+  display: flex;
+  min-width: 88px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 13px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper-light);
+  color: var(--soot);
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.site-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-menu summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.site-menu[open] summary {
+  border-color: var(--clay);
+  color: var(--clay-dark);
+}
+
+.site-menu[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.site-menu summary:hover {
+  background: var(--stone);
+}
+
+.site-menu summary:focus-visible,
+.site-menu nav a:focus-visible {
+  outline: 3px solid var(--clay);
+  outline-offset: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+.site-menu nav {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 121;
+  display: grid;
+  width: max-content;
+  min-width: 208px;
+  max-width: min(280px, calc(100vw - 24px));
+  padding: 5px;
+  border: 1px solid var(--rule);
+  background: var(--paper-light);
+  box-shadow: 0 12px 28px rgb(48 40 34 / 16%);
+}
+
+.site-menu nav a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 9px 12px;
+  color: var(--soot);
+  font: inherit;
+  line-height: 1.35;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-menu nav a:hover,
+.site-menu nav a:focus-visible {
+  background: var(--stone);
+  color: var(--clay-dark);
+}
+
+.site-menu nav a + a {
+  border-top: 1px solid color-mix(in srgb, var(--rule) 68%, transparent);
+}
+
+/* Keep account-page header items legible and reachable on narrow screens. */
+.account-nav .site-menu {
+  margin-left: auto;
+}
+
+.account-nav .site-menu summary {
+  white-space: nowrap;
+}
+
+.account-nav > a:not(.account-brand) {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .account-nav {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .account-nav .account-brand {
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .account-nav > a:not(.account-brand) {
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .account-nav .site-menu {
+    margin-left: 0;
+  }
+
+  .account-nav .site-menu summary {
+    min-width: 78px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .account-nav .site-menu nav {
+    max-width: min(280px, calc(100vw - 24px));
+  }
+}
+
+@media (max-width: 360px) {
+  .account-nav {
+    gap: 6px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .account-nav .account-brand {
+    font-size: 21px;
+  }
+
+  .account-nav > a:not(.account-brand) {
+    font-size: 12px;
+  }
+
+  .account-nav .site-menu summary {
+    min-width: 70px;
+    padding: 0 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-menu summary::after {
+    transition: none;
+  }
+}

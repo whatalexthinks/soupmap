@@ -1,6 +1,6 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, UserProfile, useClerk, useUser } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Router as WouterRouter, Route, Switch, useLocation } from "wouter";
@@ -20,7 +20,7 @@ const appearance = {
   theme: shadcn,
   options: {
     logoPlacement:"inside" as const, logoLinkUrl:"/",
-    logoImageUrl:`${window.location.origin}${basePath}/logo.svg`,
+    logoImageUrl:`${window.location.origin}${basePath}/brand-mark-black.png`,
   },
   variables: {
     colorPrimary:"#9c4933", colorForeground:"#302822", colorMutedForeground:"#6b5f54",
@@ -227,10 +227,24 @@ function Portal() {
 
 function AccountRoutes() {
   return <Switch>
+    <Route path="/account/settings/*?"><AccountSettings/></Route>
     <Route path="/sign-in/*?"><section className="auth-shell"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`}/><a href="/map/">Just looking? Explore without an account ↗</a></section></Route>
     <Route path="/sign-up/*?"><section className="auth-shell"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`}/><p>No marketing subscription. Your lists stay private unless you share a snapshot.</p><a href="/map/">Explore without an account ↗</a></section></Route>
     <Route><Portal/></Route>
   </Switch>;
+}
+function AccountSettings() {
+  const {user,isLoaded} = useUser();
+  if (!isLoaded) return <p className="account-loading" role="status">Loading account settings…</p>;
+  if (!user) return <section className="account-intro"><h1>Your account settings</h1>
+    <p>Sign in to manage your email, password and active sessions.</p>
+    <div className="account-actions"><a className="account-primary" href="/sign-in?redirect_url=%2Faccount%2Fsettings">Sign in</a>
+      <a href="/sign-up">Create an account</a></div></section>;
+  return <section className="account-settings"><h1>Account settings</h1>
+    <p><a href="/account">Back to my lists</a></p>
+    <UserProfile routing="path" path={`${basePath}/account/settings`}
+      appearance={{elements:{cardBox:{width:"100%",maxWidth:"100%"}}}}/>
+  </section>;
 }
 class AccountBoundary extends Component<{children:ReactNode},{failed:boolean}> {
   override state = {failed:false};

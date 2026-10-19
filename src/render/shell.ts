@@ -8,7 +8,7 @@ const destinations = [
   ['recipes', '/recipes/', 'Recipes'],
 ] as const;
 export function brandHtml(): string {
-  return '<a class="site-brand" href="/" aria-label="Soupmap home"><span class="site-brand__seal" aria-hidden="true">湯</span><span>soupmap<span class="site-brand__dot">.</span></span></a>';
+  return '<a class="site-brand" href="/" aria-label="Soupmap home"><img class="site-brand-mark" src="/brand-mark-black.png" width="31" height="32" alt=""/><span>soupmap<span class="site-brand__dot">.</span></span></a>';
 }
 export function siteHeader(section: SiteSection, accountId?: 'home-account' | 'directory-account' | 'map-account'): string {
   return `<header class="site-header${section === 'map' ? ' site-header--map' : ''}">
