@@ -325,6 +325,21 @@ export const SOURCES = [
     attributionUrl: "https://en.wikipedia.org/wiki/Ramen",
     checked: "2026-10-16",
   },
+  {
+    id: "journal-further-reading",
+    name: "Soupmap Journal: further reading",
+    provider: "Wikipedia contributors",
+    kind: "reference",
+    status: "live",
+    usedFor: "Each journal article links to English Wikipedia articles for further reading. The articles themselves are original writing; no Wikipedia text or images are copied.",
+    url: "https://en.wikipedia.org/",
+    license: "Links only (Wikipedia text is CC BY-SA 4.0)",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+    attribution: "Wikipedia contributors",
+    attributionUrl: "https://en.wikipedia.org/",
+    notes: ["Links use Wikipedia's search with go=Go, which opens the article when the title exists and shows search results otherwise, so a renamed article never becomes a dead link."],
+    checked: "2026-10-19",
+  },
 
   // ── Libraries ─────────────────────────────────────────────────────────────
   {

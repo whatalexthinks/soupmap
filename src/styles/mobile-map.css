@@ -503,9 +503,15 @@
     gap: 12px;
   }
 
-  .view-tabs button {
+  .view-tabs button,
+  .view-tabs .journal-link {
     min-height: 44px;
     font-size: 11px;
+  }
+
+  .view-tabs .journal-link {
+    display: inline-flex;
+    align-items: center;
   }
 
   .map-heading {

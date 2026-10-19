@@ -203,6 +203,6 @@ export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: 
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="masthead"><p class="wordmark"><a href="/">soup<span class="wordmark__map">map</span></a></p><a class="back" href="/">← Back to the map</a></header>
     <main id="main" class="page">${page.content}</main>
-    <footer class="foot"><p>Soupmap · A worldwide soup atlas, starting in Japan. <a href="/catalog/">Catalog</a> · <a href="/credits/">Data &amp; credits</a></p></footer>
+    <footer class="foot"><p>Soupmap · A worldwide soup atlas, starting in Japan. <a href="/catalog/">Catalog</a> · <a href="/journal/">Journal</a> · <a href="/credits/">Data &amp; credits</a></p></footer>
     </body></html>`;
 }

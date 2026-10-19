@@ -228,10 +228,18 @@ export class App {
     if (this.shared) this.city = 'all';
     const initial = router.initial();
     if (initial && !this.shared) this.city = CITIES.find(c => c.name === shopBySlug.get(initial)?.city)?.slug ?? 'all';
+    // Journal articles link to a nationwide search, e.g. /?q=iekei.
+    const search = new URLSearchParams(location.search).get('q')?.trim().slice(0, 80);
+    if (search && !initial && !this.shared) {
+      this.query = search;
+      this.city = 'all';
+      this.panel.searchInput.value = search;
+      trackEvent("search_link_opened", {result_count: this.filtered().length});
+    }
     this.refresh();
     this.updateLocation();
     if (initial) this.select(initial, { fly: false, focus: false });
-    if (this.shared) this.sheet.ensureOpen();
+    if (this.shared || (search && !initial)) this.sheet.ensureOpen();
     router.onChange((slug) => {
       const shared = router.shortlist();
       if (shared) {

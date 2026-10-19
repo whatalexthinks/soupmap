@@ -6,6 +6,8 @@ import { isIndexableShop, shopPath } from "../src/data/indexation.ts";
 import { catalogDocument, catalogPages, CATALOG_PAGE_SIZE, CATALOG_RANGE_SIZE } from "../src/render/catalog.ts";
 import { cityButtonsHtml, shopRowHtml } from "../src/render/templates.ts";
 import { soupmapHtml } from "../vite.config.ts";
+import { loadJournal } from "../src/journal/load.ts";
+import { journalPages } from "../src/render/journal.ts";
 
 const pages = catalogPages(ORDERED_SHOPS);
 const origin = "https://atlas.example";
@@ -168,10 +170,17 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
     emitFile(asset: { fileName: string; source: string }) { assets.set(asset.fileName, asset.source); },
   }, {}, {
     "credits/index.html": { type: "asset", source: '<link rel="stylesheet" crossorigin href="/assets/credits-built.css">' },
+    "journal/index.html": { type: "asset", source: '<link rel="stylesheet" crossorigin href="/assets/journal-built.css">' },
   });
   const sitemap = assets.get("sitemap.xml")!;
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
-  assert.equal(locations.length, pages.length + 2);
+  const journal = journalPages(loadJournal());
+  assert.equal(locations.length, pages.length + 2 + journal.length);
+  for (const page of journal) {
+    assert.ok(locations.includes(origin + page.path));
+    // The journal index is Vite's own HTML entry; every other journal page is generated.
+    if (page.path !== "/journal/") assert.ok(assets.get(`${page.path.slice(1)}index.html`)!.includes('href="/assets/journal-built.css"'));
+  }
   for (const page of pages) {
     assert.ok(locations.includes(origin + page.path));
     const html = assets.get(`${page.path.slice(1)}index.html`)!;
