@@ -16,3 +16,5 @@ with `brothSource: "name"` and the interface saying "from the name". Broad categ
 **Why:** The user asked for better information without abandoning the no-invention rule.
 
 **How to apply:** Add style patterns narrowly (place names like 塩釜/塩尻 must not read as shio; 博多うどん is not tonkotsu) and keep the tests in `tests/catalog-quality.test.ts` green.
+
+On 2026-10-20 the user explicitly requested Google restaurant photos and information in Soupmap's own profile design. The directory keeps its open-data base; on-demand Places UI Kit panels add live Google information in catalog profiles and map cards. Use UI Kit's documented components and theme tokens, since its terms permit non-Google maps. Do not substitute raw Places API results on Cesium, silently match a branch, bulk enrich the catalog, or persist Google photos/reviews. See `docs/catalog-discovery.md`.

@@ -1,6 +1,9 @@
 /* The /credits page: a calm, readable document in the Soupmap palette. */
 @import "@fontsource-variable/instrument-sans";
 @import "./tokens.css";
+@import "@fontsource-variable/space-grotesk";
+@import "./directory.css";
+@import "./google-place.css";
 
 body {
   background: var(--paper);

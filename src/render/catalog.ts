@@ -1,14 +1,12 @@
 /** Static documents: no map, client filters, or JavaScript needed to read them. */
+import { directoryCard, directoryControls, profileHtml } from "./directory.ts";
 import type { Shop } from "../data/schema.ts";
 import { CITIES } from "../data/cities.ts";
-import { BROTHS } from "../data/broths.ts";
-import { isEditorial, isIndexableShop, shopPath } from "../data/indexation.ts";
-import { displayName, isRomanizedName } from "../names.ts";
-import { getSource } from "../sources.ts";
-import { STYLE_BY_ID } from "../data/styles.ts";
+import { isIndexableShop, shopPath } from "../data/indexation.ts";
+import { displayName } from "../names.ts";
 import { esc } from "../ui/dom.ts";
 
-export const CATALOG_PAGE_SIZE = 100;
+export const CATALOG_PAGE_SIZE = 24;
 export const CATALOG_RANGE_SIZE = 25;
 export interface CatalogPage {
   path: string;
@@ -18,51 +16,11 @@ export interface CatalogPage {
   structuredData: Record<string, unknown>;
 }
 
-function provenance(shop: Shop): string {
-  const source = shop.dataSource === "manual" ? null
-    : getSource(shop.dataSource === "overture" ? "overture-places" : "osm-overpass");
-  return `${source ? `<a href="${esc(source.attributionUrl)}">${esc(source.attribution)}</a>` : "Manually entered location"}
-    ${shop.sourceId ? ` · Source ID: ${esc(shop.sourceId)}` : ""}
-    ${shop.sourceLicenses?.length ? ` · Source licenses: ${esc(shop.sourceLicenses.join(", "))}` : ""}
-    ${shop.dataSource === "osm" ? " · ODbL" : ""}`;
-}
-
-function names(shop: Shop): string {
-  return `${esc(displayName(shop, "en"))}${shop.nameJa !== displayName(shop, "en") ? ` <span lang="ja">(${esc(shop.nameJa)})</span>` : ""}`;
-}
-
 const limitations = `<p>Coverage is incomplete. Reported locations are not independently checked recommendations. Check the shop before visiting; coordinates and current trading status may be inaccurate. Unknown menus, prices, hours and broth styles are not inferred.</p>
   <p>Generated Latin romanizations are approximate readings, not official English names. Original Japanese names are retained.</p>`;
 
-function cityLinks(shops: readonly Shop[]): string {
-  return `<nav aria-label="Featured cities"><ul>${CITIES.filter(c => shops.some(s => s.city === c.name)).map(c =>
-    `<li><a href="/city/${c.slug}/">${esc(c.name)} <span lang="ja">${esc(c.nameJa)}</span></a></li>`).join("")}</ul></nav>`;
-}
-
-/** What the open record itself says, plus derived hints that say where they came from. */
-function sourceFacts(shop: Shop): string {
-  const styles = (shop.styles ?? []).map(id => STYLE_BY_ID.get(id)?.label).filter(Boolean);
-  const facts = [
-    styles.length ? `Style suggested by the name: ${esc(styles.join(", "))}` : "",
-    shop.chain ? `Chain: ${esc(shop.chain)}` : "",
-    shop.address ? `Address (source record): ${shop.postcode ? `〒${esc(shop.postcode)} ` : ""}${esc(shop.address)}` : "",
-  ].filter(Boolean);
-  return facts.length ? `<p>${facts.join(" · ")}</p>` : "";
-}
-
-function placeText(shop: Shop): string {
-  if (isEditorial(shop)) return `${esc(shop.city)} · ${esc(shop.neighborhood)}`;
-  return `${esc(shop.localityRomanized ?? shop.city)}${shop.prefecture ? `, ${esc(shop.prefecture)}` : ""} · <span lang="ja">${esc(shop.neighborhood)}</span>`;
-}
-
-function directoryRows(shops: readonly Shop[], start: number): string {
-  return `<ol start="${start + 1}">${shops.map(shop => `<li class="source">
-    <h2><a href="${esc(shopPath(shop))}">${names(shop)}</a></h2>
-    <p>${placeText(shop)} · ${shop.lat.toFixed(5)}, ${shop.lng.toFixed(5)}</p>${sourceFacts(shop)}
-    <p>${isIndexableShop(shop) ? esc(shop.blurb) : "Open-data location only. Menu, prices, opening hours and current trading status have not been independently verified."}</p>
-    <p>${shop.verified ? "Verified on the ground." : "Unverified location."} ${provenance(shop)}</p>
-    ${!isIndexableShop(shop) ? "<p>Basic listing: the name opens this location on the interactive map, not a standalone shop page.</p>" : ""}
-  </li>`).join("")}</ol>`;
+function directoryRows(shops: readonly Shop[], _start: number): string {
+  return `<ol class="directory-grid" id="directory-results">${shops.map(shop => directoryCard(shop)).join("")}</ol>`;
 }
 
 export function listingPath(base: string, page: number): string {
@@ -98,18 +56,21 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
     const description = `Browse ${label} soup shop locations, ${start + 1}–${start + slice.length} of ${shops.length}. Names, reported coordinates, sources and verification status in Soupmap's Japan pilot.`;
     return {
       path, title: `${heading} · Soupmap`, description,
-      content: `<h1>${esc(heading)}</h1><p class="lede">${esc(description)}</p>
-        ${base !== "/catalog/" ? '<p><a href="/catalog/">All Japan catalog</a></p>' : ""}
-        ${cityLinks(all)}${limitations}
-        ${rangeNavigation}
-        <p>Showing ${start + 1}–${start + slice.length} of ${shops.length} locations.</p>
+      content: `<section class="directory-hero"><div><span class="directory-kicker">The soup directory / Japan, chapter one</span><h1 data-directory-heading>${label === 'Japan' ? 'Find your<br>next bowl.' : `${esc(label)}.<br>One bowl away.`}</h1><p class="lede">Good places, without getting lost in the map. Explore the guide, build your list, and get to know a place before you go.</p></div><aside class="directory-hero__aside"><strong data-directory-total>${shops.length.toLocaleString('en-US')}</strong><p>places to explore in <span data-directory-region>${esc(label)}</span>.</p><p>Soupmap selections sit alongside open-data listings. Every record shows its source.</p></aside></section>
+        <nav class="directory-cities" aria-label="Featured cities"><a href="/catalog/"${base === '/catalog/' ? ' aria-current="page"' : ''}>All Japan</a>${CITIES.filter(c=>all.some(s=>s.city===c.name)).map(c=>`<a href="/city/${c.slug}/"${base === `/city/${c.slug}/` ? ' aria-current="page"' : ''}>${esc(c.name)}<span lang="ja">${esc(c.nameJa)}</span></a>`).join('')}</nav>
+        <div id="directory-browser" data-city="${CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all'}" data-page="${page}">
+        ${directoryControls(CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all')}
+        <p class="directory-status" data-directory-status role="status"></p>
+        <div class="directory-result-bar"><p id="directory-count" aria-live="polite">Showing ${start + 1}–${start + slice.length} of ${shops.length.toLocaleString('en-US')} places</p><span>Selections first · More to discover below</span></div>
         ${directoryRows(slice, start)}
-        <nav aria-label="Catalog pages">
-          ${page > 1 ? `<a rel="prev" href="${listingPath(base, page - 1)}">← Previous page</a> · ` : ""}
+        <nav class="directory-pagination" id="directory-pagination" aria-label="Catalog pages">
+          ${page > 1 ? `<a rel="prev" href="${listingPath(base, page - 1)}">← Previous page</a>` : ""}
           <span>Page ${page} of ${total}</span>
-          ${page < total ? ` · <a rel="next" href="${listingPath(base, page + 1)}">Next page →</a>` : ""}
-          ${page > 2 ? ` · <a href="${base}">First page</a>` : ""}
-        </nav>`,
+          ${page < total ? `<a rel="next" href="${listingPath(base, page + 1)}">Next page →</a>` : ""}
+          ${page > 2 ? `<a href="${base}">First page</a>` : ""}
+        </nav></div>
+        <details class="directory-page-index"><summary>Browse the complete page index</summary>${rangeNavigation}</details>
+        <details class="directory-notice"><summary>About the data in this guide</summary>${limitations}</details>`,
       structuredData: {
         "@type": "CollectionPage", name: heading, description,
         mainEntity: { "@type": "ItemList", itemListElement: slice.filter(isIndexableShop).map(shop => ({
@@ -156,22 +117,7 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
     const city = CITIES.find(c => c.name === shop.city);
     pages.push({
       path, title: `${name} — ${shop.neighborhood}, ${shop.city} · Soupmap`, description,
-      content: `<nav aria-label="Breadcrumb"><a href="/catalog/">Japan catalog</a>${city ? ` / <a href="/city/${city.slug}/">${esc(city.name)}</a>` : ""}</nav>
-        <h1>${esc(name)}</h1><p lang="ja">${esc(shop.nameJa)}</p>
-        ${isRomanizedName(shop) ? "<p>Generated romanization: approximate reading, not an official English name.</p>" : ""}
-        <p class="lede">${esc(shop.blurb)}</p><p><strong>${esc(status)}</strong></p>
-        <section class="source" aria-labelledby="shop-facts"><h2 id="shop-facts">Shop facts</h2><dl>
-          <dt>City</dt><dd>${esc(shop.city)}</dd><dt>Neighborhood</dt><dd>${esc(shop.neighborhood)}</dd>
-          <dt>Broth style</dt><dd>${esc(BROTHS[shop.broth].label)}</dd>
-          <dt>Signature bowl</dt><dd>${esc(shop.signatureBowl)}</dd>
-          <dt>Price</dt><dd>${shop.priceYen ? `¥${shop.priceYen[0]}–¥${shop.priceYen[1]}` : "Not verified"}</dd>
-          <dt>Hours</dt><dd>${esc(shop.hours ?? "Not verified")}</dd>
-          <dt>Reported coordinates</dt><dd>${shop.lat}, ${shop.lng}</dd>
-        </dl></section>
-        <section class="block"><h2>Sources and verification</h2><p>${provenance(shop)}</p>
-          <p>Shop notes are Soupmap editorial content, not a copied review or rating. Menu notes and broth descriptions are not a guarantee of current offerings.</p>
-          ${limitations}</section>
-        <p><a href="/map/#${shop.slug}">Open on the Soupmap map</a> · <a href="${esc(shop.googleMapsUrl)}">Check location on Google Maps</a></p>`,
+      content: `<nav aria-label="Breadcrumb"><a href="/catalog/">Japan catalog</a>${city ? ` / <a href="/city/${city.slug}/">${esc(city.name)}</a>` : ""}</nav>${profileHtml(shop)}<p class="directory-status" data-directory-status role="status"></p>`,
       // Describe the document, not a verified business, rating, menu or opening-hours claim.
       structuredData: { "@type": "WebPage", name: `${name} — ${shop.city}`, description,
         about: { "@type": "Place", name, alternateName: shop.nameJa,
@@ -181,7 +127,7 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
   return pages;
 }
 
-export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: string | readonly string[]): string {
+export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: string | readonly string[], script?: string): string {
   const canonical = `${siteUrl}${page.path}`;
   const data: Record<string, unknown> = { "@context": "https://schema.org", ...structuredClone(page.structuredData), url: canonical };
   if (data["@type"] === "CollectionPage") {
@@ -199,10 +145,10 @@ export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: 
     <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}">
     <meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${esc(siteUrl)}/social/soupmap-world.png">
     <link rel="icon" href="/favicon.svg">${(typeof stylesheet === "string" ? [stylesheet] : stylesheet).map(href => `<link rel="stylesheet" href="${esc(href)}">`).join("")}
-    <script type="application/ld+json">${json}</script></head><body>
+    <script type="application/ld+json">${json}</script>${script ? `<script type="module" src="${esc(script)}"></script>` : ""}</head><body class="directory-page">
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="masthead"><p class="wordmark"><a href="/">soup<span class="wordmark__map">map</span></a></p><a class="back" href="/map/">← Back to the map</a></header>
-    <main id="main" class="page">${page.content}</main>
-    <footer class="foot"><p>Soupmap · A worldwide soup atlas, starting in Japan. <a href="/catalog/">Catalog</a> · <a href="/journal/">Journal</a> · <a href="/credits/">Data &amp; credits</a></p></footer>
+    <header class="masthead"><p class="wordmark"><a href="/">soup<span class="wordmark__map">map</span></a></p><nav class="directory-nav" aria-label="Main"><a href="/catalog/" aria-current="page">Directory</a><a href="/journal/">Journal</a><a href="/me/">Your Soupmap</a><a href="/map/">Explore map ↗</a><span id="directory-account"><a href="/account">My lists</a></span></nav></header>
+    <main id="main" class="page">${page.content}</main><dialog class="place-dialog" id="place-dialog" aria-label="Restaurant profile"><div class="place-dialog__bar"><a id="place-permalink" href="/catalog/">Open full profile ↗</a><button type="button" id="place-close" aria-label="Close restaurant profile">Close ×</button></div><div id="place-dialog-content"></div></dialog>
+    <footer class="foot"><p>Soupmap · A worldwide soup atlas, starting in Japan. <a href="/catalog/">Catalog</a> · <a href="/journal/">Journal</a> · <a href="/credits/">Data &amp; credits</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer>
     </body></html>`;
 }

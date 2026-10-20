@@ -75,7 +75,7 @@ All are read at **build time** (Vite inlines `VITE_*` values), so change them, t
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `VITE_GOOGLE_MAPS_KEY` | No | Google Maps Platform key (Map Tiles API + Street View Static API). Empty = GSI fallback. |
+| `VITE_GOOGLE_MAPS_KEY` | No | Google Maps Platform key (Map Tiles API + Maps JavaScript API + Places UI Kit). Empty = GSI fallback. |
 | `VITE_CF_ANALYTICS_TOKEN` | No | Cloudflare Web Analytics site token. Empty = no analytics script at all. |
 | `VITE_SITE_URL` | No | Public origin for canonical/OG tags, sitemap, and `/llms.txt`. Defaults to `https://soupmap.com`. |
 
@@ -89,12 +89,13 @@ are what protect it**. Don't skip step 5.
 1. **Create a project** at <https://console.cloud.google.com/> (e.g. "soupmap").
 2. **Turn on billing** for the project (Billing → Link a billing account). Map Tiles won't serve
    without it, even inside the free tier.
-3. **Enable the two APIs** (APIs & Services → Library):
+3. **Enable the services you use** (APIs & Services → Library):
    - **Map Tiles API** (Photorealistic 3D Tiles)
-   - **Street View Static API** ("Stand outside" panoramas)
+   - **Maps JavaScript API** (interactive Street View)
+   - **Places UI Kit** (on-demand restaurant photos, ratings, hours and reviews)
 4. **Create a key**: APIs & Services → Credentials → Create credentials → API key.
 5. **Restrict the key** (click the key → Edit):
-   - *API restrictions* → "Restrict key" → select **Map Tiles API** and **Street View Static API** only.
+   - *API restrictions* → "Restrict key" → select **Map Tiles API**, **Maps JavaScript API**, and **Places UI Kit**.
    - *Application restrictions* → **Websites** (HTTP referrers), add:
      ```
      soupmap.com/*
@@ -112,8 +113,8 @@ are what protect it**. Don't skip step 5.
 **What costs what.** Check current pricing at <https://mapsplatform.google.com/pricing/>.
 
 - 3D tiles are billed by Map Tiles API usage as people move around the map.
-- "Stand outside" checks availability with the Street View **metadata** endpoint, which Google
-  doesn't bill. Opening a panorama loads **six** Street View Static images (one per cube face).
+- “Street View” uses the Maps JavaScript Street View service and interactive panorama.
+- Restaurant lookup uses Places UI Kit search followed by details for the branch the visitor chooses. Browsing the directory does not issue Google restaurant requests. See [catalog setup](docs/catalog-discovery.md).
 
 **Attribution.** CesiumJS draws Google's logo and data credits automatically. Never hide or
 restyle them. The panels are laid out to stay above Cesium's credit bar. The Google logo image is
@@ -579,3 +580,7 @@ Not verifiable from the build sandbox, so on [CHECKLIST.md](CHECKLIST.md):
 - Live PLATEAU tilesets and their exact property names (`?debug=plateau` helps), and the GSI tile
   coverage over the sea at high zoom.
 - Safari (iOS/macOS) and Firefox: the code sticks to standard APIs, but test on real devices.
+
+## Directory and restaurant profiles
+
+The catalog is a standalone, progressively enhanced directory with 24 places per page, search, city/style filters, selections, saved places, and optional distance sorting. Every record has an in-site profile; the map is optional. Google restaurant information is loaded on demand through a themed Places UI Kit panel in both directory profiles and map cards. See [setup, data boundaries, and validation](docs/catalog-discovery.md).
