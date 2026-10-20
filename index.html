@@ -31,36 +31,26 @@
   <body>
     <a class="home-skip" href="#main">Skip to the atlas</a>
     <div class="home-page">
-      <header class="home-header">
-        <a class="home-brand" href="/" aria-label="Soupmap home"><span class="home-brand__seal" aria-hidden="true">湯</span><span>soupmap.</span></a>
-        <p class="home-header__edition">THE WORLD SOUP ATLAS<br />JAPAN / FIRST EDITION</p>
-        <nav class="home-nav" aria-label="Main navigation">
-          <a href="#how-it-works">How it works</a>
-          <a href="#field-notes">The shops</a>
-          <a href="/journal/">Journal</a>
-          <a href="/me/">Plan a trip</a>
-          <a class="home-nav__explore" href="/map/">Explore map <span aria-hidden="true">↗</span></a>
-          <span class="home-account" id="home-account">
-            <a class="home-nav__signin" href="/sign-in">Sign in</a>
-            <a class="home-nav__signup" href="/sign-up">Join Soupmap</a>
-          </span>
-        </nav>
-      </header>
+      <!--soupmap:header:home-->
 
       <main class="home-main" id="main">
         <section class="home-hero" aria-labelledby="hero-title">
           <div class="home-hero__copy">
             <p class="home-label"><span class="home-label__dot" aria-hidden="true"></span> WORLDWIDE ATLAS / STARTING IN JAPAN</p>
             <h1 id="hero-title">Find a bowl.<br /><span>Know the place.</span></h1>
-            <p class="home-hero__dek">Explore soup shops and the neighborhoods around them. A map for curious travelers, with Japan as the first chapter.</p>
+            <p class="home-hero__dek">A field guide to soup shops, starting in Japan. Find somewhere worth a detour. Save it for later. Make a day of it.</p>
+            <form class="home-find" action="/catalog/" method="get" role="search">
+              <label for="home-query">Where are you hungry?</label>
+              <div><input id="home-query" name="q" type="search" placeholder="A city, a shop, a craving…" maxlength="100" /><button type="submit" aria-label="Search places">Find a bowl <span aria-hidden="true">↗</span></button></div>
+            </form>
             <div class="home-hero__actions">
-              <a class="home-button home-button--solid" href="/map/">Explore the map <span aria-hidden="true">↗</span></a>
-              <a class="home-button home-button--accent" href="/sign-up">Make a shortlist <span aria-hidden="true">+</span></a>
+              <a class="home-button home-button--solid" href="/catalog/">Discover places <span aria-hidden="true">↗</span></a>
+              <a class="home-button" href="/map/">Explore the map <span aria-hidden="true">↗</span></a>
             </div>
-            <p class="home-hero__access">Public map. No account required.</p>
+            <p class="home-hero__access">Browse, save, and plan. No account required.</p>
             <div class="home-hero__index">
               <div><strong>Explore freely</strong><span>SHOPS + LOCAL CONTEXT</span></div>
-              <div><strong>Keep your own list</strong><span>OPTIONAL FREE ACCOUNT</span></div>
+              <div><strong>Keep your own list</strong><span>START ON THIS DEVICE</span></div>
             </div>
           </div>
           <figure class="home-preview" id="japan-trail">
@@ -81,9 +71,9 @@
             <h2 class="home-section-title" id="intro-title">A bowl is the start.<br />The place is the point.</h2>
           </div>
           <div class="home-how__steps">
-            <div class="home-step"><span class="home-step__number">01</span><h3>Find a shop</h3><p>Browse the public map. Start with a city, a neighborhood, or a soup that sounds good.</p></div>
+            <div class="home-step"><span class="home-step__number">01</span><h3>Find a shop</h3><p>Search the directory or explore the map. Start with a city, a neighborhood, or a soup that sounds good.</p></div>
             <div class="home-step"><span class="home-step__number">02</span><h3>Look around it</h3><p>Read the shop notes and local context. Get a sense of the street beyond the bowl.</p></div>
-            <div class="home-step"><span class="home-step__number">03</span><h3>Keep your picks</h3><p>Want to come back to a place? An optional free account gives you private personal lists.</p></div>
+            <div class="home-step"><span class="home-step__number">03</span><h3>Keep your picks</h3><p>Save places as you browse. Find them in Your Soupmap, build a trip, and mark the bowls you have tried.</p></div>
           </div>
         </section>
 
@@ -119,7 +109,7 @@
         </section>
       </main>
       <footer class="home-footer">
-        <a class="home-brand" href="/" aria-label="Soupmap home"><span class="home-brand__seal" aria-hidden="true">湯</span><span>soupmap.</span></a>
+        <!--soupmap:brand-->
         <p>A world of soups.<br />Starting in Japan.</p>
         <nav aria-label="Footer navigation"><a href="/map/">Explore</a><a href="/journal/">Journal</a><a href="/sign-up">Join</a><a href="/sign-in">Sign in</a><a href="/account">Account</a></nav>
         <div class="home-footer__note">

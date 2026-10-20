@@ -47,12 +47,10 @@
     <a class="skip-link" href="#shop-search">Skip to shop search</a>
 
     <main class="app" id="app">
-      <header class="masthead">
-        <a class="brand" href="/" aria-label="Soupmap home"><span class="brand__seal" aria-hidden="true">湯</span>soupmap<span class="brand__period">.</span></a>
-        <div class="masthead__caption">A WORLD OF SOUPS<span>Starting in Japan. Follow your appetite.</span></div>
-        <nav class="view-tabs" aria-label="Collection"><button id="explore-tab" aria-pressed="true">Explore</button><button id="saved-tab" aria-pressed="false">Saved <span id="saved-count">0</span></button><a class="journal-link" href="/journal/">Journal</a><a class="journal-link plan-link" href="/me/">Plan</a></nav>
-        <button id="surprise-btn" class="surprise-btn">Find me a bowl <span aria-hidden="true">↗</span></button>
-      </header>
+      <div class="masthead app-masthead">
+        <!--soupmap:header:map-->
+        <div class="map-workbar"><nav class="view-tabs" aria-label="Map collection"><button id="explore-tab" aria-pressed="true">All places</button><button id="saved-tab" aria-pressed="false">Saved <span id="saved-count">0</span></button></nav><a href="/catalog/">Browse as a list ↗</a><button id="surprise-btn" class="surprise-btn">Find me a bowl <span aria-hidden="true">↗</span></button></div>
+      </div>
       <div class="map" id="map" role="region" aria-label="Map of soup shops. Current listings are a Japan pilot.">
         <div class="map__canvas" id="cesium"></div>
         <div class="loader" id="loader" role="status">

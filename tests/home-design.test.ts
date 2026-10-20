@@ -1,3 +1,4 @@
+import { renderSiteShell } from "../src/render/shell.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync, statSync} from "node:fs";
@@ -6,7 +7,7 @@ import {shopBySlug} from "../src/data/shops.ts";
 import {homeCitiesHtml,homeCityHtml} from "../src/render/home.ts";
 import {assertNoConflictMarkers} from "../scripts/lib/source-integrity.ts";
 
-const homepageHtml=()=>readFileSync(new URL("../index.html",import.meta.url),"utf8")
+const homepageHtml=()=>renderSiteShell(readFileSync(new URL("../index.html",import.meta.url),"utf8"))
   .replace("<!--soupmap:home-cities-->",homeCitiesHtml())
   .replace("<!--soupmap:home-featured-->",homeCityHtml());
 
@@ -24,6 +25,8 @@ test("photo-led homepage keeps exploration public and all trail links real", asy
     for(const href of ["/map/","/sign-up","/sign-in"]) {
       assert.ok(document.querySelector(`a[href="${href}"]`),`Missing public navigation: ${href}`);
     }
+    assert.equal(document.querySelector("form[role=search]")?.getAttribute("action"),"/catalog/");
+    assert.equal(document.querySelector("#home-query")?.getAttribute("name"),"q");
     assert.ok(document.querySelector("#home-account"),"Keep the real account navigation mount");
     assert.equal(document.querySelectorAll("h1").length,1);
     for(const link of document.querySelectorAll<HTMLAnchorElement>('a[href^="/map/#"]')) {

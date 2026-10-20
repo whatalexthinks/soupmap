@@ -1,3 +1,4 @@
+import { profileUrl } from "../render/directory.ts";
 /**
  * The "Your Soupmap" dashboard: plan a trip, keep places, collect the passport, and
  * get suggestions from your own saves. Works without an account; better with one.
@@ -58,7 +59,7 @@ function styleLabel(shop: Shop): string {
 
 function shopLine(shop: Shop): string {
   const ja = shop.nameJa && shop.nameJa !== displayName(shop) ? ` <span class="me-ja" lang="ja">${esc(shop.nameJa)}</span>` : "";
-  return `<a class="me-shop" href="/map/#${esc(shop.slug)}">${esc(displayName(shop))}</a>${ja}`;
+  return `<a class="me-shop" href="${esc(profileUrl(shop))}">${esc(displayName(shop))}</a>${ja}`;
 }
 
 export class Dashboard {
@@ -239,7 +240,7 @@ export class Dashboard {
         <p class="me-label"><span class="me-dot" aria-hidden="true"></span>YOUR SOUPMAP / ${status}</p>
         <h1 id="me-title">Plan the bowls.<br><span>Keep the stories.</span></h1>
         <p class="me-dek">${esc(dek)}</p>
-        <div class="me-actions"><a class="me-button me-button--solid" href="#plan">Plan a trip <span aria-hidden="true">↓</span></a><a class="me-button" href="/map/">Open the map <span aria-hidden="true">↗</span></a></div>
+        <div class="me-actions"><a class="me-button me-button--solid" href="#plan">Plan a trip <span aria-hidden="true">↓</span></a><a class="me-button" href="/catalog/">Discover places <span aria-hidden="true">↗</span></a></div>
       </div>
       <dl class="me-stats">
         <div><dt>Saved</dt><dd>${saved.length}</dd></div>
@@ -309,7 +310,9 @@ export class Dashboard {
   }
 
   private tripsSection(): string {
-    if (!this.data.trips.length) return "";
+    if (!this.data.trips.length) return `<section id="trips" class="me-section" aria-labelledby="trips-title">
+      <header class="me-section__head"><p class="me-label">02 / YOUR TRIPS</p><h2 id="trips-title">A day worth keeping.</h2></header>
+      <div class="me-empty"><p>Your saved trips will live here. Choose a city in the planner, then save the route when it feels right.</p><a class="me-button" href="#plan">Plan your first trip ↑</a></div></section>`;
     const trip = (t: SavedTrip) => {
       const stops = t.days.flatMap(d => d.stops);
       return `<li class="me-trip"><div><h3>${esc(t.name)}</h3>
@@ -333,7 +336,7 @@ export class Dashboard {
       <a class="me-link" href="/account">Manage lists ↗</a></div>` : "";
     if (!saved.length) {
       return `<section id="places" class="me-section" aria-labelledby="places-title">${head}
-        <div class="me-empty"><p>Nothing saved yet. Use the bookmark on any shop in the map, save stops from a plan above, or start with a chapter:</p>
+        <div class="me-empty"><a class="me-button me-button--solid" href="/catalog/">Discover your first place ↗</a><p>Nothing saved yet. Save a place in Discover or on the map, save stops from a plan above, or start with a chapter:</p>
         <ul class="me-chapters">${HUBS.map(h => `<li><a href="/map/?hub=${esc(h.slug)}"><span lang="ja">${esc(h.kanji)}</span><strong>${esc(h.title)}</strong><small>${h.stops.length} places · ${esc(h.subtitle)}</small></a></li>`).join("")}</ul></div>${lists}</section>`;
     }
     const shown = saved.slice(0, 40);

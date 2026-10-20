@@ -1,16 +1,17 @@
+@import "./site-shell.css";
 @import "@fontsource-variable/space-grotesk";
 
-/* Your Soupmap (/me/): the home page's paper, ink and lime, laid out as a working page. */
+/* Your Soupmap uses the shared paper, ink and clay palette. */
 :root {
-  --me-paper: #eeeee7;
-  --me-surface: #e2e4da;
-  --me-card: #f6f6f0;
-  --me-ink: #252c26;
-  --me-muted: #596052;
-  --me-line: #b9bfb1;
-  --me-accent: #c9de78;
-  --me-green: #61792d;
-  --me-focus: #466229;
+  --me-paper: var(--paper);
+  --me-surface: var(--stone);
+  --me-card: var(--paper-light);
+  --me-ink: var(--soot);
+  --me-muted: var(--muted);
+  --me-line: var(--rule);
+  --me-accent: #dfbda0;
+  --me-green: var(--clay);
+  --me-focus: var(--clay-dark);
   --me-sans: "Space Grotesk Variable", "Noto Sans JP", sans-serif;
   --me-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
@@ -56,7 +57,7 @@ body { margin: 0; background: var(--me-paper); }
 .me-button:hover { transform: translateY(-2px); background: var(--me-accent); }
 .me-button:active { transform: none; }
 .me-button--solid { background: var(--me-ink); color: var(--me-paper) !important; }
-.me-button--solid:hover { background: #3b4832; }
+.me-button--solid:hover { background: var(--clay-dark); }
 .me-button span { font-size: 18px; font-weight: 400; }
 .me-link { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--me-muted); font: 13px var(--me-sans); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .me-link:hover { color: var(--me-ink); }
@@ -77,7 +78,7 @@ body { margin: 0; background: var(--me-paper); }
 /* Hero */
 .me-hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 6%; align-items: end; padding: 44px 0 32px; border-bottom: 1px solid var(--me-ink); }
 .me-hero h1 { margin: 20px 0 18px; font-size: clamp(40px, 5vw, 68px); font-weight: 550; line-height: 1.04; letter-spacing: -3px; }
-.me-hero h1 span { color: #617047; }
+.me-hero h1 span { color: var(--clay); }
 .me-dek { max-width: 520px; margin-bottom: 24px !important; color: var(--me-muted); font-size: 17px; line-height: 1.7; }
 .me-stats { display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid var(--me-ink); background: var(--me-surface); }
 .me-stats div { padding: 16px 18px; border-bottom: 1px solid var(--me-line); }

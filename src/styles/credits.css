@@ -1,3 +1,4 @@
+@import "./site-shell.css";
 /* The /credits page: a calm, readable document in the Soupmap palette. */
 @import "@fontsource-variable/instrument-sans";
 @import "./tokens.css";
