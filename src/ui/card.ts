@@ -1,3 +1,5 @@
+import { googlePanelShell, profileUrl } from "../render/directory.ts";
+import { mountGooglePlace } from "./google-place.ts";
 import { trackEvent } from "../analytics.ts";
 /** The shop card: names, broth, signature bowl, facts, blurb, media and actions. */
 import { BROTHS } from "../data/broths.ts";
@@ -67,6 +69,7 @@ function provenanceHtml(shop: Shop): string {
 export class ShopCard {
   private readonly el = $("#card");
   private shop: Shop | null = null;
+  private disposeGoogle: (() => void) | undefined;
   private readonly history: HistorySection;
 
   constructor(private readonly handlers: CardHandlers) {
@@ -108,6 +111,7 @@ export class ShopCard {
   }
 
   open(shop: Shop, options: { focus: boolean; buildingAvailable: boolean; saved: boolean; visited?: boolean }): void {
+    this.disposeGoogle?.();
     this.shop = shop;
     const broth = BROTHS[shop.broth];
     this.el.style.setProperty("--broth", broth.color);
@@ -144,6 +148,8 @@ export class ShopCard {
             <a class="street-view-link" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=${shop.lat},${shop.lng}" target="_blank" rel="noopener">Open Street View in Google Maps ↗</a>
             <p id="street-view-status" class="card__fine" role="status">Checking nearby outdoor imagery…</p>
           </div>
+          <a class="card__profile-link" href="${esc(profileUrl(shop))}">Open full place profile ↗</a>
+          ${googlePanelShell()}
           <p class="blurb">${esc(shop.blurb)}</p>
           ${isEditorial(shop) ? "" : `<section class="card__contact" aria-label="Contact details" aria-busy="true"><p class="card__fine">Loading contact details…</p></section>`}
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
@@ -158,6 +164,7 @@ export class ShopCard {
           <p class="card__fine">${provenanceHtml(shop)}<a href="/credits/">${esc(t("credits"))}</a></p>
         </div>
       </div>`;
+    this.disposeGoogle = mountGooglePlace(this.el.querySelector<HTMLElement>(".google-place-panel")!, shop);
     const historyHost = this.el.querySelector<HTMLElement>(".card__history");
     if (historyHost) {
       this.history.attach(historyHost);
@@ -186,6 +193,7 @@ export class ShopCard {
   }
 
   close(): void {
+    this.disposeGoogle?.();this.disposeGoogle=undefined;
     this.shop = null;
     this.history.close();
     this.el.hidden = true;

@@ -1,0 +1,10 @@
+.google-place-panel{border:1px solid var(--rule);background:var(--paper);padding:20px;margin:24px 0;color:var(--soot);min-width:0}
+.google-place-intro h3{font-family:var(--font-display);font-size:23px;font-weight:550;line-height:1.15;letter-spacing:-.035em;margin:10px 0}
+.google-place-intro p{font-size:13px;color:var(--muted);line-height:1.65;margin:12px 0 18px}
+.google-place-panel [data-google-load]{min-height:44px;padding:11px 16px;background:var(--soot);color:var(--paper-light);border:1px solid var(--soot);font:inherit;font-size:12px;border-radius:0;cursor:pointer}
+.google-place-panel [data-google-load]:disabled{opacity:.6;cursor:wait}.google-place-panel [data-google-status]{font-size:12px;line-height:1.6;color:var(--muted);margin:14px 0 0}.google-place-panel [data-google-content]:not(:empty){margin-top:18px}.google-place-back{display:block;min-height:44px;padding:10px 0;border:0;background:none;font-size:12px;color:var(--clay);text-decoration:underline}
+/* Documented theme tokens only. Attribution, reviews and media remain native. */
+.google-place-panel gmp-place-search,.google-place-panel gmp-place-details{display:block;width:100%;min-width:0;border:0;border-radius:0;color-scheme:light;--gmp-mat-color-surface:var(--paper-light);--gmp-mat-color-on-surface:var(--soot);--gmp-mat-color-on-surface-variant:var(--muted);--gmp-mat-color-primary:var(--clay-dark);--gmp-mat-color-secondary-container:var(--stone);--gmp-mat-color-on-secondary-container:var(--soot);--gmp-mat-color-neutral-container:var(--stone);--gmp-mat-color-on-neutral-container:var(--soot);--gmp-mat-color-outline-decorative:var(--rule);--gmp-mat-font-family:var(--font-body);--gmp-mat-font-display-small:500 26px/1.15 var(--font-body);--gmp-mat-font-body-medium:400 14px/1.6 var(--font-body)}
+.card__body>.google-place-panel{margin:22px -8px}.card__profile-link{font-size:12px;display:inline-block;margin:10px 0}
+@media(max-width:380px){.google-place-panel{padding:12px}.card__body>.google-place-panel{margin-left:-12px;margin-right:-12px}}
+.google-place-legal{font-size:10px;margin:15px 0 0;color:var(--muted)}.google-place-legal a{color:var(--muted)}

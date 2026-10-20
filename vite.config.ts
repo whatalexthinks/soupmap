@@ -44,8 +44,10 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   const articles = loadJournal();
   const journal = journalPages(articles);
   const journalIndex = journal.find(page => page.path === "/journal/")!;
+  let directoryChunk: string;
   return {
     name: "soupmap-html",
+    buildStart() { directoryChunk = this.emitFile({type:"chunk", id:resolve("src/catalog-entry.ts"), name:"directory"}); },
     // Run after Vite's HTML emitter so the compiled credits CSS URLs exist.
     enforce: "post",
     configureServer(server) {
@@ -75,7 +77,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
           return;
         }
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        res.end(catalogDocument(page, siteUrl, "/src/styles/credits.css"));
+        res.end(catalogDocument(page, siteUrl, "/src/styles/credits.css", "/src/catalog-entry.ts"));
       });
     },
     transformIndexHtml(html) {
@@ -107,7 +109,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
       if (!stylesheets.length) throw new Error("Missing compiled credits stylesheet for catalog documents.");
       for (const page of documents) {
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`,
-          source: catalogDocument(page, siteUrl, stylesheets) });
+          source: catalogDocument(page, siteUrl, stylesheets, directoryChunk ? `/${this.getFileName(directoryChunk)}` : undefined) });
       }
       // The journal pages reuse the stylesheet Vite compiled for journal/index.html.
       const journalShell = bundle["journal/index.html"];
@@ -189,6 +191,8 @@ export default defineConfig(({ mode }) => {
           map: resolve(import.meta.dirname, "map/index.html"),
           account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
+          privacy: resolve(import.meta.dirname, "privacy/index.html"),
+          terms: resolve(import.meta.dirname, "terms/index.html"),
           moderate: resolve(import.meta.dirname, "moderate/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),
           me: resolve(import.meta.dirname, "me/index.html"),

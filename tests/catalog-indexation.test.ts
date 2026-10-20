@@ -38,8 +38,7 @@ test("every national record is visible in paginated HTML without filter interact
   const national = pages.filter(p => /^\/catalog\/(?:page\/\d+\/)?$/.test(p.path));
   assert.equal(national.length, Math.ceil(ORDERED_SHOPS.length / CATALOG_PAGE_SIZE));
   const rendered = national.map(p => p.content).join("");
-  const links = [...rendered.matchAll(/<h2><a href="(?:\/shop\/([^/]+)\/|\/map\/#([^"]+))"/g)]
-    .map(m => m[1] || m[2]);
+  const links = [...rendered.matchAll(/data-record="([^"]+)"/g)].map(m=>m[1]!);
   assert.equal(links.length, ORDERED_SHOPS.length);
   const slugs = new Set(links);
   assert.equal(slugs.size, ORDERED_SHOPS.length);
@@ -80,7 +79,7 @@ test("ordinary homepage links reach every directory within three clicks", () => 
   const queue = ["/"];
   for (let index = 0; index < queue.length; index++) {
     const path = queue[index]!;
-    for (const match of routes.get(path)!.matchAll(/href="(\/(?:shop|city|catalog)\/[^"#]*)"/g)) {
+    for (const match of routes.get(path)!.matchAll(/href="(\/(?:shop|city|catalog)\/[^"?#]*)"/g)) {
       const target = match[1]!;
       assert.ok(routes.has(target), `No dead ordinary links: ${target}`);
       if (!depths.has(target)) {
@@ -107,7 +106,7 @@ test("range boundaries handle small, exact, and partial directories without empt
     assert.equal(hubs.length, total > CATALOG_RANGE_SIZE ? Math.ceil(total / CATALOG_RANGE_SIZE) : 0);
     const routes = new Set(generated.map(p => p.path));
     for (const page of [...listings, ...hubs]) {
-      for (const match of page.content.matchAll(/href="(\/catalog\/[^"#]*)"/g)) {
+      for (const match of page.content.matchAll(/href="(\/catalog\/[^"?#]*)"/g)) {
         assert.ok(routes.has(match[1]!), `${count}: ${match[1]}`);
       }
     }
@@ -130,7 +129,7 @@ test("all indexable documents have unique metadata and are reachable by ordinary
     visited.add(path);
     const page = routes.get(path);
     assert.ok(page, `Crawlable route exists: ${path}`);
-    for (const match of page.content.matchAll(/href="(\/(?:shop|city|catalog)\/[^"#]*)"/g)) {
+    for (const match of page.content.matchAll(/href="(\/(?:shop|city|catalog)\/[^"?#]*)"/g)) {
       assert.ok(routes.has(match[1]!), `No dead static links: ${match[1]}`);
       if (!visited.has(match[1]!)) pending.push(match[1]!);
     }
