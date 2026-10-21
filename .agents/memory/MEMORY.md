@@ -11,6 +11,7 @@
 - [Public home and accounts](public-home-and-accounts.md) — explain and promote signup without gating the map; private lists sync, guest-save imports stay explicit.
 - [Journal policy](journal-policy.md) — personal voice, factual, no invented experiences; follow content/journal/README.md.
 - [Lockfile registry](lockfile-registry.md) — keep package-lock.json on registry.npmjs.org, never Replit's internal mirror.
+- [Auth proxy dependencies](auth-proxy-dependencies.md) — the fixed Clerk proxy does not need glob matching; avoid restoring an unpatched dependency chain.
 - [Homepage visual direction](homepage-visual-direction.md) — Japanese minimalism + brutalism; real app screenshots over artificial map and alley imagery.
 - [Preview routing](preview-routing.md) — check the exact Preview address and the development WebSocket separately; HTTP 200 alone is insufficient.
 - [Your Soupmap dashboard](dashboard-policy.md) — /me/ works without an account, suggests from your own data only, and reads auth only through /api/me.
