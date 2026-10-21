@@ -8,6 +8,9 @@ import sirv from "sirv";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware.ts";
 import { personalApi } from "./api.ts";
 import { ListStore } from "./lists.ts";
+import { recipesApi } from "./recipes-api.ts";
+import { ReviewStore } from "./reviews.ts";
+import { readdirSync } from "node:fs";
 
 const app = express();
 app.disable("x-powered-by");
@@ -22,6 +25,9 @@ app.use("/api", clerkMiddleware((req) => ({
     process.env.CLERK_PUBLISHABLE_KEY,
   ),
 })));
+// Recipe reviews are public to read, so they mount before the account-only API.
+const recipeSlugs = new Set(readdirSync(resolve("content/recipes")).filter(name => name.endsWith(".md") && name !== "README.md").map(name => name.slice(0, -3)));
+app.use("/api/recipes", recipesApi(new ReviewStore(), recipeSlugs));
 app.use("/api", personalApi(new ListStore()));
 app.use("/api", (_req, res) => { res.status(404).json({error:"Not found."}); });
 

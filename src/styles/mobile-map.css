@@ -544,8 +544,7 @@
   }
 }
 
-/* Tab labels never break mid-label ("Saved" over its count). The Plan link (/me/) fits on
-   phones from 380px; narrower, the panel footer carries it. */
+/* Tab labels never break mid-label ("Saved" over its count). */
 .view-tabs button,
 .view-tabs a {
   white-space: nowrap;
@@ -560,11 +559,5 @@
 @media (max-width: 760px) {
   .view-tabs {
     gap: 12px;
-  }
-}
-
-@media (max-width: 379px) {
-  .view-tabs .plan-link {
-    display: none;
   }
 }

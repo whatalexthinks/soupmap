@@ -1,10 +1,11 @@
 /** The same identity and destinations on every page, rendered before JavaScript. */
-export type SiteSection = 'home' | 'discover' | 'map' | 'me' | 'journal' | 'account' | 'info';
+export type SiteSection = 'home' | 'discover' | 'map' | 'me' | 'journal' | 'recipes' | 'account' | 'info';
 const destinations = [
   ['discover', '/catalog/', 'Discover'],
   ['map', '/map/', 'Map'],
   ['me', '/me/', 'Your Soupmap'],
   ['journal', '/journal/', 'Journal'],
+  ['recipes', '/recipes/', 'Recipes'],
 ] as const;
 export function brandHtml(): string {
   return '<a class="site-brand" href="/" aria-label="Soupmap home"><span class="site-brand__seal" aria-hidden="true">湯</span><span>soupmap<span class="site-brand__dot">.</span></span></a>';

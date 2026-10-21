@@ -234,7 +234,7 @@ export function journalBody(page: JournalPage): string {
       <div class="j-wave" aria-hidden="true"></div>
       <p class="j-foot__ja" lang="ja">${esc(JOURNAL_SUBTITLE_JA)}</p>
       <p>${esc(JOURNAL_NAME)} · ${esc(JOURNAL_SUBTITLE)}</p>
-      <p class="j-foot__links"><a href="/journal/">Journal</a><a href="/map/">The map</a><a href="/catalog/">Japan catalog</a><a href="/journal/feed.xml">RSS</a><a href="/credits/">Data &amp; credits</a></p>
+      <p class="j-foot__links"><a href="/journal/">Journal</a><a href="/recipes/">Recipes</a><a href="/map/">The map</a><a href="/catalog/">Japan catalog</a><a href="/journal/feed.xml">RSS</a><a href="/credits/">Data &amp; credits</a></p>
     </footer>`;
 }
 

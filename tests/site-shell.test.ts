@@ -6,6 +6,8 @@ import { renderSiteShell, siteHeader } from '../src/render/shell.ts';
 import { catalogDocument, catalogPages } from '../src/render/catalog.ts';
 import { journalBody, journalPages } from '../src/render/journal.ts';
 import { loadJournal } from '../src/journal/load.ts';
+import { loadRecipes } from '../src/recipes/load.ts';
+import { recipePages, recipesBody } from '../src/render/recipes.ts';
 import { CURATED_SHOPS } from '../src/data/shops.ts';
 import { directoryState } from '../src/catalog/state.ts';
 
@@ -13,7 +15,9 @@ test('static and generated routes share one identity and all four destinations b
   const documents = ['index.html','map/index.html','me/index.html','account/index.html','credits/index.html','privacy/index.html','terms/index.html','moderate/index.html']
     .map(path => renderSiteShell(readFileSync(new URL(`../${path}`,import.meta.url),'utf8')));
   for (const page of catalogPages(CURATED_SHOPS)) documents.push(catalogDocument(page,'https://soupmap.example','/styles.css'));
-  for (const page of journalPages(loadJournal())) documents.push(journalBody(page));
+  const articles = loadJournal();
+  for (const page of journalPages(articles)) documents.push(journalBody(page));
+  for (const page of recipePages(loadRecipes(new Set(articles.map(a => a.slug))))) documents.push(recipesBody(page));
   const window = new Window();
   try {
     for (const html of documents) {
@@ -21,7 +25,7 @@ test('static and generated routes share one identity and all four destinations b
       const nav = window.document.querySelectorAll('.site-nav');
       assert.equal(nav.length,1);
       assert.deepEqual([...nav[0]!.querySelectorAll('a')].map(a=>[a.getAttribute('href'),a.textContent]),[
-        ['/catalog/','Discover'],['/map/','Map'],['/me/','Your Soupmap'],['/journal/','Journal'],
+        ['/catalog/','Discover'],['/map/','Map'],['/me/','Your Soupmap'],['/journal/','Journal'],['/recipes/','Recipes'],
       ]);
       const brand = window.document.querySelector('.site-header .site-brand');
       assert.equal(brand?.getAttribute('href'),'/');

@@ -10,6 +10,8 @@ import { catalogDocument, catalogPages } from "./src/render/catalog.ts";
 import { esc } from "./src/ui/dom.ts";
 import { loadJournal } from "./src/journal/load.ts";
 import { journalBody, journalDocument, journalFeed, journalHead, journalPages } from "./src/render/journal.ts";
+import { loadRecipes } from "./src/recipes/load.ts";
+import { recipePages, recipesBody, recipesDocument, recipesHead } from "./src/render/recipes.ts";
 import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
 
 const JOURNAL_MODULE = "virtual:soupmap-journal";
@@ -45,6 +47,9 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   const articles = loadJournal();
   const journal = journalPages(articles);
   const journalIndex = journal.find(page => page.path === "/journal/")!;
+  const recipes = loadRecipes(new Set(articles.map(a => a.slug)));
+  const recipeSite = recipePages(recipes);
+  const recipesIndex = recipeSite.find(page => page.path === "/recipes/")!;
   let directoryChunk: string;
   let building = false;
   return {
@@ -56,8 +61,15 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
     configureServer(server) {
       const routes = new Map(documents.map(page => [page.path, page]));
       const journalRoutes = new Map(journal.filter(page => page !== journalIndex).map(page => [page.path, page]));
+      const recipeRoutes = new Map(recipeSite.filter(page => page !== recipesIndex).map(page => [page.path, page]));
       server.middlewares.use((req, res, next) => {
         const url = new URL(req.url || "/", "http://vite.internal");
+        const recipePage = recipeRoutes.get(url.pathname);
+        if (recipePage) {
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(recipesDocument(recipePage, siteUrl, recipes, { styles: ["/src/styles/recipes.css"], scripts: ["/src/recipes/main.ts"] }));
+          return;
+        }
         const journalPage = journalRoutes.get(url.pathname);
         if (journalPage) {
           res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -88,6 +100,8 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         .replaceAll("%SITE_URL%", siteUrl)
         .replace("<!--soupmap:journal-head-->", journalHead(journalIndex, siteUrl, articles))
         .replace("<!--soupmap:journal-body-->", journalBody(journalIndex))
+        .replace("<!--soupmap:recipes-head-->", recipesHead(recipesIndex, siteUrl, recipes))
+        .replace("<!--soupmap:recipes-body-->", recipesBody(recipesIndex))
         .replace("<!--soupmap:home-cities-->", homeCitiesHtml())
         .replace("<!--soupmap:home-featured-->", homeCityHtml())
         .replace("<!--soupmap:chips-->", brothChipsHtml(ORDERED_SHOPS))
@@ -125,7 +139,19 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
           source: journalDocument(page, siteUrl, articles, journalStyles) });
       }
       this.emitFile({ type: "asset", fileName: "journal/feed.xml", source: journalFeed(articles, siteUrl) });
-      const pages = ["/", "/map/", "/me/", "/credits/", ...journal.map(page => page.path), ...documents.map(page => page.path)];
+      // Recipe pages reuse the stylesheet and script Vite compiled for recipes/index.html.
+      const recipesShell = bundle["recipes/index.html"];
+      const shell = recipesShell?.type === "asset" ? String(recipesShell.source) : "";
+      const recipeAssets = {
+        styles: [...shell.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(match => match[1]!),
+        scripts: [...shell.matchAll(/<script[^>]*type="module"[^>]*src="([^"]+)"/g)].map(match => match[1]!),
+      };
+      if (!recipeAssets.styles.length || !recipeAssets.scripts.length) throw new Error("Missing compiled recipes stylesheet or script.");
+      for (const page of recipeSite) {
+        if (page === recipesIndex) continue;
+        this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`, source: recipesDocument(page, siteUrl, recipes, recipeAssets) });
+      }
+      const pages = ["/", "/map/", "/me/", "/credits/", ...recipeSite.map(page => page.path), ...journal.map(page => page.path), ...documents.map(page => page.path)];
       this.emitFile({
         type: "asset",
         fileName: "sitemap.xml",
@@ -150,6 +176,7 @@ ${pages.map((p) => `  <url><loc>${esc(siteUrl + p)}</loc></url>`).join("\n")}
 ## Public resources
 
 - [Atlas](${siteUrl}/): Public homepage with an initial shop list; interactive map and search explore more listings.
+- [Soupmap Recipes](${siteUrl}/recipes/): ${recipes.length} soup recipes from Japan and around the world, browsable by region, kind of soup, diet and time. Each recipe page carries schema.org Recipe data. Reader reviews and tips, where present, load separately and are not part of the static pages.
 - [Soupmap Journal](${siteUrl}/journal/): ${articles.length} editorial essays on ramen styles, noodles, Japanese soups, ingredients, history, travel etiquette and soups of the world. Each article lists further reading. RSS: ${siteUrl}/journal/feed.xml
 - [Japan catalog](${siteUrl}/catalog/): Paginated, crawlable nationwide locations and featured city directories. Substantive editorial records have standalone shop pages; basic open-data records do not.
 - [Credits and source limitations](${siteUrl}/credits/): Data sources, attribution, licenses, and verification context.
@@ -198,6 +225,7 @@ export default defineConfig(({ mode }) => {
           terms: resolve(import.meta.dirname, "terms/index.html"),
           moderate: resolve(import.meta.dirname, "moderate/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),
+          recipes: resolve(import.meta.dirname, "recipes/index.html"),
           me: resolve(import.meta.dirname, "me/index.html"),
         },
       },

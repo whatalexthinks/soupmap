@@ -79,6 +79,14 @@
 - The sign-up and sign-in buttons on it link to `/sign-up` and `/sign-in`. Keep those routes, or update `src/me/view.ts`.
 - `/map/?open=passport` (or `?open=chapters`) opens the map with that dialog.
 
+## Recipes (/recipes/)
+
+- Recipes are Markdown in `content/recipes/` (guide: `content/recipes/README.md`); the build validates them, including diet tags against ingredients. Never invent experiences or copy recipes.
+- **Database:** apply `migrations/002_recipe_reviews.sql` to the development database (Replit Publish carries the schema diff to production). Until it exists, review endpoints answer 503 and the pages say reviews are unavailable.
+- **Moderators:** set the secret `RECIPE_MODERATORS` to a comma-separated list of Clerk user ids. Moderators get Hide/Restore on each review and `GET /api/recipes/moderation`.
+- Reviews are public to read (mounted at `/api/recipes` before the account-only `/api` router); writing needs a signed-in Clerk session. The page's sign-in links add `?redirect_url=/recipes/<slug>/#reviews` so a reader returns to the recipe; keep that working if the auth pages change.
+- **Photos:** real, freely licensed photos only, never stock or generated images. `npm run photos:recipes` checks each licence on Wikimedia Commons and records the credit (see README 3.10). Replit has internet access, so it can run here.
+
 ## Lockfile
 
 - Keep every `resolved` URL in `package-lock.json` on `https://registry.npmjs.org/`. Installing inside Replit can rewrite them to `http://package-firewall.replit.internal/...`, which breaks `npm ci` everywhere else (Cloudflare Pages, CI, fresh clones). A test (`tests/catalog-quality.test.ts`) fails if that happens; fix it with `sed -i 's#http://package-firewall.replit.internal/npm/#https://registry.npmjs.org/#g' package-lock.json`.
