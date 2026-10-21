@@ -426,7 +426,7 @@ function structuredData(page: RecipePage, siteUrl: string, recipes: readonly Rec
 
 export function recipesHead(page: RecipePage, siteUrl: string, recipes: readonly Recipe[]): string {
   const url = `${siteUrl}${page.path}`;
-  const image = page.recipe?.photo ? `${siteUrl}${page.recipe.photo.src}` : `${siteUrl}${page.image ?? "/social/soupmap-world.png"}`;
+  const image = page.recipe?.photo ? `${siteUrl}${page.recipe.photo.src}` : `${siteUrl}${page.image ?? "/social/soupmap-share.png"}`;
   const json = structuredData(page, siteUrl, recipes).map(data =>
     `<script type="application/ld+json"${data["@type"] === "Recipe" ? " data-recipe-schema" : ""}>${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`).join("");
   return `<meta charset="utf-8" />

@@ -28,3 +28,31 @@ mtime_ms = 1792243563146
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:98ee5556-4593-4077-8db7-66516487e138/061a4a3a-726a-43a5-9c32-821d04e5d8bc/f984b390-6e29-4ed8-8ca5-d2082ac4da44"
 storage_version_token = "1792244021131771"
 content_type = "image/png"
+
+[[outputs]]
+id = "WAlRS2Pr4GVRKfJPqIkrz"
+uri = "file://public/social/soupmap-share.png"
+type = "image"
+title = "New Soupmap link preview"
+description = "1200 × 630 sharing image using your logo and the actual Tokyo map."
+logical_id = "b099d6fb-391c-4441-ad96-429f8effa77a"
+content_hash = "sha256:16546cf1e4b8721f5d297795a23022511f97f7bfb7cb38fc38be1dd412d24ed2"
+size = 220082
+mtime_ms = 1792618809860
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:98ee5556-4593-4077-8db7-66516487e138/b099d6fb-391c-4441-ad96-429f8effa77a/49c2cb49-a4c3-4a86-a2ca-92eb45eecee0"
+storage_version_token = "1792618868437661"
+content_type = "image/png"
+
+[[outputs]]
+id = "NHdXNxhtoswvHXVHii4Sw"
+uri = "file://public/icon-512.png"
+type = "image"
+title = "Updated Soupmap app icon"
+description = "Your black logo on a warm background, with browser and home-screen sizes added to the app."
+logical_id = "c56522f2-bd42-4516-aa54-6a05374dae7b"
+content_hash = "sha256:141680ce8b91b68e63392565a80ec54ea9efc2d2fdaf255e581eca57c7ab2434"
+size = 35384
+mtime_ms = 1792618811024
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:98ee5556-4593-4077-8db7-66516487e138/c56522f2-bd42-4516-aa54-6a05374dae7b/69a60cfd-7da7-4822-9bb9-7e84c2f1df6f"
+storage_version_token = "1792618869065210"
+content_type = "image/png"

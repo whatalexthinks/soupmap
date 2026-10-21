@@ -156,10 +156,10 @@ export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: 
     <link rel="canonical" href="${esc(canonical)}"><meta name="robots" content="${esc(page.robots ?? "index,follow")}">
     <meta property="og:type" content="website"><meta property="og:site_name" content="Soupmap">
     <meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}">
-    <meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(siteUrl)}${esc(page.image ?? "/social/soupmap-world.png")}">
+    <meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(siteUrl)}${esc(page.image ?? "/social/soupmap-share.png")}">
     <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}">
-    <meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${esc(siteUrl)}${esc(page.image ?? "/social/soupmap-world.png")}">
-    <link rel="icon" href="/favicon.svg">${(typeof stylesheet === "string" ? [stylesheet] : stylesheet).map(href => `<link rel="stylesheet" href="${esc(href)}">`).join("")}
+    <meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${esc(siteUrl)}${esc(page.image ?? "/social/soupmap-share.png")}">
+    <link rel="icon" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">${(typeof stylesheet === "string" ? [stylesheet] : stylesheet).map(href => `<link rel="stylesheet" href="${esc(href)}">`).join("")}
     <script type="application/ld+json">${json}</script>${script ? `<script type="module" src="${esc(script)}"></script>` : ""}</head><body class="directory-page">
     <a class="skip-link" href="#main">Skip to content</a>
     ${siteHeader("discover", "directory-account")}

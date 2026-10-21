@@ -176,7 +176,7 @@ function structuredData(page: JournalPage, siteUrl: string, articles: readonly A
     return [{
       "@context": "https://schema.org", "@type": "BlogPosting", headline: page.article.title, description: page.article.dek,
       datePublished: page.article.date, dateModified: page.article.date, inLanguage: "en", articleSection: category.name,
-      wordCount: page.article.words, url, mainEntityOfPage: url, image: `${siteUrl}/social/soupmap-world.png`,
+      wordCount: page.article.words, url, mainEntityOfPage: url, image: `${siteUrl}/social/soupmap-share.png`,
       author: organization(siteUrl), publisher: organization(siteUrl),
       isPartOf: { "@type": "Blog", name: JOURNAL_NAME, url: `${siteUrl}/journal/` },
     }, breadcrumbs(crumbs, siteUrl)];
@@ -205,7 +205,7 @@ function breadcrumbs(items: { name: string; path: string }[], siteUrl: string): 
 /** <head> contents after the stylesheet: metadata, social cards, feed and structured data. */
 export function journalHead(page: JournalPage, siteUrl: string, articles: readonly Article[]): string {
   const url = `${siteUrl}${page.path}`;
-  const image = `${siteUrl}/social/soupmap-world.png`;
+  const image = `${siteUrl}/social/soupmap-share.png`;
   const json = structuredData(page, siteUrl, articles).map(data =>
     `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`).join("");
   return `<meta charset="utf-8" />
