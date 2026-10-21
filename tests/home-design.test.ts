@@ -6,7 +6,7 @@ test("hero leads with soup discovery and provides a stable accessible headline",
     assert.equal(title?.getAttribute("aria-label"),"Find incredible soup.");
     const words=title?.querySelector(".home-hero__word");
     assert.equal(words?.getAttribute("aria-hidden"),"true");
-    assert.deepEqual([...words!.querySelectorAll("span")].map(word=>word.textContent),["incredible","comforting","unforgettable"]);
+    assert.deepEqual([...words!.querySelectorAll("span")].map(word=>word.textContent),["incredible","comforting","remarkable"]);
     assert.equal(words?.querySelector(".is-current")?.textContent,"incredible");
     assert.equal(title?.querySelector(".home-hero__soup")?.textContent,"soup.");
   } finally {await window.happyDOM.close();}
