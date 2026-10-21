@@ -8,6 +8,14 @@ test("build-time homepage validation accepts a coherent page", async () => {
   await assert.doesNotReject(assertHomepageStructure(page));
 });
 
+test("homepage validation expands the shared header before checking structure", async () => {
+  await assertHomepageStructure(page.replace("<header></header>", "<!--soupmap:header:home-->"));
+  await assert.rejects(
+    assertHomepageStructure(page.replace("<header></header>", "<!--soupmap:header:home--><header></header>")),
+    /exactly one/,
+  );
+});
+
 test("build-time homepage validation rejects competing headlines and page shells", async () => {
   for (const [before, after] of [
     ["</h1>", "</h1><h1>Alternative design</h1>"],

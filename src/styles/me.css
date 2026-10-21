@@ -239,6 +239,7 @@ body { margin: 0; background: var(--me-paper); }
 /* Personal workspace: a destination for each task, rather than one long feature list. */
 .me-page [hidden] { display:none!important; }
 .me-workspace { display:grid; grid-template-columns:200px minmax(0,1fr); gap:44px; max-width:1440px; margin:auto; padding:0 clamp(20px,4vw,56px); }
+.me-workspace > * { min-width:0; }
 .me-workspace-rail { padding:40px 24px 40px 0; border-right:1px solid var(--rule); position:sticky; top:0; align-self:start; min-height:calc(100dvh - 84px); }
 .me-workspace-nav { display:grid; gap:4px; margin-top:22px; }
 .me-workspace-nav a { display:flex; gap:14px; align-items:center; min-height:46px; padding:10px 12px; color:var(--muted); text-decoration:none; font-size:12px; }

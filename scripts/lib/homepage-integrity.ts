@@ -1,10 +1,11 @@
 import { Window } from "happy-dom";
+import { renderSiteShell } from "../../src/render/shell.ts";
 
 /** Reject competing homepage branches even if their Git markers were removed. */
 export async function assertHomepageStructure(html: string): Promise<void> {
   const window = new Window();
   try {
-    window.document.write(html);
+    window.document.write(renderSiteShell(html));
     const document = window.document;
     for (const selector of ["h1", "main", ".home-page > header", ".home-page > footer"]) {
       const count = document.querySelectorAll(selector).length;

@@ -30,7 +30,8 @@ test('static and generated routes share one identity and all four destinations b
       const brand = window.document.querySelector('.site-header .site-brand');
       assert.equal(brand?.getAttribute('href'),'/');
       assert.equal(brand?.getAttribute('aria-label'),'Soupmap home');
-      assert.equal(brand?.textContent,'湯soupmap.');
+      assert.equal(brand?.textContent,'soupmap.');
+      assert.equal(brand?.querySelector('img')?.getAttribute('src'),'/brand-mark-black.png');
       assert.equal(window.document.querySelectorAll('#home-account, #directory-account, #map-account').length <= 1,true);
       assert.ok(!html.includes('<!--soupmap:header:'));
     }
