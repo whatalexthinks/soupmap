@@ -8,6 +8,8 @@ import { cityButtonsHtml, shopRowHtml } from "../src/render/templates.ts";
 import { soupmapHtml } from "../vite.config.ts";
 import { loadJournal } from "../src/journal/load.ts";
 import { journalPages } from "../src/render/journal.ts";
+import { loadRecipes } from "../src/recipes/load.ts";
+import { recipePages } from "../src/render/recipes.ts";
 
 const pages = catalogPages(ORDERED_SHOPS);
 const origin = "https://atlas.example";
@@ -170,11 +172,20 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
   }, {}, {
     "credits/index.html": { type: "asset", source: '<link rel="stylesheet" crossorigin href="/assets/credits-built.css">' },
     "journal/index.html": { type: "asset", source: '<link rel="stylesheet" crossorigin href="/assets/journal-built.css">' },
+    "recipes/index.html": { type: "asset", source: '<script type="module" crossorigin src="/assets/recipes-built.js"></script><link rel="stylesheet" crossorigin href="/assets/recipes-built.css">' },
   });
   const sitemap = assets.get("sitemap.xml")!;
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   const journal = journalPages(loadJournal());
-  assert.equal(locations.length, pages.length + 4 + journal.length);
+  const recipes = recipePages(loadRecipes(new Set(loadJournal().map(a => a.slug))));
+  assert.equal(locations.length, pages.length + 4 + journal.length + recipes.length);
+  for (const page of recipes) {
+    assert.ok(locations.includes(origin + page.path));
+    // The recipes index is Vite's own entry; every other recipe page is generated with the compiled assets.
+    if (page.path === "/recipes/") continue;
+    const html = assets.get(`${page.path.slice(1)}index.html`)!;
+    assert.ok(html.includes('href="/assets/recipes-built.css"') && html.includes('src="/assets/recipes-built.js"'), page.path);
+  }
   for (const path of ["/", "/map/", "/me/", "/credits/"]) assert.ok(locations.includes(origin + path));
   for (const page of journal) {
     assert.ok(locations.includes(origin + page.path));

@@ -341,6 +341,27 @@ export const SOURCES = [
     checked: "2026-10-19",
   },
 
+  {
+    id: "recipe-photos",
+    name: "Recipe photographs (Wikimedia Commons)",
+    provider: "Individual photographers on Wikimedia Commons",
+    kind: "imagery",
+    status: "planned",
+    usedFor: "One photograph per recipe on /recipes/, chosen by hand. Each photo's author, licence and file page are credited on the recipe itself.",
+    url: "https://commons.wikimedia.org/",
+    license: "Per photo: CC0, public domain, CC BY or CC BY-SA (never NC or ND)",
+    licenseUrl: "https://commons.wikimedia.org/wiki/Commons:Licensing",
+    attribution: "Photographers credited on each recipe, via Wikimedia Commons",
+    attributionUrl: "https://commons.wikimedia.org/",
+    notes: [
+      "scripts/fetch-recipe-photos.ts reads the licence from the Commons API, refuses anything that isn't CC0, public domain, CC BY or CC BY-SA, and records author, licence and file page in src/data/recipe-photos.json.",
+      "Photos are resized copies hosted with the site; CC BY-SA photos stay under CC BY-SA.",
+      "Until a recipe has a verified photo it shows a typographic panel, never a stock or generated image.",
+    ],
+    verify: ["Spot-check each photo's file page: the licence still allows reuse and the credit matches."],
+    checked: "2026-10-20",
+  },
+
   // ── Libraries ─────────────────────────────────────────────────────────────
   {
     id: "cesiumjs",

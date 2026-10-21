@@ -14,3 +14,4 @@
 - [Homepage visual direction](homepage-visual-direction.md) — Japanese minimalism + brutalism; real app screenshots over artificial map and alley imagery.
 - [Preview routing](preview-routing.md) — check the Preview address for an internal port before changing a healthy server.
 - [Your Soupmap dashboard](dashboard-policy.md) — /me/ works without an account, suggests from your own data only, and reads auth only through /api/me.
+- [Recipes policy](recipes-policy.md) — honest, safe recipes; diet tags checked; only verified free-licence photos; account-gated reviews with moderation.

@@ -287,6 +287,43 @@ better when signed in, using the existing `/api` lists endpoints. No server chan
   browser through the `virtual:soupmap-journal` module in `vite.config.ts`. Tests:
   `tests/me.test.ts`.
 
+### 3.10 Soupmap Recipes (`/recipes/`)
+
+Original soup recipes from Japan and around the world, with a servings scaler, metric/US
+units, ingredient checklists, tappable step timers, a screen-awake cook mode, private notes,
+saved recipes, and reader reviews and tips.
+
+- **Write or edit** Markdown in `content/recipes/<slug>.md`. The format (it drives the scaler
+  and timers), voice, fact and diet rules are in [content/recipes/README.md](content/recipes/README.md).
+  The build fails with the file and the reason on unknown fields, out-of-order sections,
+  misnumbered steps, broken links, or a diet tag the ingredient list contradicts
+  (dashi in a "vegetarian" soup, soy sauce in a "gluten-free" one).
+- **Browse**: by region, kind of soup, base, diet, time, effort and season; sort by quickest,
+  easiest, fewest ingredients, A–Z, top rated or most reviewed. Static, crawlable pages
+  for `/recipes/<region|type|diet|time>/<value>/`; filters on the index keep their state in
+  the URL so a view can be shared. Every recipe page carries schema.org `Recipe` data.
+- **Reviews and tips** (`server/recipes-api.ts`, `server/reviews.ts`, mounted at
+  `/api/recipes` before the account API): anyone can read; signing in lets you rate (1–5),
+  review, leave a tip (swap, technique, make-ahead, serving), mark others helpful, and report.
+  One entry per account per recipe, edited in place; no links; 30 writes an hour per account.
+  Three distinct reports hide an entry until a moderator restores it. Moderators are Clerk
+  user ids in `RECIPE_MODERATORS` (comma-separated); they see hide/restore buttons on the page
+  and the queue at `GET /api/recipes/moderation`. Schema: `migrations/002_recipe_reviews.sql`.
+  Without a database the pages say reviews are unavailable; the recipe is unaffected.
+- **Photos**: only real photographs with a verified free licence. List choices in
+  `content/recipes/photos.json` (`{"<slug>": {"file": "File:….jpg", "alt": "…"}}`) and run
+  `npm run photos:recipes`. The script reads each licence from the Wikimedia Commons API,
+  refuses anything but CC0, public domain, CC BY or CC BY-SA, saves resized copies to
+  `public/images/recipes/`, and records author, licence and source in
+  `src/data/recipe-photos.json`; each recipe credits its photo. `-- --suggest [slug…] --preview <dir>`
+  lists candidates for a person to choose from. Until a recipe has a photo it shows a
+  typographic panel. When the first photo goes in, set the `recipe-photos` source in
+  `src/sources.ts` to `live` (a test enforces it).
+- Code: `src/recipes/` (content, quantity, facets, browse, cook, reviews, storage),
+  `src/render/recipes.ts`, `src/styles/recipes.css` (builds on the journal's styles),
+  `recipes/index.html`. Tests: `tests/recipes.test.ts`, `tests/recipes-ui.test.ts`,
+  `tests/recipe-reviews.test.ts` (runs against Postgres when `DATABASE_URL` is set).
+
 ---
 
 ## 4. Data scripts

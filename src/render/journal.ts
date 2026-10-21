@@ -229,14 +229,14 @@ export function journalBody(page: JournalPage): string {
   return `<a class="skip-link" href="#main">Skip to content</a>
     <header class="j-head">
       <a class="j-brand" href="/journal/"><span class="j-seal" aria-hidden="true">湯</span><span>soupmap <em>journal</em></span></a>
-      <nav class="j-head__nav" aria-label="Site"><a href="/journal/"${page.path === "/journal/" ? ' aria-current="page"' : ""}>Journal</a><a href="/map/">Map</a><a href="/catalog/">Catalog</a></nav>
+      <nav class="j-head__nav" aria-label="Site"><a href="/journal/"${page.path === "/journal/" ? ' aria-current="page"' : ""}>Journal</a><a href="/recipes/">Recipes</a><a href="/map/">Map</a><a href="/catalog/">Catalog</a></nav>
     </header>
     <main id="main" class="j-main">${page.main}</main>
     <footer class="j-foot">
       <div class="j-wave" aria-hidden="true"></div>
       <p class="j-foot__ja" lang="ja">${esc(JOURNAL_SUBTITLE_JA)}</p>
       <p>${esc(JOURNAL_NAME)} · ${esc(JOURNAL_SUBTITLE)}</p>
-      <p class="j-foot__links"><a href="/journal/">Journal</a><a href="/map/">The map</a><a href="/catalog/">Japan catalog</a><a href="/journal/feed.xml">RSS</a><a href="/credits/">Data &amp; credits</a></p>
+      <p class="j-foot__links"><a href="/journal/">Journal</a><a href="/recipes/">Recipes</a><a href="/map/">The map</a><a href="/catalog/">Japan catalog</a><a href="/journal/feed.xml">RSS</a><a href="/credits/">Data &amp; credits</a></p>
     </footer>`;
 }
 
