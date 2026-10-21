@@ -31,7 +31,7 @@ async function start(): Promise<void> {
     if (document.visibilityState !== "visible" || !data.signedIn) return;
     void data.refreshAccount().then(() => dashboard.render());
   });
-  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  if (location.hash) dashboard.openView(location.hash,false,true);
 }
 
 start().catch(() => {

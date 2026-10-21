@@ -70,7 +70,7 @@ test("homepage shows the real app screenshot instead of invented map or street i
     assert.ok(images.some(image=>image.getAttribute("src")?.includes("soupmap-phone-")),"Show the actual supplied app screenshot");
     assert.ok(images.some(image=>image.getAttribute("src")?.includes("ramen-")),"Keep the soup mood image");
     assert.ok(!images.some(image=>/japan-trail|japan-street/.test(image.getAttribute("src")??"")),"Do not use the rejected generated images");
-    assert.equal(images.filter(img=>img.getAttribute("fetchpriority")==="high").length,1,"Prioritize only one image");
+    assert.equal(images.filter(img=>img.getAttribute("fetchpriority")==="high").length,0,"Below-the-fold supporting images should not compete with the search-first opening");
     for(const image of images) {
       assert.ok(image.getAttribute("alt")?.trim(),"Describe each editorial image");
       assert.ok(Number(image.getAttribute("width"))>0&&Number(image.getAttribute("height"))>0);

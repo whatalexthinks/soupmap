@@ -57,20 +57,21 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
     const description = `Browse ${label} soup shop locations, ${start + 1}–${start + slice.length} of ${shops.length}. Names, reported coordinates, sources and verification status in Soupmap's Japan pilot.`;
     return {
       path, title: `${heading} · Soupmap`, description,
-      content: `<section class="directory-hero"><div><span class="directory-kicker">The soup directory / Japan, chapter one</span><h1 data-directory-heading>${label === 'Japan' ? 'Find your<br>next bowl.' : `${esc(label)}.<br>One bowl away.`}</h1><p class="lede">Good places, without getting lost in the map. Explore the guide, build your list, and get to know a place before you go.</p></div><aside class="directory-hero__aside"><strong data-directory-total>${shops.length.toLocaleString('en-US')}</strong><p>places to explore in <span data-directory-region>${esc(label)}</span>.</p><p>Soupmap selections sit alongside open-data listings. Every record shows its source.</p></aside></section>
+      content: `<section class="directory-hero"><div><span class="directory-kicker">The soup directory / Japan, chapter one</span><h1 data-directory-heading>${label === 'Japan' ? 'The next bowl<br>is out there.' : `${esc(label)}.<br>One bowl away.`}</h1><p class="lede">A place for every craving. Browse the guide, check the details, and keep the ones you want to try.</p></div><aside class="directory-hero__aside"><strong data-directory-total>${shops.length.toLocaleString('en-US')}</strong><p>places to explore in <span data-directory-region>${esc(label)}</span>.</p><p>Soupmap selections sit alongside open-data listings. Every record shows its source.</p></aside></section>
         <nav class="directory-cities" aria-label="Featured cities"><a href="/catalog/"${base === '/catalog/' ? ' aria-current="page"' : ''}>All Japan</a>${CITIES.filter(c=>all.some(s=>s.city===c.name)).map(c=>`<a href="/city/${c.slug}/"${base === `/city/${c.slug}/` ? ' aria-current="page"' : ''}>${esc(c.name)}<span lang="ja">${esc(c.nameJa)}</span></a>`).join('')}</nav>
         <nav class="directory-workflow" aria-label="Your discoveries"><span>Find a place. Keep a plan.</span><a href="/catalog/?collection=saved">Saved places ↗</a><a href="/me/#plan">Plan a trip ↗</a></nav>
-        <div id="directory-browser" data-city="${CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all'}" data-page="${page}">
+        <div class="directory-workspace" id="directory-browser" data-city="${CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all'}" data-page="${page}">
         ${directoryControls(CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all')}
+        <div class="directory-feed"><div class="directory-collections" hidden aria-label="Quick collections"><a href="?collection=all" data-directory-collection="all">All places</a><a href="?collection=editorial" data-directory-collection="editorial">Our selections</a><a href="?collection=saved" data-directory-collection="saved">Saved places</a></div><div class="directory-active" id="directory-active" aria-label="Active filters"></div>
         <p class="directory-status" data-directory-status role="status"></p>
-        <div class="directory-result-bar"><p id="directory-count" aria-live="polite">Showing ${start + 1}–${start + slice.length} of ${shops.length.toLocaleString('en-US')} places</p><span>Selections first · More to discover below</span></div>
+        <div class="directory-result-bar"><p id="directory-count" aria-live="polite">Showing ${start + 1}–${start + slice.length} of ${shops.length.toLocaleString('en-US')} places</p><span>Selections first · More to discover below</span><div class="directory-views" hidden aria-label="Results layout"><button type="button" data-directory-view="grid" aria-pressed="true" aria-label="Card view">Grid</button><button type="button" data-directory-view="list" aria-pressed="false" aria-label="List view">List</button></div></div>
         ${directoryRows(slice, start)}
         <nav class="directory-pagination" id="directory-pagination" aria-label="Catalog pages">
           ${page > 1 ? `<a rel="prev" href="${listingPath(base, page - 1)}">← Previous page</a>` : ""}
           <span>Page ${page} of ${total}</span>
           ${page < total ? `<a rel="next" href="${listingPath(base, page + 1)}">Next page →</a>` : ""}
           ${page > 2 ? `<a href="${base}">First page</a>` : ""}
-        </nav></div>
+        </nav></div></div>
         <details class="directory-page-index"><summary>Browse the complete page index</summary>${rangeNavigation}</details>
         <details class="directory-notice"><summary>About the data in this guide</summary>${limitations}</details>`,
       structuredData: {

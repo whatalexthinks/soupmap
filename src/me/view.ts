@@ -66,6 +66,7 @@ export class Dashboard {
   private plan: TripPlan | null = null;
   private input: TripInput;
   private busy = false;
+  private currentView = "overview";
   private notice = "";
   private readonly today: string;
   private readonly origin: string;
@@ -74,6 +75,17 @@ export class Dashboard {
     this.today = ctx.today ?? localDate();
     this.origin = ctx.origin ?? location.origin;
     this.input = this.restoreInput();
+    this.currentView = this.viewFromHash(location.hash);
+    const navigate=()=>this.openView(location.hash,false,true);
+    window.addEventListener('hashchange',navigate);
+    window.addEventListener('popstate',navigate);
+    document.addEventListener('click', e=>{
+      const anchor=(e.target as Element).closest<HTMLAnchorElement>('.me-workspace a[href^="#"]');
+      if(!anchor||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+      const hash=anchor.getAttribute('href')!;
+      if(!['#overview','#plan','#trips','#places','#passport','#for-you','#data'].includes(hash))return;
+      e.preventDefault();this.openView(hash,true,true);
+    });
     root.addEventListener("click", e => void this.click(e));
     // Keep choices made before submitting, so a re-render (another tab, an action) doesn't undo them.
     root.addEventListener("change", e => {
@@ -87,6 +99,30 @@ export class Dashboard {
       this.readForm(form);
       this.makePlan();
     });
+  }
+
+  private viewFromHash(hash: string): string {
+    const id=hash.replace(/^#/, '');
+    if(id==='trips'||id==='plan-result')return 'plan';
+    return ['overview','plan','places','passport','for-you','data'].includes(id)?id:'overview';
+  }
+  /** URL-backed views keep the trip draft intact when switching sections. */
+  openView(hash: string, updateUrl=false, focus=false): void {
+    this.currentView=this.viewFromHash(hash);
+    if(updateUrl){const url=new URL(location.href);url.hash=hash;window.history.pushState(null,'',url);}
+    this.root.querySelectorAll<HTMLElement>('[data-workspace-panel]').forEach(panel=>{panel.hidden=panel.dataset.workspacePanel!==this.currentView;});
+    this.root.dataset.view=this.currentView;
+    document.querySelectorAll<HTMLAnchorElement>('.me-workspace-nav a').forEach(link=>{
+      if(this.viewFromHash(link.hash)===this.currentView)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+    });
+    const title=this.root.querySelector<HTMLElement>('#me-title');
+    if(title)title.textContent=({overview:'Your next chapter.',places:'Worth keeping.',plan:'Make a day of it.',passport:'Every bowl, a story.','for-you':'A little inspiration.',data:'Yours to keep.'} as Record<string,string>)[this.currentView]!;
+    if(focus){
+      const section=this.root.querySelector<HTMLElement>(`[data-workspace-panel="${this.currentView}"]`);
+      const target=hash==='#trips'?section?.querySelector<HTMLElement>('#trips'):hash==='#plan-result'?section?.querySelector<HTMLElement>('#plan-result'):section;
+      const heading=target?.querySelector<HTMLElement>('h2')??target??title;
+      heading?.setAttribute('tabindex','-1');heading?.focus();
+    }
   }
 
   private get data(): UserData { return this.ctx.data; }
@@ -112,6 +148,7 @@ export class Dashboard {
   }
 
   private makePlan(): void {
+    this.currentView="plan";
     this.plan = planTrip(this.ctx.shops, this.input, this.data.saved, new Set(Object.keys(this.data.visits)));
     trackEvent("trip_planned", { days: this.input.days, per_day: this.input.perDay, cravings: this.input.cravings.length,
       area_kind: this.input.area.startsWith("city:") ? "city" : "prefecture", stops: this.plan.days.reduce((n, d) => n + d.stops.length, 0) });
@@ -208,13 +245,14 @@ export class Dashboard {
     this.root.innerHTML = [
       this.hero(saved, visited, brothsTried.size, regional.size),
       this.notice ? `<p class="me-notice" role="status" tabindex="-1">${esc(this.notice)}</p>` : "",
-      this.planner(),
-      this.tripsSection(),
-      this.places(saved),
-      this.passport(visited, brothsTried, regional),
-      this.forYou(saved, visited),
-      this.dataSection(),
+      `<div data-workspace-panel="overview">${this.overview(saved,visited)}</div>`,
+      `<div data-workspace-panel="plan">${this.planner()}${this.tripsSection()}</div>`,
+      `<div data-workspace-panel="places">${this.places(saved)}</div>`,
+      `<div data-workspace-panel="passport">${this.passport(visited,brothsTried,regional)}</div>`,
+      `<div data-workspace-panel="for-you">${this.forYou(saved,visited)}</div>`,
+      `<div data-workspace-panel="data">${this.dataSection()}</div>`,
     ].join("");
+    this.openView('#'+this.currentView);
     this.notice = "";
   }
 
@@ -238,9 +276,9 @@ export class Dashboard {
     return `<section class="me-hero" aria-labelledby="me-title">
       <div class="me-hero__copy">
         <p class="me-label"><span class="me-dot" aria-hidden="true"></span>YOUR SOUPMAP / ${status}</p>
-        <h1 id="me-title">Plan the bowls.<br><span>Keep the stories.</span></h1>
+        <h1 id="me-title">Your next chapter.</h1>
         <p class="me-dek">${esc(dek)}</p>
-        <div class="me-actions"><a class="me-button me-button--solid" href="#plan">Plan a trip <span aria-hidden="true">↓</span></a><a class="me-button" href="/catalog/">Discover places <span aria-hidden="true">↗</span></a></div>
+
       </div>
       <dl class="me-stats">
         <div><dt>Saved</dt><dd>${saved.length}</dd></div>
@@ -248,7 +286,16 @@ export class Dashboard {
         <div><dt>Broth styles</dt><dd>${styles}<small>/${STYLE_BROTHS.length}</small></dd></div>
         <div><dt>Regional bowls</dt><dd>${regional}<small>/${REGIONAL_BOWLS.length}</small></dd></div>
       </dl>
-    </section>${banner}`;
+    </section>${banner ? `<details class="me-account-details"><summary>${this.data.signedIn ? "Account & device storage" : "Keep your places across devices"}<span aria-hidden="true">+</span></summary>${banner}</details>` : ""}`;
+  }
+
+  private overview(saved: Shop[], visited: Shop[]): string {
+    const recent=saved.slice(-4).reverse();
+    return `<section id="overview" class="me-overview" aria-label="Your overview">
+      <article class="me-next"><p class="me-label">${saved.length?'YOUR NEXT MOVE':'START HERE'}</p><h2>${saved.length?'A few good places.<br>One little adventure.':'Your next favorite<br>starts with a save.'}</h2><p>${saved.length?'Turn your saved places into a day out. Choose a city, set your cravings, and make a route your own.':'Explore the guide and save a place that catches your eye. It will be waiting here when you are ready to go.'}</p><a class="me-button me-button--solid" href="${saved.length?'#plan':'/catalog/'}">${saved.length?'Plan a trip':'Find your first place'} ↗</a></article>
+      <article class="me-overview-saved"><header><div><p class="me-label">ON YOUR LIST</p><h2>Keep these in mind.</h2></div><a href="#places">View all ↗</a></header>${recent.length?`<ol>${recent.map((shop,i)=>`<li><span>${two(i+1)}</span><div>${shopLine(shop)}<p class="me-meta">${esc(placeName(shop))}</p></div></li>`).join('')}</ol>`:'<div class="me-quiet-empty"><span lang="ja" aria-hidden="true">湯</span><p>A little room for<br>your next discovery.</p><a href="/catalog/?collection=editorial">Browse our selections ↗</a></div>'}</article>
+      <div class="me-overview-links"><a href="#passport"><span>THE PASSPORT</span><strong>${visited.length?`${visited.length} bowls remembered.`:'The places become the story.'}</strong><small>Mark a saved place visited to collect a stamp. ↗</small></a><a href="/journal/"><span>THE JOURNAL</span><strong>A little reading before you go.</strong><small>Soup styles, local context, and the world beyond the bowl. ↗</small></a></div>
+    </section>`;
   }
 
   private planner(): string {
@@ -351,10 +398,9 @@ export class Dashboard {
     }).join("");
     const cities = [...new Set(saved.map(s => s.city))];
     return `<section id="places" class="me-section" aria-labelledby="places-title">${head}
-      <div class="me-places"><figure class="me-places__map">${miniMap(saved)}<figcaption>${saved.length} ${saved.length === 1 ? "place" : "places"} in ${esc(cities.slice(0, 3).join(", "))}${cities.length > 3 ? ` and ${cities.length - 3} more` : ""}.
-        <a href="${esc(collectionUrl(this.origin, saved.map(s => s.slug)))}">Open on the map ↗</a></figcaption></figure>
+      <div class="me-places"><aside class="me-places__summary"><p class="me-label">THE COLLECTION</p><strong>${saved.length}</strong><p>places in ${esc(cities.slice(0,3).join(', '))}${cities.length>3?` and ${cities.length-3} more cities`:''}.</p><a class="me-button" href="${esc(collectionUrl(this.origin,saved.map(s=>s.slug)))}">Open on the map ↗</a><a class="me-link" href="/catalog/?collection=saved">Browse all saved places ↗</a></aside>
       <ul class="me-place-list">${rows}</ul></div>
-      ${saved.length > shown.length ? `<p class="me-fine">Showing ${shown.length} of ${saved.length}. Use Saved on the map to see them all.</p>` : ""}
+      ${saved.length > shown.length ? `<p class="me-fine">Showing ${shown.length} of ${saved.length}. Use Browse all saved places to search the complete collection.</p>` : ""}
       ${lists}</section>`;
   }
 
@@ -415,7 +461,7 @@ export class Dashboard {
   }
 
   private dataSection(): string {
-    return `<section class="me-section me-data" aria-labelledby="data-title"><header class="me-section__head"><p class="me-label">YOUR DATA</p>
+    return `<section id="data" class="me-section me-data" aria-labelledby="data-title"><header class="me-section__head"><p class="me-label">YOUR DATA</p>
       <h2 id="data-title">Yours to keep.</h2></header>
       <p>Trips, passport visits${this.data.signedIn ? "" : " and saved places"} live in this browser. ${this.data.signedIn ? "Saved places and lists live in your account. " : ""}Download a copy any time; clearing your browser data removes what's stored here.</p>
       <button type="button" class="me-button" data-action="export">Download my data (JSON)</button></section>`;

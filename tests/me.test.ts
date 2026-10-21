@@ -225,13 +225,41 @@ test('the dashboard shell works without JavaScript and links into the site', () 
   assert.ok(renderSiteShell(readFileSync(new URL('../map/index.html', import.meta.url), 'utf8')).includes('href="/me/"'), 'linked from the map');
 });
 
+test('workspace navigation preserves a trip draft and responds to history navigation', () => {
+  const {root,$,$$,window:w}=page('https://soupmap.example/me/#plan');
+  const data=new UserData(valid,w.localStorage as unknown as Storage);
+  const dashboard=new Dashboard(root,{shops:SHOPS,bySlug:shopBySlug,data,journal});
+  dashboard.render();
+  const visible=()=>$$('[data-workspace-panel]').filter(panel=>!panel.hidden).map(panel=>panel.dataset.workspacePanel);
+  assert.deepEqual(visible(),['plan']);
+  const area=$('select[name=area]') as unknown as HTMLSelectElement;
+  area.value='pref:Kagawa';
+  area.dispatchEvent(new w.Event('change',{bubbles:true}) as unknown as Event);
+  $('.me-workspace-nav a[href="#places"]')!.click();
+  assert.deepEqual(visible(),['places']);
+  assert.equal(w.location.hash,'#places');
+  assert.equal($('.me-workspace-nav [aria-current]')?.getAttribute('href'),'#places');
+  assert.ok($('[data-workspace-panel="places"]')!.contains(w.document.activeElement as unknown as Node));
+  $('.me-workspace-nav a[href="#plan"]')!.click();
+  assert.equal($('select[name=area]'),area,'Switching sections keeps the actual draft form');
+  assert.equal(area.value,'pref:Kagawa');
+  w.history.replaceState(null,'','#passport');
+  w.dispatchEvent(new w.PopStateEvent('popstate'));
+  assert.deepEqual(visible(),['passport']);
+  w.history.replaceState(null,'','#trips');
+  w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+  assert.deepEqual(visible(),['plan'],'Old trip bookmarks still work');
+  dashboard.openView('#unknown[selector]',false);
+  assert.deepEqual(visible(),['overview'],'Unknown hashes safely show the overview');
+});
+
 test('a guest can plan, save and stamp without an account, and is offered one', async () => {
   const { root, $, $$, window: w } = page();
   const data = new UserData(valid, w.localStorage as unknown as Storage);
   data.account = { status: 'guest', lists: [] };
   const dashboard = new Dashboard(root, { shops: SHOPS, bySlug: shopBySlug, data, journal, today: '2026-10-19', origin: 'https://soupmap.example' });
   dashboard.render();
-  for (const a of $$('.site-subnav a')) {
+  for (const a of $$('.me-workspace-nav a')) {
     assert.ok($(a.getAttribute('href')!), `Dashboard section exists: ${a.getAttribute('href')}`);
   }
   assert.ok($('.me-banner a[href="/sign-up"]'), 'guests are offered an account');

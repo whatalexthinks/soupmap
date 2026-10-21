@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 import { Window } from 'happy-dom';
 import { HOME_CITIES, homeCitiesHtml, homeCityHtml } from '../src/render/home.ts';
 import { mountHomeCities } from '../src/ui/home-cities.ts';
+import { profileUrl } from '../src/render/directory.ts';
+import type { Shop } from '../src/data/schema.ts';
 import shops from '../src/data/shops.json' with { type: 'json' };
 
 function setup() {
@@ -27,8 +29,7 @@ test('homepage works without JavaScript: open map, join, directories, and real s
       const places = window.document.querySelectorAll<HTMLAnchorElement>('.city-places li a');
       assert.ok(places.length > 0);
       for (const place of places) {
-        assert.equal(new URL(place.href).pathname, '/map/');
-        assert.ok(shops.some(shop => shop.slug === new URL(place.href).hash.slice(1) && shop.city === city.name));
+        assert.ok(shops.some(shop => profileUrl(shop as Shop) === place.getAttribute('href') && shop.city === city.name), 'Each place opens its real profile without requiring the map');
       }
     }
   } finally { await window.happyDOM.close(); }
