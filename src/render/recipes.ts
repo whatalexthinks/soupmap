@@ -6,6 +6,7 @@
 import { esc } from "../ui/dom.ts";
 import { inline, renderMarkdown, tagJapanese } from "../journal/markdown.ts";
 import { verticalText } from "./journal.ts";
+import { siteHeader } from "./shell.ts";
 import { relatedRecipes, type Recipe } from "../recipes/content.ts";
 import { FACETS, PAGE_FACETS, REGIONS, TYPES, facetById, facetLabel, type FacetId } from "../recipes/facets.ts";
 import { findDurations, formatAmount, formatMinutes, isoDuration } from "../recipes/quantity.ts";
@@ -301,12 +302,8 @@ export function recipesHead(page: RecipePage, siteUrl: string, recipes: readonly
 }
 
 export function recipesBody(page: RecipePage): string {
-  const here = (path: string) => page.path === path || (path === "/recipes/" && page.path.startsWith("/recipes/")) ? ' aria-current="page"' : "";
   return `<a class="skip-link" href="#main">Skip to content</a>
-    <header class="j-head">
-      <a class="j-brand" href="/"><span class="j-seal" aria-hidden="true">湯</span><span>soupmap</span></a>
-      <nav class="j-head__nav" aria-label="Site"><a href="/map/">Map</a><a href="/recipes/"${here("/recipes/")}>Recipes</a><a href="/journal/">Journal</a><a href="/catalog/">Catalog</a><a href="/me/">Your Soupmap</a></nav>
-    </header>
+    ${siteHeader("recipes")}
     <main id="main" class="j-main r-main">${page.main}</main>
     <footer class="j-foot">
       <div class="j-wave" aria-hidden="true"></div>

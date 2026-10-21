@@ -109,13 +109,6 @@ export class App {
   });
 
   constructor() {
-    $(".brand").addEventListener("click",event=>{
-      if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-      event.preventDefault();
-      this.sharedActive = false;
-      router.clearShortlist();
-      this.resetFilters();
-    });
     restoreNameLanguage();
     if (this.googleKey) this.streetView = new StreetView(this.googleKey);
     this.panel = new Panel(ORDERED_SHOPS, {

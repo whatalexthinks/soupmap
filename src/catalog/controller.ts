@@ -1,3 +1,5 @@
+import { esc } from '../ui/dom.ts';
+import { CUISINES } from '../cuisines.ts';
 import { CITIES } from '../data/cities.ts';
 import { ORDERED_SHOPS, shopBySlug, DETAILS_INLINE, type Shop } from '../data/shops.ts';
 import { loadPlaceDetails } from '../data/load-open-catalog.ts';
@@ -29,6 +31,29 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
   let trigger:HTMLElement|null=null;
   let debounce:ReturnType<typeof setTimeout>|undefined;
   let locationRevision=0;
+  let view: 'grid'|'list' = 'grid';
+  try { if(localStorage.getItem('soupmap:directory-view')==='list') view='list'; } catch { /* Session only. */ }
+  const disclosure=form?.querySelector<HTMLDetailsElement>('.directory-filter-disclosure');
+  const compactFilters=window.matchMedia?.('(max-width:800px)');
+  if(disclosure && compactFilters){
+    disclosure.open=!compactFilters.matches;
+    compactFilters.addEventListener('change',event=>{disclosure.open=!event.matches;});
+  }
+  document.querySelectorAll<HTMLElement>('.directory-views,.directory-collections').forEach(el=>{el.hidden=false;});
+  function syncPresentation() {
+    const results=document.getElementById('directory-results');if(results)results.dataset.view=view;
+    document.querySelectorAll<HTMLElement>('[data-directory-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.directoryView===view)));
+    document.querySelectorAll<HTMLElement>('[data-directory-collection]').forEach(link=>{
+      if(link.dataset.directoryCollection===state.collection)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');
+    });
+    const chips: Array<[string,string]> = [];
+    if(state.query)chips.push(['query',`“${state.query}”`]);
+    if(state.city!=='all')chips.push(['city',CITIES.find(c=>c.slug===state.city)?.name??state.city]);
+    if(state.cuisine!=='all')chips.push(['cuisine',CUISINES.find(c=>c.id===state.cuisine)?.label??state.cuisine]);
+    if(state.hideChains)chips.push(['chains','Independent places']);
+    const active=document.getElementById('directory-active');
+    if(active)active.innerHTML=chips.map(([key,label])=>`<button type="button" data-clear-filter="${key}" aria-label="Remove filter: ${esc(label)}">${esc(label)} <span aria-hidden="true">×</span></button>`).join('');
+  }
   const pendingSaves=new Set<string>();
   const saved=()=>accountSaved() ?? guest;
   const announce=(message:string)=>{if(status)status.textContent=message;document.querySelectorAll('[data-profile-status]').forEach(el=>{el.textContent=message;});};
@@ -46,7 +71,7 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     document.querySelectorAll<HTMLButtonElement>('[data-directory-save]').forEach(button=>{
       const slug=button.dataset.directorySave!;const on=saved().has(slug);
       button.hidden=false;button.disabled=pendingSaves.has(slug);button.setAttribute('aria-pressed',String(on));
-      button.textContent=on ? 'Saved −' : 'Save +';
+      button.textContent=on ? 'Saved ✓' : 'Save +';
       button.setAttribute('aria-label',`${on?'Unsave':'Save'} ${shopBySlug.get(slug)?.name ?? 'place'}`);
     });
   }
@@ -54,7 +79,7 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     if(!browser)return;
     const city=CITIES.find(c=>c.slug===state.city);
     const heading=document.querySelector<HTMLElement>('[data-directory-heading]');
-    if(heading)heading.textContent=city?`${city.name}. One bowl away.`:'Find your next bowl.';
+    if(heading)heading.textContent=city?`${city.name}. One bowl away.`:'The next bowl is out there.';
     const total=document.querySelector('[data-directory-total]');
     if(total)total.textContent=(city?ORDERED_SHOPS.filter(shop=>shop.city===city.name).length:ORDERED_SHOPS.length).toLocaleString();
     const region=document.querySelector('[data-directory-region]');if(region)region.textContent=city?.name??'Japan';
@@ -72,7 +97,7 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     input('directory-pagination').innerHTML=`<button type="button" data-page-step="-1"${state.page===1?' disabled':''}>← Previous</button><span>Page ${state.page} of ${pages}</span><button type="button" data-page-step="1"${state.page===pages?' disabled':''}>Next →</button>`;
     document.querySelector('.directory-result-bar>span')!.textContent=state.sort==='distance'?'Straight-line distance · Location stays on this device':state.sort==='name'?'Name A–Z':'Soupmap selections first';
     if(updateUrl)history.replaceState(null,'',directoryUrl(state,baseCity,new URL(location.href)));
-    syncSaveButtons();
+    syncSaveButtons();syncPresentation();
   }
   function reset() {
     clearTimeout(debounce);++locationRevision;
@@ -157,8 +182,27 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     state.page=1;render();
   });
   document.addEventListener('click',e=>{
-    const target=(e.target as Element).closest<HTMLElement>('[data-profile],[data-directory-save],[data-page-step],[data-directory-reset]');
+    const target=(e.target as Element).closest<HTMLElement>('[data-profile],[data-directory-save],[data-page-step],[data-directory-reset],[data-directory-view],[data-directory-collection],[data-clear-filter]');
     if(!target)return;
+    if(target.dataset.directoryView) {
+      view=target.dataset.directoryView==='list'?'list':'grid';
+      try{localStorage.setItem('soupmap:directory-view',view);}catch{/* Session only. */}
+      syncPresentation();return;
+    }
+    if(target.dataset.directoryCollection) {
+      if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;
+      e.preventDefault();clearTimeout(debounce);
+      state.query=input<HTMLInputElement>('directory-query').value;
+      state.collection=target.dataset.directoryCollection as DirectoryState['collection'];state.page=1;
+      syncInputs();render();return;
+    }
+    if(target.dataset.clearFilter) {
+      clearTimeout(debounce);
+      const key=target.dataset.clearFilter;
+      state.query=input<HTMLInputElement>('directory-query').value;
+      if(key==='query')state.query='';else if(key==='city')state.city='all';else if(key==='cuisine')state.cuisine='all';else state.hideChains=false;
+      state.page=1;syncInputs();render();input('directory-query').focus({preventScroll:true});return;
+    }
     if(target.dataset.profile){
       if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;
       e.preventDefault();openProfile(target.dataset.profile);

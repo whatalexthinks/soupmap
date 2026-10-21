@@ -231,13 +231,6 @@ body.is-cooking { overflow: hidden; }
   .r-ingredients { position: static; max-height: none; overflow: visible; }
   .r-reviews__top { grid-template-columns: 1fr; }
 }
-@media (max-width: 720px) {
-  /* Five site links don't fit beside the brand on a phone: give them their own scrolling row. */
-  body.recipes .j-head { flex-wrap: wrap; row-gap: 10px; padding-bottom: 0; }
-  body.recipes .j-head__nav { order: 2; width: 100%; overflow-x: auto; gap: 18px; scrollbar-width: none; white-space: nowrap; }
-  body.recipes .j-head__nav::-webkit-scrollbar { display: none; }
-  body.recipes .j-head__nav a { flex: none; padding: 10px 0; }
-}
 @media (max-width: 600px) {
   .r-facts { grid-template-columns: repeat(2, auto); }
   .r-field-row { grid-template-columns: 1fr; }
@@ -253,7 +246,7 @@ body.is-cooking { overflow: hidden; }
   .r-timers__item.is-done { animation: none; }
 }
 @media print {
-  .j-head, .j-foot, .j-crumbs, .r-actions, .r-scale, .r-notes, .r-reviews, .r-more, .r-timers, .r-head__art, .r-ing__check { display: none !important; }
+  .site-header, .j-foot, .j-crumbs, .r-actions, .r-scale, .r-notes, .r-reviews, .r-more, .r-timers, .r-head__art, .r-ing__check { display: none !important; }
   .r-body { grid-template-columns: 1fr 1.4fr; border: 0; }
   .r-ingredients { position: static; max-height: none; }
   body.journal { background: #fff; font-size: 12pt; }

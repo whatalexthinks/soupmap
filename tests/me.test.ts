@@ -1,3 +1,4 @@
+import { renderSiteShell } from "../src/render/shell.ts";
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -203,7 +204,7 @@ const journal = loadJournal().map(({ slug, title, dek, category, mark }) => ({ s
 
 function page(url = 'https://soupmap.example/me/') {
   window = new Window({ url });
-  window.document.write(readFileSync(new URL('../me/index.html', import.meta.url), 'utf8'));
+  window.document.write(renderSiteShell(readFileSync(new URL('../me/index.html', import.meta.url), 'utf8')));
   for (const key of ['document', 'location', 'localStorage', 'navigator', 'CSS', 'HTMLElement', 'HTMLFormElement', 'FormData', 'Blob', 'URL']) {
     Object.defineProperty(globalThis, key, { value: (window as unknown as Record<string, unknown>)[key], configurable: true });
   }
@@ -217,11 +218,39 @@ function page(url = 'https://soupmap.example/me/') {
 test('the dashboard shell works without JavaScript and links into the site', () => {
   const { $ } = page();
   assert.ok($('h1#me-title'));
-  assert.ok($('.me-nav a[href="/map/"]'));
+  assert.ok($('.site-nav a[href="/map/"]'));
   assert.ok($('a[href="/journal/"]'));
   assert.ok($('noscript'));
-  assert.ok(readFileSync(new URL('../index.html', import.meta.url), 'utf8').includes('href="/me/"'), 'linked from home');
-  assert.ok(readFileSync(new URL('../map/index.html', import.meta.url), 'utf8').includes('href="/me/"'), 'linked from the map');
+  assert.ok(renderSiteShell(readFileSync(new URL('../index.html', import.meta.url), 'utf8')).includes('href="/me/"'), 'linked from home');
+  assert.ok(renderSiteShell(readFileSync(new URL('../map/index.html', import.meta.url), 'utf8')).includes('href="/me/"'), 'linked from the map');
+});
+
+test('workspace navigation preserves a trip draft and responds to history navigation', () => {
+  const {root,$,$$,window:w}=page('https://soupmap.example/me/#plan');
+  const data=new UserData(valid,w.localStorage as unknown as Storage);
+  const dashboard=new Dashboard(root,{shops:SHOPS,bySlug:shopBySlug,data,journal});
+  dashboard.render();
+  const visible=()=>$$('[data-workspace-panel]').filter(panel=>!panel.hidden).map(panel=>panel.dataset.workspacePanel);
+  assert.deepEqual(visible(),['plan']);
+  const area=$('select[name=area]') as unknown as HTMLSelectElement;
+  area.value='pref:Kagawa';
+  area.dispatchEvent(new w.Event('change',{bubbles:true}) as unknown as Event);
+  $('.me-workspace-nav a[href="#places"]')!.click();
+  assert.deepEqual(visible(),['places']);
+  assert.equal(w.location.hash,'#places');
+  assert.equal($('.me-workspace-nav [aria-current]')?.getAttribute('href'),'#places');
+  assert.ok($('[data-workspace-panel="places"]')!.contains(w.document.activeElement as unknown as Node));
+  $('.me-workspace-nav a[href="#plan"]')!.click();
+  assert.equal($('select[name=area]'),area,'Switching sections keeps the actual draft form');
+  assert.equal(area.value,'pref:Kagawa');
+  w.history.replaceState(null,'','#passport');
+  w.dispatchEvent(new w.PopStateEvent('popstate'));
+  assert.deepEqual(visible(),['passport']);
+  w.history.replaceState(null,'','#trips');
+  w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+  assert.deepEqual(visible(),['plan'],'Old trip bookmarks still work');
+  dashboard.openView('#unknown[selector]',false);
+  assert.deepEqual(visible(),['overview'],'Unknown hashes safely show the overview');
 });
 
 test('a guest can plan, save and stamp without an account, and is offered one', async () => {
@@ -230,6 +259,9 @@ test('a guest can plan, save and stamp without an account, and is offered one', 
   data.account = { status: 'guest', lists: [] };
   const dashboard = new Dashboard(root, { shops: SHOPS, bySlug: shopBySlug, data, journal, today: '2026-10-19', origin: 'https://soupmap.example' });
   dashboard.render();
+  for (const a of $$('.me-workspace-nav a')) {
+    assert.ok($(a.getAttribute('href')!), `Dashboard section exists: ${a.getAttribute('href')}`);
+  }
   assert.ok($('.me-banner a[href="/sign-up"]'), 'guests are offered an account');
   assert.match($('.me-hero')!.textContent!, /ON THIS DEVICE/);
   assert.ok($('#places .me-chapters a[href^="/map/?hub="]'), 'an empty list points to the chapters');
@@ -293,7 +325,7 @@ test('signed in, saves and trips go to the account through the existing API', as
     dashboard.render();
     assert.match($('.me-hero')!.textContent!, /SIGNED IN/);
     assert.match($('.me-banner')!.textContent!, /1 place saved on this browser isn't in your account yet/);
-    assert.ok($('#places a.me-shop[href="/map/#ichiran-nakasu"]'), 'account saves are listed');
+    assert.ok($('#places a.me-shop[href="/shop/ichiran-nakasu/"]'), 'account saves are listed');
 
     $('button[data-action=import]')!.click();
     await new Promise(resolve => setTimeout(resolve, 0));

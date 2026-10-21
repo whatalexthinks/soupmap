@@ -60,27 +60,19 @@ function Provider({children}:{children:ReactNode}) {
 
 function AccountNav() {
   const {user,isLoaded} = useUser();
-  const {signOut} = useClerk();
   const [error,setError] = useState("");
   useEffect(()=>{
     if (!isLoaded) return;
     let active=true;
     setAccountSaved(null);
     if (user) {
-      if (location.pathname === "/" && !location.hash) {
-        location.replace("/account");
-        return;
-      }
       void api<{lists:PersonalList[]}>("/me").then(data=>{
         if (active) setAccountSaved(user.id, data.lists.find(list=>list.kind==="saved")?.ids ?? []);
       }).catch(()=> { if(active) setError("Lists are offline. Open your account to retry."); });
     }
     return ()=>{active=false;};
   },[user?.id,isLoaded]);
-  if (!isLoaded) return <a href="/sign-up">Create an account</a>;
-  return <div className="account-mini">
-    {user ? <><a href="/account">My lists</a><button type="button" onClick={()=>void signOut({redirectUrl:"/"})}>Sign out</button></>
-      : <><a className="home-nav__signin" href="/sign-in">Sign in</a><a className="home-nav__signup" href="/sign-up">Join Soupmap</a></>}
+  return <div className="account-mini"><a href="/account">Account</a>
     {error && <span role="status">{error}</span>}
   </div>;
 }
