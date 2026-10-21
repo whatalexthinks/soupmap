@@ -102,3 +102,61 @@ test('denied geolocation keeps the prior sort and does not persist coordinates',
   assert.match(el('[data-directory-status]').textContent??'',/unavailable or not allowed/);
   assert.equal(window.localStorage.length,0);
 });
+
+test('collection shortcuts retain the query and chips remove only their own filter',()=>{
+  mountDirectory({account:false});
+  change('#directory-city','tokyo');
+  change('#directory-cuisine','ramen');
+  const query=el<HTMLInputElement>('#directory-query');
+  query.value='afuri';
+  query.dispatchEvent(new window.Event('input',{bubbles:true}));
+  click('[data-directory-collection="editorial"]');
+  assert.deepEqual(cards().map(card=>card.dataset.record),['afuri-ebisu']);
+  assert.equal(new URL(window.location.href).searchParams.get('q'),'afuri');
+  assert.equal(el('[data-directory-collection="editorial"]').getAttribute('aria-current'),'true');
+  click('[data-clear-filter="city"]');
+  assert.equal(el<HTMLSelectElement>('#directory-city').value,'all');
+  assert.equal(el<HTMLSelectElement>('#directory-cuisine').value,'ramen');
+  assert.equal(query.value,'afuri');
+  assert.equal(window.document.activeElement,query);
+  click('[data-clear-filter="query"]');
+  assert.equal(query.value,'');
+  assert.ok(cards().length>1);
+  assert.equal(el<HTMLSelectElement>('#directory-collection').value,'editorial');
+});
+
+test('list view persists across filters and saved-place updates',()=>{
+  window.localStorage.setItem('soupmap:directory-view','list');
+  mountDirectory({account:false});
+  assert.equal(el('#directory-results').dataset.view,'list');
+  assert.equal(el('[data-directory-view="list"]').getAttribute('aria-pressed'),'true');
+  click('[data-directory-save="afuri-ebisu"]');
+  click('[data-directory-collection="saved"]');
+  assert.deepEqual(cards().map(card=>card.dataset.record),['afuri-ebisu']);
+  assert.equal(el('#directory-results').dataset.view,'list');
+  click('[data-directory-view="grid"]');
+  assert.equal(window.localStorage.getItem('soupmap:directory-view'),'grid');
+  assert.equal(el('#directory-results').dataset.view,'grid');
+  assert.equal(el('[data-directory-save="afuri-ebisu"]').getAttribute('aria-pressed'),'true');
+});
+
+test('collection shortcuts preserve native modified-click navigation',()=>{
+  mountDirectory({account:false});
+  const link=el('[data-directory-collection="editorial"]');
+  for(const modifiers of [{ctrlKey:true},{metaKey:true},{shiftKey:true},{altKey:true},{button:1}]){
+    const event=new window.MouseEvent('click',{bubbles:true,cancelable:true,...modifiers});
+    link.dispatchEvent(event);
+    assert.equal(event.defaultPrevented,false);
+    assert.equal(el<HTMLSelectElement>('#directory-collection').value,'all');
+  }
+});
+
+test('filters reopen when the viewport grows beyond the compact breakpoint',()=>{
+  window.happyDOM.setWindowSize({width:390,height:844});
+  mountDirectory({account:false});
+  assert.equal(el<HTMLDetailsElement>('.directory-filter-disclosure').open,false);
+  // happy-dom initializes MediaQueryList listener state as false; prime it at the initial size.
+  window.dispatchEvent(new window.Event('resize'));
+  window.happyDOM.setWindowSize({width:1280,height:900});
+  assert.equal(el<HTMLDetailsElement>('.directory-filter-disclosure').open,true);
+});

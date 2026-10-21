@@ -52,4 +52,7 @@ app.use((error: Error & {status?: number}, _req: express.Request, res: express.R
   res.status(status).json({error:limited ? "A list can hold up to 1,000 places." : status === 500
     ? "Your changes could not be saved. Please try again." : "Invalid request."});
 });
-app.listen(Number(process.env.PORT) || 5000, "0.0.0.0", () => console.log("Soupmap serving on port " + (process.env.PORT || 5000)));
+// Respect the standard dev-server --port flag used by preview hosts. PORT remains authoritative.
+const portArg = process.argv.indexOf("--port");
+const port = Number(process.env.PORT || (portArg >= 0 ? process.argv[portArg + 1] : undefined)) || 5000;
+app.listen(port, "0.0.0.0", () => console.log("Soupmap serving on port " + port));

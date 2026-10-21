@@ -1,3 +1,4 @@
+import { profileUrl } from "./directory.ts";
 /** Small, curated homepage index. Never loads the nationwide catalog or map engine. */
 import { CITIES } from '../data/cities.ts';
 import raw from '../data/shops.json' with { type: 'json' };
@@ -32,7 +33,7 @@ export function homeCityHtml(slug = 'tokyo'): string {
     <a class="home-text-link" href="/city/${city.slug}/">View city directory <span aria-hidden="true">↗</span></a>
   </div>
   <div class="city-places"><div class="city-places__heading"><span>PLACES TO START</span><span>${String(places.length).padStart(2,'0')}</span></div>
-    <ol>${places.map((shop, i) => `<li><a href="/map/#${esc(shop.slug)}">
+    <ol>${places.map((shop, i) => `<li><a href="${esc(profileUrl(shop))}">
       <span class="city-place__number" aria-hidden="true">${String(i+1).padStart(2,'0')}</span>
       <span class="city-place__copy"><strong>${esc(shop.name)}</strong><span>${esc(shop.neighborhood)} <i aria-hidden="true">/</i> ${esc(shop.signatureBowl)}</span></span>
       <span class="city-place__arrow" aria-hidden="true">↗</span></a></li>`).join('')}</ol>

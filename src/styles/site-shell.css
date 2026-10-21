@@ -1,0 +1,38 @@
+@import "@fontsource-variable/space-grotesk";
+@import "./palette.css";
+
+/* Shared product chrome. Page typography can vary; identity and navigation cannot. */
+.site-header { position:relative; z-index:40; background:var(--paper-light); border-bottom:1px solid var(--rule); color:var(--soot); font:13px/1.4 "Space Grotesk Variable",sans-serif; }
+.site-header *, .site-header *::before, .site-header *::after { box-sizing:border-box; }
+.site-header__inner { max-width:1440px; margin:auto; min-height:82px; padding:0 clamp(20px,4vw,56px); display:flex; align-items:center; gap:30px; }
+a.site-brand { display:inline-flex; align-items:center; gap:10px; flex:none; color:var(--soot); text-decoration:none; white-space:nowrap; font:650 29px/1 "Space Grotesk Variable",sans-serif; letter-spacing:-1.7px; }
+.site-brand__seal { display:grid; place-items:center; width:30px; height:32px; background:var(--soot); color:var(--paper-light); font:20px/1 "Noto Sans JP",sans-serif; letter-spacing:0; }
+.site-brand__dot { color:var(--clay); }
+.site-edition { border-left:1px solid var(--rule); padding-left:24px; font-size:9px; letter-spacing:1.2px; white-space:nowrap; }
+.site-edition span { display:block; color:var(--muted); margin-top:4px; letter-spacing:.2px; }
+.site-nav { display:flex; align-self:stretch; align-items:center; gap:28px; margin-left:auto; }
+.site-header a:not(.site-brand), .site-header button { color:var(--soot); font:500 13px/1.4 "Space Grotesk Variable",sans-serif; text-decoration:none; }
+.site-nav a { display:flex; align-items:center; min-height:44px; position:relative; white-space:nowrap; }
+.site-nav a[aria-current]::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--clay); }
+.site-header a:hover { color:var(--clay); }
+.site-account { border-left:1px solid var(--rule); padding-left:24px; }
+.site-account>a, .site-account .account-mini>a { display:inline-flex; align-items:center; min-height:44px; }
+.site-account .account-mini { display:flex; align-items:center; gap:16px; }
+.site-account .account-mini button { display:none; }
+.site-account [role=status] { position:absolute; right:20px; top:100%; max-width:260px; padding:12px; background:var(--paper-light); border:1px solid var(--rule); }
+.site-header :focus-visible { outline:2px solid var(--clay); outline-offset:4px; border-radius:0; }
+.site-subnav { display:flex; flex-wrap:wrap; gap:8px 28px; padding:14px 4%; border-bottom:1px solid var(--rule); background:var(--paper); font:500 12px/1.5 "Space Grotesk Variable",sans-serif; }
+.site-subnav a { display:inline-flex; align-items:center; min-height:36px; text-decoration:none; color:var(--muted); }
+.site-subnav a:hover { color:var(--clay); }
+@media(max-width:1100px) { .site-edition { display:none; } }
+@media(max-width:700px) {
+  .site-header__inner { min-height:0; padding:12px 20px 0; gap:8px 16px; flex-wrap:wrap; }
+  a.site-brand { font-size:26px; min-height:40px; }
+  .site-brand__seal { width:27px; height:29px; font-size:18px; }
+  .site-account { margin-left:auto; border:0; padding:0; }
+  .site-nav { width:100%; order:3; gap:0; justify-content:space-between; margin:0; }
+  .site-header .site-nav a { font-size:12px; min-height:44px; }
+  .site-account .account-mini { gap:10px; }
+  .site-header .home-nav__signup { display:none; }
+  .site-subnav { padding:8px 20px; gap:8px 20px; }
+}

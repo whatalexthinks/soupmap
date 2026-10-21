@@ -1,3 +1,4 @@
+import { siteHeader } from "../src/render/shell.ts";
 import test, {beforeEach, afterEach} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -20,7 +21,7 @@ beforeEach((context)=>{
     ? 'https://soupmap.example/' + shortlistHash(['afuri-ebisu','ichiran-nakasu'])
     : dashboardLink ? 'https://soupmap.example/map/?open=passport' : 'https://soupmap.example/'});
   if (initialShared) window.localStorage.setItem('soupmap:saved:v1', JSON.stringify(['ginza-kagari']));
-  window.document.write(readFileSync(new URL('../map/index.html',import.meta.url),'utf8'));
+  window.document.write(readFileSync(new URL('../map/index.html',import.meta.url),'utf8').replace('<!--soupmap:header:map-->',siteHeader('map','map-account')));
   for (const key of ['Event','document','location','history','localStorage','CSS','HTMLElement','Element','HTMLInputElement','HTMLButtonElement','navigator']) {
     Object.defineProperty(globalThis,key,{value:(window as unknown as Record<string,unknown>)[key],configurable:true});
   }
@@ -547,20 +548,14 @@ test('phone landscape uses the same mobile layout rather than the desktop sideba
   assert.ok(parseFloat(el('#panel').style.getPropertyValue('--sheet-h'))<390);
 });
 
-test('the logo returns home inside the app without restarting the page',()=>{
+test('the map logo is a real home link and does not silently reset discovery',()=>{
   openShared(['afuri-ebisu']);
-  (el('#shop-search') as HTMLInputElement).value='miso';
-  el('#shop-search').dispatchEvent(new window.Event('input'));
+  const logo=el('.site-brand') as HTMLAnchorElement;
+  assert.equal(logo.getAttribute('href'),'/');
   const event=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0});
-  el('.brand').dispatchEvent(event);
-  assert.equal(event.defaultPrevented,true);
-  assert.equal((el('#shop-search') as HTMLInputElement).value,'');
-  assert.equal(el('#map-city').textContent,'Earth');
-  assert.equal(el('#shared-shortlist').hidden,true);
-  assert.equal(window.location.hash,'');
-  const newTab=new window.MouseEvent('click',{bubbles:true,cancelable:true,button:0,ctrlKey:true});
-  el('.brand').dispatchEvent(newTab);
-  assert.equal(newTab.defaultPrevented,false);
+  logo.dispatchEvent(event);
+  assert.equal(event.defaultPrevented,false);
+  assert.equal(el('#shared-shortlist').hidden,false);
 });
 
 test('chapters open on the current map and leave existing discovery filters usable',()=>{

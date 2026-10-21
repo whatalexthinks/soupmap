@@ -117,13 +117,14 @@ export class ShopCard {
     this.el.style.setProperty("--broth", broth.color);
     this.el.style.setProperty("--broth-ink", broth.ink);
     this.el.innerHTML = `
-      <div class="card__scroll">
-        <div class="card__media${shop.photo.url || shop.videoUrl ? "" : " card__media--type"}">
-          ${mediaHtml(shop)}
           <div class="card__topbar">
             <button type="button" class="icon-btn" data-action="save" aria-pressed="${options.saved}" aria-label="${options.saved ? 'Unsave this place' : 'Save this place'}" title="Save this place">${icon('bookmark')}</button>
             <button type="button" class="icon-btn" data-action="close" aria-label="${esc(t("close"))}" title="${esc(t("close"))}">${icon("close")}</button>
           </div>
+      <div class="card__scroll">
+        <div class="card__media${shop.photo.url || shop.videoUrl ? "" : " card__media--type"}">
+          ${mediaHtml(shop)}
+
         </div>
         <div class="card__body">
           <h2 class="card__title" id="card-title" tabindex="-1">${esc(displayName(shop))}</h2>
@@ -135,11 +136,6 @@ export class ShopCard {
           ${chainHtml(shop, shop.chain ? CHAIN_SIZES.get(shop.chain) : undefined)}
           <span class="broth-chip"><span class="swatch" style="--broth:${broth.ink}" aria-hidden="true"></span>${esc(broth.label)} <span class="ja" lang="ja">${esc(broth.labelJa)}</span>${shop.brothSource === "name" ? '<span class="broth-chip__note">from the name</span>' : ""}</span>
           ${stylesHtml(shop)}
-          <dl class="facts">
-            <dt>${esc(t("signatureBowl"))}</dt><dd>${esc(shop.signatureBowl)}</dd>
-            <dt>${esc(t("price"))}</dt><dd>${priceText(shop)}</dd>
-            <dt>${esc(t("hours"))}</dt><dd>${shop.hours ? esc(shop.hours) : `<span class="muted">${esc(t("checkBeforeYouGo"))}</span>`}</dd>
-          </dl>
           <div class="street-view-actions">
             <div class="card__primary-actions">
               <a class="btn btn--primary" data-action="directions" href="${esc(directionsUrl(shop))}" target="_blank" rel="noopener">${icon("directions")}${esc(t("directions"))}</a>
@@ -150,18 +146,23 @@ export class ShopCard {
           </div>
           <a class="card__profile-link" href="${esc(profileUrl(shop))}">Open full place profile ↗</a>
           ${googlePanelShell()}
+          <dl class="facts">
+            <dt>${esc(t("signatureBowl"))}</dt><dd>${esc(shop.signatureBowl)}</dd>
+            <dt>${esc(t("price"))}</dt><dd>${priceText(shop)}</dd>
+            <dt>${esc(t("hours"))}</dt><dd>${shop.hours ? esc(shop.hours) : `<span class="muted">${esc(t("checkBeforeYouGo"))}</span>`}</dd>
+          </dl>
           <p class="blurb">${esc(shop.blurb)}</p>
           ${isEditorial(shop) ? "" : `<section class="card__contact" aria-label="Contact details" aria-busy="true"><p class="card__fine">Loading contact details…</p></section>`}
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
           <div class="visit-actions"><button class="btn btn--primary" data-action="visit">${options.visited?'✓ In your passport · Edit visit':'I had a bowl here · Collect a stamp'}</button><button class="text-btn" data-action="contribute">Read & leave field notes ↗</button></div>
-          <div class="card__history"></div>
+          <details class="card__context"><summary>Around this place <span aria-hidden="true">+</span></summary><div class="card__history"></div></details>
           <div class="actions">
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
             ${shop.splatUrl ? `<button type="button" class="btn" data-action="step-inside">${icon("cube")}${shop.splatUrl?.startsWith("procedural:") ? "View bowl demo" : esc(t("stepInside"))}</button>` : ""}
             <a class="btn" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">${icon("external")}${esc(t("openInGoogleMaps"))}</a>
             <button type="button" class="btn" data-action="copy">${icon("link")}${esc(t("copyLink"))}</button>
           </div>
-          <p class="card__fine">${provenanceHtml(shop)}<a href="/credits/">${esc(t("credits"))}</a></p>
+          <details class="card__source"><summary>Source &amp; data credits</summary><p class="card__fine">${provenanceHtml(shop)}<a href="/credits/">${esc(t("credits"))}</a></p></details>
         </div>
       </div>`;
     this.disposeGoogle = mountGooglePlace(this.el.querySelector<HTMLElement>(".google-place-panel")!, shop);

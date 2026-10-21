@@ -1,3 +1,4 @@
+import { siteHeader } from "./shell.ts";
 /**
  * The Soup Journal's static pages: index, topic pages, articles and an RSS feed.
  * Plain HTML and CSS, readable without JavaScript, with canonical URLs and structured data.
@@ -227,10 +228,7 @@ export function journalHead(page: JournalPage, siteUrl: string, articles: readon
 
 export function journalBody(page: JournalPage): string {
   return `<a class="skip-link" href="#main">Skip to content</a>
-    <header class="j-head">
-      <a class="j-brand" href="/journal/"><span class="j-seal" aria-hidden="true">湯</span><span>soupmap <em>journal</em></span></a>
-      <nav class="j-head__nav" aria-label="Site"><a href="/journal/"${page.path === "/journal/" ? ' aria-current="page"' : ""}>Journal</a><a href="/map/">Map</a><a href="/catalog/">Catalog</a></nav>
-    </header>
+    ${siteHeader("journal")}
     <main id="main" class="j-main">${page.main}</main>
     <footer class="j-foot">
       <div class="j-wave" aria-hidden="true"></div>

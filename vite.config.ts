@@ -1,3 +1,4 @@
+import { renderSiteShell } from "./src/render/shell.ts";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
@@ -45,9 +46,11 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   const journal = journalPages(articles);
   const journalIndex = journal.find(page => page.path === "/journal/")!;
   let directoryChunk: string;
+  let building = false;
   return {
     name: "soupmap-html",
-    buildStart() { directoryChunk = this.emitFile({type:"chunk", id:resolve("src/catalog-entry.ts"), name:"directory"}); },
+    configResolved(config) { building = config.command === "build"; },
+    buildStart() { if (building) directoryChunk = this.emitFile({type:"chunk", id:resolve("src/catalog-entry.ts"), name:"directory"}); },
     // Run after Vite's HTML emitter so the compiled credits CSS URLs exist.
     enforce: "post",
     configureServer(server) {
@@ -81,7 +84,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
       });
     },
     transformIndexHtml(html) {
-      let out = html
+      let out = renderSiteShell(html)
         .replaceAll("%SITE_URL%", siteUrl)
         .replace("<!--soupmap:journal-head-->", journalHead(journalIndex, siteUrl, articles))
         .replace("<!--soupmap:journal-body-->", journalBody(journalIndex))
@@ -176,7 +179,7 @@ export default defineConfig(({ mode }) => {
       host: "0.0.0.0",
       port: 5000,
       strictPort: true,
-      allowedHosts: [".replit.dev", ".replit.app", ".repl.co"],
+      allowedHosts: [".replit.dev", ".replit.app", ".repl.co", "terminal.local"],
     },
     define: {
       __CESIUM_BASE_URL__: JSON.stringify(`/${CESIUM_DIR}/`),

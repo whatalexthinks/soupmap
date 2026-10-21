@@ -14,3 +14,5 @@
 - [Homepage visual direction](homepage-visual-direction.md) — Japanese minimalism + brutalism; real app screenshots over artificial map and alley imagery.
 - [Preview routing](preview-routing.md) — check the Preview address for an internal port before changing a healthy server.
 - [Your Soupmap dashboard](dashboard-policy.md) — /me/ works without an account, suggests from your own data only, and reads auth only through /api/me.
+
+- [Site identity and navigation](site-navigation.md) — one shared wordmark, destinations and warm palette; useful paths between discovery, profiles and plans.
