@@ -1,12 +1,12 @@
 /**
  * Everything the dashboard knows about the visitor, from where it already lives:
- * device saves and passport visits (localStorage), saved trips (localStorage), and,
- * when signed in, account lists from /api/me. Device and account saves stay separate
- * until the visitor imports one into the other.
+ * legacy device data (read-only) and private account saves. New personal data is
+ * persisted only to the account; old data is never silently imported.
  */
 import { parseSaved, SAVED_KEY } from "../discovery.ts";
 import { PASSPORT_KEY, localDate, parseVisits, type Visits } from "../passport.ts";
 import { api, type PersonalList } from "../personal-saves.ts";
+import { accountEntries, putAccountEntry, deleteAccountEntry } from "../personal-entries.ts";
 
 export const TRIPS_KEY = "soupmap:trips:v1";
 export const TRIP_LIMIT = 30;
@@ -29,9 +29,6 @@ type Storage = Pick<globalThis.Storage, "getItem" | "setItem">;
 
 function read(storage: Storage | null, key: string): string | null {
   try { return storage?.getItem(key) ?? null; } catch { return null; }
-}
-function write(storage: Storage | null, key: string, value: unknown): boolean {
-  try { storage?.setItem(key, JSON.stringify(value)); return !!storage; } catch { return false; }
 }
 
 export function parseTrips(raw: string | null, valid: ReadonlySet<string>): SavedTrip[] {
@@ -87,8 +84,10 @@ export class UserData {
   /** Re-read browser storage, e.g. after the map changed it in another tab. */
   reload(): void {
     this.deviceSaved = parseSaved(read(this.storage, SAVED_KEY), this.valid);
-    this.visits = parseVisits(read(this.storage, PASSPORT_KEY));
-    this.trips = parseTrips(read(this.storage, TRIPS_KEY), this.valid);
+    if (!this.signedIn) {
+      this.visits = parseVisits(read(this.storage, PASSPORT_KEY));
+      this.trips = parseTrips(read(this.storage, TRIPS_KEY), this.valid);
+    }
   }
 
   get signedIn(): boolean { return this.account.status === "signed-in"; }
@@ -109,9 +108,18 @@ export class UserData {
   }
 
   async refreshAccount(fetcher?: typeof fetch): Promise<void> {
+    const wasSignedIn=this.signedIn;
     const next = await loadAccount(fetcher);
     // A dropped connection shouldn't make a signed-in visitor look signed out.
     if (next.status !== "unavailable" || !this.signedIn) this.account = next;
+    if(wasSignedIn && next.status==="guest"){this.visits={};this.trips=[];}
+    if (this.signedIn && !fetcher) {
+      const [visits,trips]=await Promise.all([
+        accountEntries<Visits[string]>("visit"),accountEntries<SavedTrip>("trip"),
+      ]);
+      this.visits=visits;
+      this.trips=parseTrips(JSON.stringify(Object.values(trips)),this.valid);
+    }
   }
 
   async setSaved(slug: string, saved: boolean): Promise<void> {
@@ -121,8 +129,7 @@ export class UserData {
       if (list) list.ids = saved ? [...new Set([...list.ids, slug])] : list.ids.filter(id => id !== slug);
       return;
     }
-    if (saved) this.deviceSaved.add(slug); else this.deviceSaved.delete(slug);
-    this.persistent = write(this.storage, SAVED_KEY, [...this.deviceSaved]);
+    throw new Error("Create an account or sign in to save your places.");
   }
 
   async importDeviceSaves(): Promise<number> {
@@ -134,34 +141,40 @@ export class UserData {
   }
 
   /** A quick passport stamp from the dashboard; details can be added on the map later. */
-  markVisited(slug: string, date = localDate()): void {
-    this.visits[slug] = { date, bowl: this.visits[slug]?.bowl ?? "", note: this.visits[slug]?.note ?? "", wouldReturn: this.visits[slug]?.wouldReturn ?? false };
-    this.persistent = write(this.storage, PASSPORT_KEY, this.visits);
+  async markVisited(slug: string, date = localDate()): Promise<void> {
+    if (!this.signedIn) throw new Error("Sign in to keep your passport.");
+    const visit={ date, bowl: this.visits[slug]?.bowl ?? "", note: this.visits[slug]?.note ?? "", wouldReturn: this.visits[slug]?.wouldReturn ?? false };
+    await putAccountEntry("visit",slug,visit);
+    this.visits[slug]=visit;
   }
 
-  unmarkVisited(slug: string): void {
+  async unmarkVisited(slug: string): Promise<void> {
+    if (!this.signedIn) throw new Error("Sign in to update your passport.");
+    await deleteAccountEntry("visit",slug);
     delete this.visits[slug];
-    this.persistent = write(this.storage, PASSPORT_KEY, this.visits);
   }
 
-  saveTrip(trip: Omit<SavedTrip, "id" | "created">): SavedTrip {
+  async saveTrip(trip: Omit<SavedTrip, "id" | "created">): Promise<SavedTrip> {
+    if (!this.signedIn) throw new Error("Sign in to keep this trip.");
     const saved: SavedTrip = { ...trip, id: `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, created: localDate() };
+    await putAccountEntry("trip",saved.id,saved);
     this.trips = [saved, ...this.trips].slice(0, TRIP_LIMIT);
-    this.persistent = write(this.storage, TRIPS_KEY, this.trips);
     return saved;
   }
 
-  deleteTrip(id: string): void {
+  async deleteTrip(id: string): Promise<void> {
+    if (!this.signedIn) throw new Error("Sign in to update your trips.");
+    await deleteAccountEntry("trip",id);
     this.trips = this.trips.filter(t => t.id !== id);
-    this.persistent = write(this.storage, TRIPS_KEY, this.trips);
   }
 
   /** Copy a trip into a new account list (every stop, in order). */
   async saveTripToAccount(trip: SavedTrip): Promise<void> {
+    if (!this.signedIn) throw new Error("Sign in to keep this trip.");
     const { list } = await api<{ list: PersonalList }>("/lists", "POST", { name: trip.name.slice(0, 80) });
     await api(`/lists/${list.id}/items`, "PUT", { ids: trip.days.flatMap(d => d.stops), add: true });
     trip.listId = list.id;
-    this.persistent = write(this.storage, TRIPS_KEY, this.trips);
+    await putAccountEntry("trip",trip.id,trip);
     await this.refreshAccount();
   }
 

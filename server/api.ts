@@ -4,6 +4,7 @@ import { z } from "zod";
 import { shopBySlug } from "../src/data/shops.ts";
 import { getClerkProxyHost } from "./middlewares/clerkProxyMiddleware.ts";
 import { ListStore } from "./lists.ts";
+import { entryKind, entryKey, validEntry } from "./personal-entry-schema.ts";
 
 const uuid = z.uuid();
 const name = z.object({name: z.string().trim().min(1).max(80)}).strict();
@@ -11,7 +12,7 @@ const items = z.object({ids: z.array(z.string().max(160).regex(/^[a-z0-9][a-z0-9
   add: z.boolean().default(true)}).strict().refine(value=>!value.add||value.ids.every(id=>shopBySlug.has(id)));
 
 /** Resolver injection is for tests; the actual server always uses Clerk getAuth. */
-export function personalApi(store: ListStore, userId: (req: Request) => string | null = req => getAuth(req).userId) {
+export function personalApi(store: ListStore, userId: (req: Request) => string | null = req => getAuth(req).userId, recipes: ReadonlySet<string> = new Set()) {
   const router = Router();
   router.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store");
@@ -31,6 +32,23 @@ export function personalApi(store: ListStore, userId: (req: Request) => string |
     next();
   });
   router.get("/me", async (_req, res) => { res.json({lists: await store.all(res.locals.owner)}); });
+  router.get("/personal/:kind", async (req,res) => {
+    if (!entryKind.safeParse(req.params.kind).success) {res.status(400).json({error:"Invalid collection."});return;}
+    res.json({entries:await store.entries(res.locals.owner,req.params.kind as string)});
+  });
+  router.put("/personal/:kind/:key", async (req,res) => {
+    const kind=req.params.kind as string,key=req.params.key as string;
+    if (!validEntry(kind,key,req.body,recipes)) {res.status(400).json({error:"Invalid saved item."});return;}
+    await store.putEntry(res.locals.owner,kind,key,req.body);
+    res.json({ok:true});
+  });
+  router.delete("/personal/:kind/:key", async (req,res) => {
+    if (!entryKind.safeParse(req.params.kind).success || !entryKey.safeParse(req.params.key).success) {
+      res.status(400).json({error:"Invalid saved item."});return;
+    }
+    await store.deleteEntry(res.locals.owner,req.params.kind as string,req.params.key as string);
+    res.json({ok:true});
+  });
   router.post("/lists", async (req, res) => {
     const parsed = name.safeParse(req.body);
     if (!parsed.success) { res.status(400).json({error:"Use a list name between 1 and 80 characters."}); return; }

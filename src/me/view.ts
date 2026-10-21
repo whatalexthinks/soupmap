@@ -1,3 +1,4 @@
+import { requireSaveAccount } from "../personal-saves.ts";
 import { profileUrl } from "../render/directory.ts";
 /**
  * The "Your Soupmap" dashboard: plan a trip, keep places, collect the passport, and
@@ -137,11 +138,7 @@ export class Dashboard {
   private storedInput(): TripInput {
     const places = [...this.data.saved, ...Object.keys(this.data.visits)].flatMap(s => this.ctx.bySlug.get(s) ?? []);
     const fallback: TripInput = { area: `city:${focusCity(places)}`, days: 2, perDay: 3, cravings: [], skipChains: true, skipVisited: true, seed: 1 };
-    try {
-      const saved = JSON.parse(localStorage.getItem(PLANNER_KEY) ?? "null") as Partial<TripInput> | null;
-      if (!saved || typeof saved !== "object") return fallback;
-      return { ...fallback, ...saved, cravings: Array.isArray(saved.cravings) ? saved.cravings.filter(c => typeof c === "string") : [] };
-    } catch { return fallback; }
+    return fallback;
   }
 
   private readForm(form: HTMLFormElement): void {
@@ -151,7 +148,6 @@ export class Dashboard {
       cravings: fd.getAll("craving").map(String), skipChains: fd.has("skipChains"), skipVisited: fd.has("skipVisited"),
       seed: this.input.seed,
     };
-    try { localStorage.setItem(PLANNER_KEY, JSON.stringify({ ...this.input, seed: undefined })); } catch { /* A convenience only. */ }
   }
 
   private makePlan(): void {
@@ -176,6 +172,12 @@ export class Dashboard {
       catch (error) { this.notice = error instanceof Error ? error.message : "That didn't work. Please try again."; }
       finally { this.busy = false; this.render(); this.refocus(section, slug, trip); }
     };
+    if (["save-trip","delete-trip","trip-to-account","save","unsave","visit","unvisit"].includes(action ?? "")) {
+      try {
+        if (!await requireSaveAccount(action?.includes("trip") ? "trip" : action?.includes("visit") ? "visit" : "place")) return;
+        if (!this.data.signedIn) await this.data.refreshAccount();
+      } catch {this.notice="Your account is unavailable. Please retry; nothing was saved to this device.";this.render();return;}
+    }
     switch (action) {
       case "shuffle":
         this.input = { ...this.input, seed: this.input.seed + 1 };
@@ -185,11 +187,10 @@ export class Dashboard {
         if (!this.plan) return;
         const plan = this.plan;
         await run(async () => {
-          const trip = this.data.saveTrip({ name: `${plan.areaLabel} · ${plan.days.length} ${plan.days.length === 1 ? "day" : "days"}`,
+          await this.data.saveTrip({ name: `${plan.areaLabel} · ${plan.days.length} ${plan.days.length === 1 ? "day" : "days"}`,
             area: plan.area, areaLabel: plan.areaLabel, days: plan.days.map(d => ({ title: d.title, stops: d.stops.map(s => s.slug) })) });
-          if (this.data.signedIn) await this.data.saveTripToAccount(trip);
-          trackEvent("trip_saved", { to_account: this.data.signedIn, days: trip.days.length });
-        }, this.data.signedIn ? "Trip saved, and added to your account as a list." : "Trip saved on this device.");
+          trackEvent("trip_saved", { to_account: this.data.signedIn, days: plan.days.length });
+        }, "Trip saved to your account. Find it here on any device.");
         return;
       }
       case "copy-trip": {
@@ -201,7 +202,7 @@ export class Dashboard {
         return;
       }
       case "delete-trip":
-        if (trip) await run(() => this.data.deleteTrip(trip), "Trip deleted from this device.");
+        if (trip) await run(() => this.data.deleteTrip(trip), "Trip deleted from your account.");
         return;
       case "trip-to-account": {
         const saved = this.data.trips.find(t => t.id === trip);
@@ -213,7 +214,7 @@ export class Dashboard {
         if (slug) await run(() => this.data.setSaved(slug, action === "save"), action === "save" ? "Saved." : "Removed from your saved places.");
         return;
       case "visit":
-        if (slug) await run(() => { this.data.markVisited(slug); trackEvent("dashboard_visit_marked"); }, "Stamped in your passport. Add the bowl and a note on the map.");
+        if (slug) await run(async () => { await this.data.markVisited(slug); trackEvent("dashboard_visit_marked"); }, "Stamped in your account passport. Add the bowl and a note on the map.");
         return;
       case "unvisit":
         if (slug) await run(() => this.data.unmarkVisited(slug), "Visit removed from your passport.");
@@ -264,21 +265,21 @@ export class Dashboard {
   }
 
   private hero(saved: Shop[], visited: Shop[], styles: number, regional: number): string {
-    const status = this.data.signedIn ? "SIGNED IN" : "ON THIS DEVICE";
+    const status = this.data.signedIn ? "SIGNED IN" : "EXPLORE FIRST · SAVE WITH AN ACCOUNT";
     const city = saved.length || visited.length ? cityBySlug.get(focusCity([...saved, ...visited]))?.name : undefined;
     const dek = saved.length || visited.length
       ? `${saved.length} ${saved.length === 1 ? "place" : "places"} saved, ${visited.length} visited${city ? `. ${city} is your city so far` : ""}. Plan the next few bowls below.`
       : "Pick a city and what you're craving. We'll lay out a few bowls a day, grouped so you can walk between them, and keep track of where you've eaten.";
     let banner = "";
     if (this.data.account.status === "guest") {
-      banner = `<aside class="me-banner"><p><strong>Saved on this device only.</strong> Create a free account to keep your places on every device. Your device saves stay put until you choose to import them.</p>
+      banner = `<aside class="me-banner"><p><strong>Keep your next great discovery.</strong> Explore and plan freely. Create an account with your email to keep your places, trips and bowl memories across devices.</p>
         <div class="me-actions"><a class="me-button me-button--solid" href="/sign-up">Create an account</a><a class="me-button" href="/sign-in">Sign in</a></div></aside>`;
     } else if (this.data.signedIn && this.data.importable.length) {
       const n = this.data.importable.length;
       banner = `<aside class="me-banner"><p><strong>${n} ${n === 1 ? "place" : "places"} saved on this browser ${n === 1 ? "isn't" : "aren't"} in your account yet.</strong> Importing adds ${n === 1 ? "it" : "them"}; nothing is replaced.</p>
         <div class="me-actions"><button type="button" class="me-button me-button--solid" data-action="import">${n === 1 ? "Import it" : "Import them"}</button></div></aside>`;
     } else if (this.data.signedIn) {
-      banner = `<aside class="me-banner me-banner--quiet"><p>Signed in. Saved places and lists sync to your account; trips and your passport also stay on this device.</p><a class="me-button" href="/account">Manage lists ↗</a></aside>`;
+      banner = `<aside class="me-banner me-banner--quiet"><p>Your places, trips and passport are kept privately in your account, ready on any device.</p><a class="me-button" href="/account">Manage lists ↗</a></aside>`;
     }
     return `<section class="me-hero" aria-labelledby="me-title">
       <div class="me-hero__copy">
@@ -384,7 +385,7 @@ export class Dashboard {
 
   private places(saved: Shop[]): string {
     const head = `<header class="me-section__head"><p class="me-label">03 / YOUR PLACES</p><h2 id="places-title">Saved places</h2>
-      <p>${this.data.signedIn ? "From your account." : "Saved in this browser."} Mark a place visited to stamp your passport.</p></header>`;
+      <p>${this.data.signedIn ? "From your account." : "Create an account to keep your discoveries. Older browser saves can be imported after sign-in."} Mark a place visited to stamp your passport.</p></header>`;
     const lists = this.data.signedIn && this.data.customLists.length ? `<div class="me-lists"><h3>Your lists</h3><ul>${this.data.customLists.map(l =>
       `<li><strong>${esc(l.name)}</strong><span>${l.ids.length}</span>${l.ids.length ? `<a href="${esc(collectionUrl(this.origin, l.ids))}">Open on the map ↗</a>` : ""}</li>`).join("")}</ul>
       <a class="me-link" href="/account">Manage lists ↗</a></div>` : "";
@@ -430,7 +431,7 @@ export class Dashboard {
     }).join("");
     return `<section id="passport" class="me-section" aria-labelledby="passport-title">
       <header class="me-section__head"><p class="me-label">04 / PASSPORT</p><h2 id="passport-title">Collect the bowls, not the points.</h2>
-        <p>Every place you mark visited stamps a broth style, and counts toward Japan's regional bowls. Stored on this device.</p></header>
+        <p>Every place you mark visited stamps a broth style, and counts toward Japan's regional bowls. Keep your passport privately in your account.</p></header>
       <div class="me-passport">
         <div><h3>Broth styles <small>${tried.size}/${STYLE_BROTHS.length}</small></h3><ul class="me-stamps">${stamps}</ul>
           ${recent ? `<h3>Recent visits</h3><ul class="me-recent">${recent}</ul>` : ""}
@@ -470,7 +471,7 @@ export class Dashboard {
   private dataSection(): string {
     return `<section id="data" class="me-section me-data" aria-labelledby="data-title"><header class="me-section__head"><p class="me-label">YOUR DATA</p>
       <h2 id="data-title">Yours to keep.</h2></header>
-      <p>Trips, passport visits${this.data.signedIn ? "" : " and saved places"} live in this browser. ${this.data.signedIn ? "Saved places and lists live in your account. " : ""}Download a copy any time; clearing your browser data removes what's stored here.</p>
+      <p>New places, trips and passport visits are saved to your account, not this device. Any older browser saves stay untouched until you explicitly import them.</p>
       <button type="button" class="me-button" data-action="export">Download my data (JSON)</button></section>`;
   }
 }

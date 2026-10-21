@@ -1,0 +1,164 @@
+.save-prompt {
+  --save-paper: #fbf6ec;
+  --save-ink: #302922;
+  --save-muted: #706459;
+  --save-clay: #984a34;
+  --save-rule: #d8cbbb;
+  box-sizing: border-box;
+  width: min(540px, calc(100vw - 32px));
+  max-width: 540px;
+  max-height: min(90dvh, 760px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  color: var(--save-ink);
+  background: var(--save-paper);
+  border: 1px solid var(--save-rule);
+  border-radius: 5px;
+  box-shadow: 0 24px 80px rgb(48 41 34 / 24%);
+  font-family: "Space Grotesk Variable", "Space Grotesk", system-ui, sans-serif;
+}
+
+.save-prompt *,
+.save-prompt *::before,
+.save-prompt *::after {
+  box-sizing: border-box;
+}
+
+.save-prompt::backdrop {
+  background: rgb(35 29 24 / 58%);
+}
+
+.save-prompt__inner {
+  position: relative;
+  padding: clamp(28px, 6vw, 48px);
+}
+
+.save-prompt__privacy {
+  margin:20px 0 0;
+  color:var(--save-muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.save-prompt__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 21px;
+  color: var(--save-muted);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 1.35px;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.save-prompt__mark {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--save-clay);
+}
+
+.save-prompt__title {
+  max-width: 420px;
+  margin: 0;
+  font-size: clamp(31px, 8vw, 48px);
+  font-weight: 620;
+  letter-spacing: -2.2px;
+  line-height: 1.04;
+}
+
+.save-prompt__copy {
+  max-width: 390px;
+  margin: 17px 0 28px;
+  color: var(--save-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.save-prompt__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.save-prompt__signup,
+.save-prompt__signin,
+.save-prompt__dismiss {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font: 600 14px/1.3 "Space Grotesk Variable", "Space Grotesk", system-ui, sans-serif;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.save-prompt__signup {
+  color: var(--save-paper);
+  background: var(--save-clay);
+}
+
+.save-prompt__signup:hover {
+  background: #7f3928;
+}
+
+.save-prompt__signin {
+  color: var(--save-ink);
+  background: transparent;
+  border-color: var(--save-rule);
+}
+
+.save-prompt__signin:hover {
+  border-color: var(--save-clay);
+  color: var(--save-clay);
+}
+
+.save-prompt__dismiss {
+  min-height: 42px;
+  padding: 8px 12px;
+  color: var(--save-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.save-prompt__dismiss:hover {
+  color: var(--save-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.save-prompt :focus-visible {
+  outline: 3px solid var(--save-clay);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .save-prompt {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+    border-radius: 4px;
+  }
+
+  .save-prompt__inner {
+    padding: 30px 24px 24px;
+  }
+
+  .save-prompt__title {
+    letter-spacing: -1.6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save-prompt__signup,
+  .save-prompt__signin,
+  .save-prompt__dismiss {
+    transition: none;
+  }
+}

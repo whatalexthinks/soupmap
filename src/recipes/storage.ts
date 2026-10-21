@@ -1,4 +1,6 @@
-/** Per-visitor recipe conveniences kept in this browser: saved recipes, notes, units, checked ingredients. */
+/** Recipes and notes belong to accounts; units/checks are cooking preferences only. */
+import { accountEntries, putAccountEntry } from "../personal-entries.ts";
+import { ApiError, requireSaveAccount } from "../personal-saves.ts";
 
 export const SAVED_RECIPES_KEY = "soupmap:recipes:saved:v1";
 export const NOTES_KEY = "soupmap:recipes:notes:v1";
@@ -15,26 +17,34 @@ function write(storage: Pick<Storage, "setItem"> | null, key: string, value: unk
 const local = () => { try { return window.localStorage; } catch { return null; } };
 const session = () => { try { return window.sessionStorage; } catch { return null; } };
 
-export function savedRecipes(): Set<string> {
-  const value = read(local(), SAVED_RECIPES_KEY);
-  return new Set(Array.isArray(value) ? value.filter((s): s is string => typeof s === "string" && /^[a-z0-9-]{1,120}$/.test(s)).slice(0, 500) : []);
+type RecipeMemory = {saved:boolean;note:string};
+let memories: Record<string,RecipeMemory> = {};
+export async function loadRecipeStorage(): Promise<void> {
+  try { memories=await accountEntries<RecipeMemory>("recipe"); }
+  catch(error) { memories={}; if (!(error instanceof ApiError && error.status===401)) throw error; }
 }
-export function setRecipeSaved(slug: string, saved: boolean): boolean {
-  const all = savedRecipes();
-  if (saved) all.add(slug); else all.delete(slug);
-  return write(local(), SAVED_RECIPES_KEY, [...all]);
+export function savedRecipes(): Set<string> {
+  return new Set(Object.keys(memories).filter(slug=>memories[slug]?.saved));
+}
+export async function setRecipeSaved(slug: string, saved: boolean): Promise<boolean> {
+  if (!await requireSaveAccount("recipe")) return false;
+  await loadRecipeStorage();
+  const value={saved,note:memories[slug]?.note ?? ""};
+  await putAccountEntry("recipe",slug,value);
+  memories[slug]=value;
+  return true;
 }
 
 export function recipeNote(slug: string): string {
-  const value = read(local(), NOTES_KEY) as Record<string, unknown> | null;
-  const note = value && typeof value === "object" ? value[slug] : "";
-  return typeof note === "string" ? note.slice(0, 2000) : "";
+  return memories[slug]?.note ?? "";
 }
-export function setRecipeNote(slug: string, note: string): boolean {
-  const value = read(local(), NOTES_KEY);
-  const notes = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, string> : {};
-  if (note.trim()) notes[slug] = note.slice(0, 2000); else delete notes[slug];
-  return write(local(), NOTES_KEY, notes);
+export async function setRecipeNote(slug: string, note: string): Promise<boolean> {
+  if (!await requireSaveAccount("note")) return false;
+  await loadRecipeStorage();
+  const value={saved:memories[slug]?.saved ?? false,note:note.slice(0,2000)};
+  await putAccountEntry("recipe",slug,value);
+  memories[slug]=value;
+  return true;
 }
 
 export function preferredUnits(): "metric" | "us" {

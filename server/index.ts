@@ -49,7 +49,7 @@ app.use('/api/passport', growthAccountApi(growthStore));
 // Recipe reviews are public to read, so they mount before the account-only API.
 const recipeSlugs = new Set(readdirSync(resolve("content/recipes")).filter(name => name.endsWith(".md") && name !== "README.md").map(name => name.slice(0, -3)));
 app.use("/api/recipes", recipesApi(reviews, recipeSlugs));
-app.use("/api", personalApi(new ListStore()));
+app.use("/api", personalApi(new ListStore(), undefined, recipeSlugs));
 app.use("/api", (_req, res) => { res.status(404).json({error:"Not found."}); });
 
 const legacyShops = new Set(CURATED_SHOPS.map(shop=>shop.slug));

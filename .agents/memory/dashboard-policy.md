@@ -7,7 +7,9 @@ description: What /me/ is for and the rules it keeps, so later changes don't tur
 **Why:** Visitors had no starting point and no reason to return; saves, passport and account lists were scattered across the map, dialogs and /account.
 
 **How to apply:**
-- Never require an account to plan, save or stamp. Guests use localStorage; signed-in visitors use /api lists. Device saves join an account only through the explicit, additive Import.
+- Planning and browsing stay public. Saving places, trips or passport memories requires an account; never fall back to device storage. Legacy device saves join an account only through explicit, additive import.
 - Suggestions come only from the catalog plus the visitor's own saves and visits, computed in the browser. No tracking or profiles. Plan reasons describe facts ("Tsukemen, from the name", "Editor's pick"), never quality, opening hours or menus.
 - A regional bowl counts only when the place serves that bowl (named style, or the right kind of shop in the right place), not anything eaten in the region.
 - The dashboard reads auth only via GET /api/me, so auth work in src/account.tsx and server/ stays independent.
+
+**Why (saving policy):** The user changed the requirement: “for people to save something they cannot save to device they need to be prompted to create an account or submit there email everywhere appropriate and with good sales technique.”

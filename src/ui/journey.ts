@@ -6,6 +6,8 @@ import { communityRequest, DRAFT_KEY, NOTE_LABELS, RECEIPTS_KEY, readReceipts, t
 import { $, esc } from './dom.ts';
 import { icon } from './icons.ts';
 import { toast } from './feedback.ts';
+import { ApiError, requireSaveAccount } from '../personal-saves.ts';
+import { accountEntries, putAccountEntry, deleteAccountEntry } from '../personal-entries.ts';
 
 interface JourneyHost {
   select(slug:string):void;
@@ -31,7 +33,11 @@ export class Journey {
   private coverage:{shop:string;kind:NoteKind;count:number}[]=[];
   private notes:PublicNote[]=[];
   private newlyStamped:string|null=null;
+  private accountDraft:Partial<Contribution>={};
   constructor(private readonly host:JourneyHost) {
+    void this.refreshVisits();
+    void accountEntries<Partial<Contribution>>("draft").then(entries=>{this.accountDraft=entries.community??{};}).catch(()=>{});
+    window.addEventListener("soupmap:account-saves",()=>void this.refreshVisits());
     $('#hubs-tab').addEventListener('click',()=>this.show('hubs'));
     $('#passport-tab').addEventListener('click',()=>this.show('passport'));
     $('#contribute-btn').addEventListener('click',()=>this.showContribution());
@@ -59,10 +65,18 @@ export class Journey {
     });
   }
   get open():boolean{return this.dialog.open;}
-  private loadVisits():Visits {try{return parseVisits(localStorage.getItem(PASSPORT_KEY));}catch{return {};}}
-  private persistVisits():void {
-    try{localStorage.setItem(PASSPORT_KEY,JSON.stringify(this.visits));}
-    catch{toast('Kept for this session. Export your passport to keep a backup.',4500);}
+  private loadVisits():Visits {return {};}
+  private async refreshVisits():Promise<void> {
+    try {
+      this.visits=await accountEntries<Visits[string]>("visit");
+      this.host.changed();
+      if(this.open&&this.page==="passport")this.renderPassport();
+    } catch(error) {
+      if(error instanceof ApiError&&error.status===401){this.visits={};this.host.changed();if(this.open&&this.page==="passport")this.renderPassport();}
+    }
+  }
+  private async persistVisits():Promise<void> {
+    await Promise.all(Object.entries(this.visits).map(([slug,visit])=>putAccountEntry("visit",slug,visit)));
     this.host.changed();
   }
   show(page:Page):void {
@@ -70,7 +84,7 @@ export class Journey {
     this.page=page;
     if(!this.open){this.returnFocus=document.activeElement as HTMLElement;this.dialog.showModal();this.dialog.append($('#toast'));}
     if(page==='hubs'){this.renderHubs();void this.loadSuggestions();}
-    if(page==='passport'){this.renderPassport();void this.refreshReceipts();}
+    if(page==='passport'){this.renderPassport();void this.refreshReceipts();void this.refreshVisits();}
     this.content.scrollTop=0;
     $('#journey-title').focus({preventScroll:true});
   }
@@ -99,7 +113,7 @@ export class Journey {
     const stats=passportStats(this.visits);const accepted=this.receipts.filter(r=>r.status==='approved').length;
     const selected=this.passportFilter==='saved'?[...this.host.saved()]:Object.keys(this.visits).filter(slug=>this.passportFilter!=='favorites'||this.visits[slug]?.wouldReturn);
     const shops=selected.flatMap(s=>shopBySlug.get(s)??[]).sort((a,b)=>(this.visits[b.slug]?.date??'').localeCompare(this.visits[a.slug]?.date??''));
-    this.content.innerHTML=`<section class="passport-cover"><div><span class="eyebrow">SOUPMAP / PERSONAL FIELD RECORD</span><h3>Every bowl,<br><em>a little story.</em></h3><p>Your visits and private notes stay on this device.<br>Export a backup to keep them safe.</p></div><div class="passport-emblem"><span lang="ja">湯</span><small>THE SOUP PASSPORT</small></div><div class="passport-stats"><span><strong>${stats.bowls}</strong>places visited</span><span><strong>${stats.cities}</strong>cities explored</span><span><strong>${stats.styles}</strong>broth styles</span></div></section>
+    this.content.innerHTML=`<section class="passport-cover"><div><span class="eyebrow">SOUPMAP / PERSONAL FIELD RECORD</span><h3>Every bowl,<br><em>a little story.</em></h3><p>Keep your visits and private notes in your account.<br>Your bowl memories, ready on any device.</p></div><div class="passport-emblem"><span lang="ja">湯</span><small>THE SOUP PASSPORT</small></div><div class="passport-stats"><span><strong>${stats.bowls}</strong>places visited</span><span><strong>${stats.cities}</strong>cities explored</span><span><strong>${stats.styles}</strong>broth styles</span></div></section>
       <div class="passport-tools"><button class="btn" data-passport-share ${stats.bowls?'':'disabled'}>${icon('link')}Share visited places</button><button class="btn" data-download-card ${stats.bowls?'':'disabled'}>Download share card</button><button class="text-btn" data-export>Export backup</button><label class="text-btn import-label">Import backup<input id="passport-import" type="file" accept="application/json,.json" aria-label="Import passport backup"></label></div>
       <p class="share-privacy">Sharing includes only your visited shop list. Your dates, notes, and contribution receipts stay private.</p>
       <div class="journey-section-heading"><h3>A few milestones.</h3><span>NO DEADLINES. NO STREAKS.</span></div>
@@ -117,8 +131,7 @@ export class Journey {
   showContribution(shop?:Shop,kind:NoteKind='tip'):void {
     this.focusedShop=shop?.slug??null;this.show('contribute');this.title('Leave something useful.','FIELD NOTES / COMMUNITY GUIDE');
     this.connected=false;this.coverage=[];this.notes=[];
-    let draft:Partial<Contribution>={};
-    try{const raw=JSON.parse(localStorage.getItem(DRAFT_KEY)??'{}');if(raw&&typeof raw==='object'&&!Array.isArray(raw))draft=raw;}catch{/* ignore malformed drafts */}
+    let draft:Partial<Contribution>={...this.accountDraft};
     if(shop)draft={...(draft.shop===shop.slug?draft:{author:draft.author}),shop:shop.slug,city:shop.city,kind};
     if(kind==='place')draft={...(draft.kind==='place'?draft:{author:draft.author}),kind:'place',shop:''};
     const selected=shopBySlug.get(typeof draft.shop==='string'?draft.shop:'')??shop??ORDERED_SHOPS[0]!;
@@ -151,8 +164,15 @@ export class Journey {
     return {shop:get('kind')==='place'?'':get('shop'),city:get('kind')==='place'?get('city'):shop?.city??get('city'),kind:get('kind') as NoteKind,body:get('body'),author:get('author'),date:get('date'),placeName:get('placeName'),mapUrl:get('mapUrl'),consent:(form.elements.namedItem('consent') as HTMLInputElement).checked,website:get('website')};
   }
   private saveDraft(announce=true):void {
-    try{const {consent:_,website:__,...draft}=this.draft();localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));if(announce)toast('Draft saved on this device. Not submitted.');}
-    catch{if(announce)toast('Browser storage is unavailable. Copy your note before leaving.',4500);}
+    // Typing is not consent to save. Keep the form in memory until an explicit click.
+    if(!announce)return;
+    void requireSaveAccount("note").then(async ready=>{
+      if(!ready)return;
+      const {consent:_,website:__,...draft}=this.draft();
+      await putAccountEntry("draft","community",draft);
+      this.accountDraft=draft;
+      toast("Draft saved privately to your account. Not submitted.");
+    }).catch(()=>toast("Your draft could not be saved. Keep this page open and retry.",4500));
   }
   private async loadCommunity():Promise<void> {
     const generation=this.generation;
@@ -169,7 +189,7 @@ export class Journey {
       this.coverage=coverage;this.notes=notes;this.renderMissions();this.renderNotes();
     }catch{
       if(generation!==this.generation||requestId!==this.communityRequestId)return;
-      $('#community-status').textContent='The community guide is unavailable. Your draft can stay on this device.';
+      $('#community-status').textContent='The community guide is unavailable. Keep this page open, or sign in to save a private draft.';
       const button=$<HTMLButtonElement>('#note-submit');button.disabled=true;button.textContent='Submission unavailable';this.connected=false;
     }
   }
@@ -184,10 +204,16 @@ export class Journey {
   private async submit(form:HTMLFormElement):Promise<void> {
     if(form.id==='visit-form') {
       if(!this.focusedShop)return;
+      try {if(!await requireSaveAccount("visit"))return;}
+      catch {form.querySelector('.form-message')!.textContent="Your account could not be reached. Please retry.";return;}
       const get=(name:string)=>(form.elements.namedItem(name) as HTMLInputElement).value;
       if(!validDate(get('date'))){form.querySelector('.form-message')!.textContent='Choose a valid visit date, today or earlier.';return;}
-      this.visits[this.focusedShop]={date:get('date'),bowl:get('bowl').slice(0,120),note:get('note').slice(0,400),wouldReturn:(form.elements.namedItem('wouldReturn') as HTMLInputElement).checked};
-      this.persistVisits();this.newlyStamped=this.focusedShop;this.passportFilter='visited';this.show('passport');toast('A new memory in your passport.');return;
+      const visit={date:get('date'),bowl:get('bowl').slice(0,120),note:get('note').slice(0,400),wouldReturn:(form.elements.namedItem('wouldReturn') as HTMLInputElement).checked};
+      try {
+        await putAccountEntry("visit",this.focusedShop,visit);
+        this.visits[this.focusedShop]=visit;this.host.changed();this.newlyStamped=this.focusedShop;this.passportFilter='visited';this.show('passport');toast('Memory saved to your account passport.');
+      } catch {form.querySelector('.form-message')!.textContent="Your memory could not be saved. Keep this page open and retry.";}
+      return;
     }
     if(form.id==='field-note-form'){
       this.saveDraft(false);if(!this.connected)return;
@@ -202,7 +228,7 @@ export class Journey {
         if(!form.isConnected)return;
         message.textContent='Received. Your note is pending review; check its status in your passport.';
         button.textContent='Sent for review';(form.elements.namedItem('body') as HTMLTextAreaElement).value='';
-      }catch(error){if(!form.isConnected)return;message.textContent=error instanceof Error?error.message:'Could not submit. Your draft is saved.';button.disabled=false;button.textContent='Try again';}
+      }catch(error){if(!form.isConnected)return;message.textContent=error instanceof Error?error.message:'Could not submit. Keep this page open and try again.';button.disabled=false;button.textContent='Try again';}
     }
   }
   private async refreshReceipts():Promise<void> {
@@ -225,7 +251,10 @@ export class Journey {
     if('showHubs'in d)this.show('hubs');
     if('contribute'in d)this.showContribution(undefined,(d.contribute||'tip') as NoteKind);
     if('passportFilter'in d){this.passportFilter=d.passportFilter!;this.renderPassport();}
-    if('removeVisit'in d&&this.focusedShop){delete this.visits[this.focusedShop];this.persistVisits();this.show('passport');toast('Visit removed.');}
+    if('removeVisit'in d&&this.focusedShop){
+      try {if(!await requireSaveAccount("visit"))return;await deleteAccountEntry("visit",this.focusedShop);delete this.visits[this.focusedShop];this.host.changed();this.show('passport');toast('Visit removed.');}
+      catch {toast("Your visit could not be removed. Please retry.");}
+    }
     if('saveDraft'in d)this.saveDraft();
     if(d.mission){const shop=shopBySlug.get(d.mission);if(shop){$<HTMLSelectElement>('#note-shop').value=shop.slug;$<HTMLSelectElement>('#note-kind').value='order';$<HTMLInputElement>('#note-city').value=shop.city;this.togglePlaceFields();this.saveDraft(false);this.content.querySelector<HTMLTextAreaElement>('[name="body"]')?.focus();}}
     if('passportShare'in d)await this.copy(collectionUrl(location.origin,Object.keys(this.visits)));
@@ -241,10 +270,11 @@ export class Journey {
   }
   private async importPassport(file?:File):Promise<void> {
     if(!file)return;
+    try {if(!await requireSaveAccount("visit"))return;}catch{toast("Your account could not be reached. Please retry.");return;}
     if(file.size>100000){toast('Choose a passport backup smaller than 100 KB.');return;}
     try {const data=JSON.parse(await file.text());if(data.version!==1||!data.visits)throw Error();const imported=parseVisits(JSON.stringify(data.visits));if(!Object.keys(imported).length)throw Error();
       // Existing memories win; importing a backup cannot overwrite newer local notes.
-      this.visits={...imported,...this.visits};this.persistVisits();this.renderPassport();toast('Backup imported. Existing memories were kept.');
+      this.visits={...imported,...this.visits};await this.persistVisits();this.renderPassport();toast('Backup imported to your account. Existing memories were kept.');
     }catch{toast('That file is not a valid Soupmap passport backup.');}
   }
   private downloadCard():void {

@@ -1,3 +1,9 @@
+Lead the hero with finding incredible soup.
+
+**Why:** The user said “we are supposed to be finding incredible soup” when replacing the detour-led headline.
+
+**How to apply:** Keep soup discovery explicit in future homepage messaging; decorative animation must not obscure the readable headline.
+
 ---
 name: Homepage visual direction
 description: User's visual direction and rejection of artificial-looking map and alley imagery.

@@ -5,7 +5,7 @@
 import { esc } from "../ui/dom.ts";
 import { trackEvent } from "../analytics.ts";
 import { formatAmount, scaleAmount, type Amount, type System, type Unit } from "./quantity.ts";
-import { checkedIngredients, checkedSteps, preferredUnits, recipeNote, savedRecipes, setCheckedIngredients, setCheckedSteps, setPreferredUnits, setRecipeNote, setRecipeSaved } from "./storage.ts";
+import { checkedIngredients, checkedSteps, preferredUnits, recipeNote, savedRecipes, setCheckedIngredients, setCheckedSteps, setPreferredUnits, setRecipeNote, setRecipeSaved, loadRecipeStorage } from "./storage.ts";
 
 const clock = (seconds: number) => {
   const s = Math.max(0, Math.ceil(seconds));
@@ -199,13 +199,23 @@ export function setupRecipe(doc: Document): void {
   const save = actions.querySelector<HTMLElement>("[data-action=save]")!;
   const showSaved = () => { const on = savedRecipes().has(slug); save.setAttribute("aria-pressed", String(on)); save.textContent = on ? "Saved" : "Save"; };
   showSaved();
-  actions.addEventListener("click", e => {
+  const saveStatus=doc.createElement("p");
+  saveStatus.setAttribute("role","status");
+  actions.after(saveStatus);
+  actions.addEventListener("click", async e => {
     const action = (e.target as Element).closest<HTMLElement>("[data-action]")?.dataset.action;
     if (action === "save") {
       const on = !savedRecipes().has(slug);
-      setRecipeSaved(slug, on);
-      showSaved();
-      trackEvent(on ? "recipe_saved" : "recipe_unsaved");
+      if (save.getAttribute("aria-busy")==="true") return;
+      save.setAttribute("aria-busy","true");
+      try {
+        if (await setRecipeSaved(slug,on)) {
+          showSaved();
+          saveStatus.textContent=on?"Saved to your account.":"Removed from saved recipes.";
+          trackEvent(on ? "recipe_saved" : "recipe_unsaved");
+        }
+      } catch { saveStatus.textContent="Your recipe could not be saved. Please retry; nothing was stored on this device."; }
+      finally {save.removeAttribute("aria-busy");}
     }
     if (action === "print") window.print();
     if (action === "cook") void cookMode.open();
@@ -216,8 +226,20 @@ export function setupRecipe(doc: Document): void {
   const textarea = doc.querySelector<HTMLTextAreaElement>("#r-notes-text")!;
   notes.hidden = false;
   textarea.value = recipeNote(slug);
-  let pending = 0;
-  textarea.addEventListener("input", () => { clearTimeout(pending); pending = window.setTimeout(() => setRecipeNote(slug, textarea.value), 400); });
+  const noteSave=doc.createElement("button");
+  noteSave.type="button";noteSave.className="r-button";noteSave.textContent="Save note to my account";
+  const noteStatus=doc.createElement("p");noteStatus.setAttribute("role","status");
+  notes.append(noteSave,noteStatus);
+  noteSave.addEventListener("click",async()=>{
+    noteSave.disabled=true;
+    try {if(await setRecipeNote(slug,textarea.value))noteStatus.textContent="Private note saved to your account.";}
+    catch {noteStatus.textContent="Your note could not be saved. Keep this page open and try again.";}
+    finally {noteSave.disabled=false;}
+  });
+  void loadRecipeStorage().then(()=>{
+    showSaved();
+    if(!textarea.value)textarea.value=recipeNote(slug);
+  }).catch(()=>{saveStatus.textContent="Account saves are unavailable. Please retry before leaving.";});
 }
 
 /** One step at a time, big type, screen kept awake. Arrow keys or buttons move through steps. */

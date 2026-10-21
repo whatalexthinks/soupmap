@@ -352,7 +352,7 @@ export function recipeDetailPage(recipe: Recipe, all: readonly Recipe[], extras:
         ${placesHtml(recipe, extras.places?.get(recipe.slug))}
         <section class="r-notes" id="r-notes" aria-labelledby="notes-title" hidden>
           <h2 id="notes-title">Your notes</h2>
-          <p class="r-muted">Private, kept in this browser. What you changed, what you'd do next time.</p>
+          <p class="r-muted">Keep your cooking notes private in your account. Save what you changed and what you'd do next time.</p>
           <textarea id="r-notes-text" rows="4" maxlength="2000" aria-labelledby="notes-title"></textarea>
         </section>
         <section class="r-reviews" id="reviews" aria-labelledby="reviews-title" data-recipe="${recipe.slug}">
