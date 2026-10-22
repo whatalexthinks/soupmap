@@ -32,9 +32,9 @@ if (heroWords.length === 3 && !reduceMotion.matches) {
     if (index === undefined) return;
     heroWords[index]?.classList.add("is-current");
     step += 1;
-    if (step < sequence.length) window.setTimeout(rotateOnce, 1050);
+    if (step < sequence.length) window.setTimeout(rotateOnce, 900);
   };
-  window.setTimeout(rotateOnce, 650);
+  window.setTimeout(rotateOnce, 850);
 }
 
 // Keep the homepage lightweight; the nationwide catalog and WebGL load only on the map.

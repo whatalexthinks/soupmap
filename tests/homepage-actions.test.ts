@@ -22,8 +22,8 @@ test("homepage puts the map first and keeps navigation and image disclosures", a
     const searchForm = document.querySelector("form[role=search]");
 
     assert.ok(mapAction, "Keep the map CTA in the hero actions");
-    assert.ok(discoverAction, "Keep Discover places as the secondary action");
-    assert.equal(mapAction.textContent?.trim().startsWith("Explore the map"), true);
+    assert.ok(discoverAction, "Keep soup-shop browsing as the secondary action");
+    assert.equal(mapAction.textContent?.trim().startsWith("Find my next bowl"), true);
     assert.ok(mapAction.classList.contains("home-button--solid"));
     assert.ok(!discoverAction.classList.contains("home-button--solid"));
     assert.ok(

@@ -3,12 +3,13 @@ test("hero leads with soup discovery and provides a stable accessible headline",
   try {
     window.document.write(homepageHtml());
     const title=window.document.querySelector("#hero-title");
-    assert.equal(title?.getAttribute("aria-label"),"Your next favorite soup.");
+    assert.equal(title?.getAttribute("aria-label"),"Find your next soup obsession.");
     const words=title?.querySelector(".home-hero__word");
     assert.equal(words?.getAttribute("aria-hidden"),"true");
-    assert.deepEqual([...words!.querySelectorAll("span")].map(word=>word.textContent),["favorite","must-try","go-to"]);
-    assert.equal(words?.querySelector(".is-current")?.textContent,"favorite");
-    assert.equal(title?.querySelector(".home-hero__soup")?.textContent,"soup.");
+    assert.deepEqual([...words!.querySelectorAll("span")].map(word=>word.textContent),["soup","ramen","udon"]);
+    assert.equal(words?.querySelector(".is-current")?.textContent,"soup");
+    assert.equal(title?.querySelector(".home-hero__lead")?.textContent,"Find your next");
+    assert.equal(title?.querySelector(".home-hero__finish")?.textContent,"obsession.");
   } finally {await window.happyDOM.close();}
 });
 import { renderSiteShell } from "../src/render/shell.ts";

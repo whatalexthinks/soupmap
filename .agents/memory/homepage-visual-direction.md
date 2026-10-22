@@ -1,13 +1,13 @@
+---
+name: Homepage visual direction
+description: User's visual direction and rejection of artificial-looking map and alley imagery.
+---
 Lead the hero with finding incredible soup.
 
 **Why:** The user said “we are supposed to be finding incredible soup” when replacing the detour-led headline.
 
 **How to apply:** Keep soup discovery explicit in future homepage messaging; decorative animation must not obscure the readable headline.
 
----
-name: Homepage visual direction
-description: User's visual direction and rejection of artificial-looking map and alley imagery.
----
 Use Japanese minimalism and brutalism together for the homepage: different typography from the previous italic-serif travel-magazine treatment and clearer information layouts.
 
 **Why:** The user explicitly asked to “think japanese minimalism and brutalist at the same time” and said the fonts and information layouts should be different. They did not reject the warm colors, but were open to improving them.
