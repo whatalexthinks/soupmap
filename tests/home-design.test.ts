@@ -3,11 +3,11 @@ test("hero leads with soup discovery and provides a stable accessible headline",
   try {
     window.document.write(homepageHtml());
     const title=window.document.querySelector("#hero-title");
-    assert.equal(title?.getAttribute("aria-label"),"Find incredible soup.");
+    assert.equal(title?.getAttribute("aria-label"),"Your next favorite soup.");
     const words=title?.querySelector(".home-hero__word");
     assert.equal(words?.getAttribute("aria-hidden"),"true");
-    assert.deepEqual([...words!.querySelectorAll("span")].map(word=>word.textContent),["incredible","comforting","remarkable"]);
-    assert.equal(words?.querySelector(".is-current")?.textContent,"incredible");
+    assert.deepEqual([...words!.querySelectorAll("span")].map(word=>word.textContent),["favorite","must-try","go-to"]);
+    assert.equal(words?.querySelector(".is-current")?.textContent,"favorite");
     assert.equal(title?.querySelector(".home-hero__soup")?.textContent,"soup.");
   } finally {await window.happyDOM.close();}
 });
