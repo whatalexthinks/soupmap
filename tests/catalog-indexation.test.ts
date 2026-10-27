@@ -193,7 +193,8 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
     const listed = listedGuides.includes(name);
     assert.ok(html.includes(listed ? '<meta name="robots" content="index,follow">' : '<meta name="robots" content="noindex,follow">'), name);
   }
-  assert.equal(locations.length, pages.length + 5 + journal.length + recipes.length + listedGuides.length);
+  assert.equal(locations.length, pages.length + 4 + journal.length + recipes.length + listedGuides.length);
+  assert.ok(!locations.includes(origin + "/me/"), "Personal workspace must not be in sitemap");
   for (const page of recipes) {
     assert.ok(locations.includes(origin + page.path));
     // The recipes index is Vite's own entry; every other recipe page is generated with the compiled assets.
@@ -201,7 +202,7 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
     const html = assets.get(`${page.path.slice(1)}index.html`)!;
     assert.ok(html.includes('href="/assets/recipes-built.css"') && html.includes('src="/assets/recipes-built.js"'), page.path);
   }
-  for (const path of ["/", "/map/", "/me/", "/credits/"]) assert.ok(locations.includes(origin + path));
+  for (const path of ["/", "/map/", "/credits/"]) assert.ok(locations.includes(origin + path));
   for (const page of journal) {
     assert.ok(locations.includes(origin + page.path));
     // The journal index is Vite's own HTML entry; every other journal page is generated.

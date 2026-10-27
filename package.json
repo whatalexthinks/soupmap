@@ -13,6 +13,7 @@
     "build": "npm run data:plateau -- --soft && npm run validate && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "seo:check": "node --import tsx scripts/check-seo-build.ts",
     "validate": "npm run validate:homepage && node --import tsx scripts/validate-shops.ts",
     "validate:homepage": "node --import tsx scripts/validate-homepage.ts",
     "data:plateau": "node --import tsx scripts/fetch-plateau-catalog.ts",

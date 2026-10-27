@@ -211,7 +211,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
       const recipeDates = new Map(recipes.map(r => [`/recipes/${r.slug}/`, r.updated ?? r.date]));
       const articleDates = new Map(articles.map(a => [`/journal/${a.slug}/`, a.date]));
       const segments: Record<"pages" | "journal" | "recipes" | "catalog" | "cities", SitemapEntry[]> = {
-        pages: ["/", "/map/", "/me/", "/credits/", "/claim/"].map(path => ({ path })),
+        pages: ["/", "/map/", "/credits/", "/claim/"].map(path => ({ path })),
         journal: journal.map(page => ({ path: page.path, lastmod: articleDates.get(page.path) })),
         recipes: recipeSite.map(page => ({ path: page.path, lastmod: recipeDates.get(page.path) })),
         catalog: documents.map(page => ({ path: page.path, lastmod: catalogDate })),

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { Window } from "happy-dom";
-import { loadJournal } from "../src/journal/load.ts";
+import { loadJournal, JOURNAL_SITE_PATHS } from "../src/journal/load.ts";
 import { JOURNAL_CATEGORIES, parseArticle, validateJournal } from "../src/journal/content.ts";
 import { renderMarkdown } from "../src/journal/markdown.ts";
 import { journalDocument, journalFeed, journalPages } from "../src/render/journal.ts";
@@ -30,7 +30,7 @@ test("the journal is broad: many articles in every topic", () => {
     assert.ok(articles.filter(a => a.category === category.id).length >= 4, category.id);
   }
   assert.equal(new Set(articles.map(a => a.slug)).size, articles.length);
-  assert.deepEqual(validateJournal(articles), []);
+  assert.deepEqual(validateJournal(articles, JOURNAL_SITE_PATHS), []);
 });
 
 test("every article meets the writing guide", () => {
