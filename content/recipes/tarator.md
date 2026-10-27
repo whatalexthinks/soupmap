@@ -22,6 +22,7 @@ richness: 3
 spice: 1
 comfort: 3
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Tarator* is the soup of a Bulgarian summer: plain yoghurt whisked with cold water until it pours, then filled with finely diced cucumber, crushed garlic, plenty of fresh dill, chopped walnuts and a little sunflower oil. It's eaten at lunch, often as a first course, and on the hottest days it's common to drop an ice cube into each bowl. There's no cooking at all, so it's ready in about the time it takes to dice a cucumber.

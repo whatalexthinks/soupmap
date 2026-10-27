@@ -26,6 +26,7 @@ richness: 1
 spice: 5
 comfort: 7
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Rasam* is the thin, sour, peppery soup of South India, made in some form across Tamil Nadu, Kerala, Karnataka (where it's called *saaru*) and Andhra Pradesh (*chaaru*). It's usually mixed into rice as one course of a meal, after *sambar* (a thicker lentil and vegetable stew), but it's just as good sipped hot from a cup. The Anglo-Indian [mulligatawny](/recipes/mulligatawny/) takes its name from the Tamil *milagu thanni*, "pepper water", a close relation.

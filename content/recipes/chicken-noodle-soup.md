@@ -22,6 +22,7 @@ richness: 3
 spice: 1
 comfort: 9
 date: 2026-10-20
+updated: 2026-10-27
 journal: chicken-soup-world
 ---
 

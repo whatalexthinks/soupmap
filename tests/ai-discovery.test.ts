@@ -24,13 +24,24 @@ test("AI guide uses the configured canonical origin and existing public resource
   const assets = discoveryAssets("https://atlas.example///");
   const guide = assets.get("llms.txt");
   assert.ok(guide);
-  for (const path of ["/", "/credits/", "/data/open-shops.json.gz", "/sitemap.xml"]) {
-    assert.ok(guide.includes(`(https://atlas.example${path})`));
+  for (const path of ["/", "/credits/", "/data/open-shops.json.gz", "/sitemap_index.xml", "/recipes/recipes.json", "/guides/", "/llms-full.txt", "/sitemap-recipes.xml", "/sitemap-catalog.xml", "/sitemap-cities.xml"]) {
+    assert.ok(guide.includes(`(https://atlas.example${path})`), path);
   }
-  assert.ok(!guide.includes("soupmap.com"));
-  assert.ok(!guide.includes("https://atlas.example//"));
-  assert.match(assets.get("robots.txt")!, /User-agent: \*\nAllow: \//);
-  assert.match(assets.get("sitemap.xml")!, /https:\/\/atlas\.example\/credits\//);
+  for (const name of ["llms.txt", "llms-full.txt"]) {
+    assert.ok(!assets.get(name)!.includes("soupmap.com"), name);
+    assert.ok(!assets.get(name)!.includes("https://atlas.example//"), name);
+  }
+  assert.match(assets.get("robots.txt")!, /User-agent: \*\nAllow: \/\n\nSitemap: https:\/\/atlas\.example\/sitemap_index\.xml\n/);
+  assert.equal(assets.get("sitemap.xml"), assets.get("sitemap_index.xml"), "the URL already in Search Console serves the index");
+  assert.match(assets.get("sitemap-pages.xml")!, /https:\/\/atlas\.example\/credits\//);
+  // The full guide lists every recipe, and the JSON feed carries the same recipes as data.
+  const full = assets.get("llms-full.txt")!;
+  const feed = JSON.parse(assets.get("recipes/recipes.json")!) as { count: number; recipes: { url: string; ingredients: string[]; steps: string[]; prepMinutes: number }[] };
+  assert.equal(feed.recipes.length, feed.count);
+  for (const recipe of feed.recipes) {
+    assert.ok(full.includes(`(${recipe.url})`), recipe.url);
+    assert.ok(recipe.url.startsWith("https://atlas.example/recipes/") && recipe.ingredients.length >= 3 && recipe.steps.length >= 3 && recipe.prepMinutes > 0);
+  }
 });
 
 test("AI guide qualifies scope, verification, romanizations, licensing, and access", () => {

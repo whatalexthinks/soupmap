@@ -21,6 +21,7 @@ richness: 7
 spice: 3
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: sapporo-miso-ramen
 map: /map/?q=miso+ramen
 mapLabel: Find miso ramen shops on the map

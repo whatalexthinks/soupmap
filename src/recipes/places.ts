@@ -14,6 +14,8 @@ export interface RecipePlaces {
   picks: { shop: Shop; guide: Guide }[];
   /** The biggest guides for the recipe's styles, home cities first. */
   guides: Guide[];
+  /** The recipe's style with the most guides, for "in every city". */
+  hub: GuideStyle;
 }
 
 export const PLACES_SHOWN = 6;
@@ -47,5 +49,6 @@ export function placesForRecipe(slug: string, guides: readonly Guide[], eligible
   }
   if (!picks.length) return undefined;
   const style = ranked[0]!.style;
-  return { style, picks, guides: ranked.slice(0, 6) };
+  const hub = styles.map(s => ({ s, n: ranked.filter(g => g.style.id === s.id).length })).sort((a, b) => b.n - a.n)[0]!.s;
+  return { style, picks, guides: ranked.slice(0, 6), hub };
 }

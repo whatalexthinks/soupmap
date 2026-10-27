@@ -23,6 +23,7 @@ richness: 2
 spice: 1
 comfort: 6
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Kakitamajiru* is the soup Japanese home cooks make when there's dashi, a few eggs and not much else in the house. The name means roughly "stirred-egg soup": beaten egg is poured in a thin stream into hot, seasoned *dashi* (the light stock of *kombu*, dried kelp, and *katsuobushi*, smoked and dried skipjack tuna shaved into flakes), where it sets into pale yellow clouds. It's a *sumashi-jiru*, a clear soup seasoned with salt and soy sauce rather than miso, so the broth stays pale and the egg keeps its colour.

@@ -23,6 +23,7 @@ richness: 3
 spice: 3
 comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Sopa de lima* is the signature soup of Yucatán, the peninsula in Mexico's southeast: a clear, golden chicken broth, sharp with citrus, poured over shredded chicken and crisp fried tortilla strips. The name means lime soup, but the *lima* here isn't the everyday Mexican lime (*limón*). It's *lima agria*, a small, fragrant local lime with a bitter edge. Its juice makes the broth bright, and its peel makes it smell wonderful.

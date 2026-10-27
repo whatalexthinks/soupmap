@@ -6,6 +6,7 @@ import { parseRecipe, dietConflicts, type Recipe } from "../src/recipes/content.
 import { FACETS, REGIONS, timeBucket } from "../src/recipes/facets.ts";
 import { findDurations, formatAmount, isoDuration, parseIngredient, scaleAmount } from "../src/recipes/quantity.ts";
 import { recipePages, recipeDetailPage, recipesHead, orderRecipes } from "../src/render/recipes.ts";
+import { inline } from "../src/journal/markdown.ts";
 import { allowedLicense, describe, plainText } from "../scripts/fetch-recipe-photos.ts";
 import { getSource } from "../src/sources.ts";
 import photos from "../src/data/recipe-photos.json" with { type: "json" };
@@ -125,12 +126,31 @@ test("pages: index, browse pages and recipe pages with schema.org Recipe data", 
   // No photo yet: a typographic panel, never an <img>.
   if (!recipe.photo) assert.ok(page.main.includes("r-art") && !page.main.includes("<img"));
   const head = recipesHead(page, "https://soupmap.example", recipes);
-  const data = JSON.parse(head.match(/<script type="application\/ld\+json">(.*?)<\/script>/)![1]!);
+  const data = JSON.parse(head.match(/<script type="application\/ld\+json" data-recipe-schema>(.*?)<\/script>/)![1]!);
   assert.equal(data["@type"], "Recipe");
   assert.equal(data.recipeIngredient.length, recipe.ingredientCount);
-  assert.equal(data.recipeInstructions.flatMap((s: { itemListElement: unknown[] }) => s.itemListElement).length, recipe.stepCount);
+  // A flat list of HowToStep objects, numbered like the page.
+  assert.equal(data.recipeInstructions.length, recipe.stepCount);
+  assert.ok(data.recipeInstructions.every((s: { "@type": string; text: string; url: string }, i: number) =>
+    s["@type"] === "HowToStep" && s.text && s.url.endsWith(`#step-${i + 1}`)));
+  assert.equal(data.prepTime, isoDuration(recipe.prep));
+  assert.equal(data.cookTime, isoDuration(recipe.cook));
   assert.equal(data.totalTime, isoDuration(recipe.total));
+  assert.equal(data.recipeCategory, "Soup");
+  assert.equal(data.recipeCuisine, recipe.country === "Japan" ? "Japanese" : data.recipeCuisine);
+  assert.notEqual(data.recipeCuisine, recipe.country, "cuisine is an adjective, not the country");
+  assert.deepEqual(data.author, { "@type": "Organization", name: "Soupmap Culinary Team", url: "https://soupmap.example/recipes/" });
   assert.equal(data.image, undefined, "no image is claimed without a photo");
+  assert.equal(data.aggregateRating, undefined, "ratings are added at serve time, from real reviews only");
+  assert.equal(data.nutrition, undefined, "no nutrition without a sourced analysis");
+  // The scorecard, meters, secret and swaps are on the page, not just in the data.
+  for (const label of ["Prep", "Cook", "Total", "Effort", "Serves"]) assert.match(page.main, new RegExp(`<dt>${label}</dt>`));
+  assert.equal(page.main.match(/class="r-meter"/g)!.length, 3);
+  assert.match(page.main, new RegExp(`aria-label="Broth richness: ${recipe.meters.richness} out of 10`));
+  assert.ok(page.main.includes('id="secret-title"') && page.main.includes(inline(recipe.secret)));
+  for (const id of ["gluten-free", "plant-based", "high-protein"]) assert.match(page.main, new RegExp(`id="swap-${id}"`));
+  assert.deepEqual([...page.main.matchAll(/data-bowls="(\d)"/g)].map(m => m[1]), ["1", "2", "4"]);
+  assert.ok(!page.main.includes("r-buy"), "no shopping links unless an affiliate programme is configured");
   assert.ok(!head.includes("</script><script") || head.split("application/ld+json").length === 3);
 });
 
@@ -140,7 +160,7 @@ test("a recipe with a photo credits its author and licence", () => {
   const page = recipeDetailPage(recipe, recipes);
   assert.match(page.main, /<img class="r-photo" src="\/images\/recipes\/x\.jpg"/);
   assert.match(page.main, /Photo: A\. Photographer, <a href="https:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/" rel="license noopener"/);
-  const data = JSON.parse(recipesHead(page, "https://s.example", recipes).match(/ld\+json">(.*?)<\/script>/)![1]!);
+  const data = JSON.parse(recipesHead(page, "https://s.example", recipes).match(/data-recipe-schema>(.*?)<\/script>/)![1]!);
   assert.deepEqual(data.image, ["https://s.example/images/recipes/x.jpg"]);
 });
 

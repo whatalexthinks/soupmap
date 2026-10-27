@@ -24,6 +24,7 @@ richness: 8
 spice: 1
 comfort: 5
 date: 2026-10-20
+updated: 2026-10-27
 journal: tsukemen
 map: /map/?q=tsukemen
 mapLabel: Find tsukemen shops on the map

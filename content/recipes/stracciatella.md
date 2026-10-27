@@ -21,6 +21,7 @@ richness: 3
 spice: 1
 comfort: 8
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Stracciatella* comes from *straccio*, Italian for "rag", and the name describes the soup exactly. Eggs beaten with grated *parmigiano* (Parmigiano Reggiano), a spoonful of semolina and a scrape of nutmeg are whisked into boiling broth, where they set into soft, ragged little shreds. The same word names the chocolate-flecked gelato and the shredded mozzarella and cream inside burrata, for the same reason. The soup belongs above all to Rome and the surrounding region of Lazio.

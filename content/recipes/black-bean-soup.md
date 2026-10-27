@@ -25,6 +25,7 @@ richness: 6
 spice: 1
 comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Black beans, *frijoles negros*, are at the heart of Cuban home cooking, simmered until thick and glossy and spooned over white rice. This soup, *sopa de frijoles negros*, takes the same pot a little further. The beans cook until creamy, part of them is puréed so the soup turns thick and velvety, and a slow *sofrito* (onion, green pepper and garlic cooked gently in olive oil, here with cumin and oregano) seasons the lot. A splash of vinegar at the end sharpens everything, and a little dry sherry adds depth.

@@ -22,6 +22,7 @@ richness: 2
 spice: 2
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: soba-guide
 map: /map/?q=soba
 mapLabel: Find soba shops on the map

@@ -22,6 +22,7 @@ richness: 10
 spice: 1
 comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 journal: hakata-tonkotsu
 map: /map/?q=tonkotsu
 mapLabel: Find tonkotsu ramen shops on the map

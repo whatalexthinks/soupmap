@@ -23,6 +23,7 @@ richness: 4
 spice: 1
 comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Minestrone is less a fixed recipe than a method. The name means roughly "big soup", from *minestra*, the everyday Italian word for soup, and a pot made in July looks nothing like one made in January. You start with a *soffritto* (onion, carrot and celery chopped fine and softened slowly in olive oil), add whatever vegetables the season offers, then beans, a little pasta or rice and some greens.

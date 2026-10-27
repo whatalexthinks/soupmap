@@ -23,6 +23,7 @@ richness: 5
 spice: 2
 comfort: 8
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Sopa de ajo*, garlic soup, also known as *sopa castellana*, is the winter soup of Castile, the high, cold plateau at the centre of Spain. It's made from what every kitchen there had to hand: olive oil, a good handful of garlic, yesterday's bread and *pimentón* (Spanish paprika, here the smoked kind). The bread drinks up the broth and half dissolves, turning it thick and rustic, and an egg poached on top makes it a meal.

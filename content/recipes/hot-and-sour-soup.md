@@ -23,6 +23,7 @@ richness: 4
 spice: 6
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Hot and sour soup, *suan la tang* ("sour-spicy soup"), is made across northern China and in Sichuan, and at its best it is a jolt: thick and glossy, crowded with fine shreds of pork, mushroom, bamboo shoot and tofu, and both sharp and fiery. The surprise for many people is where the fire comes from. In this style the "hot" is white pepper, and plenty of it, not chilli. It catches at the back of your throat rather than on your lips, and it is what makes the soup so warming.

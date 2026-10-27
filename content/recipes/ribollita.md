@@ -25,6 +25,7 @@ richness: 8
 spice: 1
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Ribollita* means "reboiled", and the name is the recipe. It's a Tuscan peasant soup of white beans, *cavolo nero* (the long, dark, crinkled kale also sold as Tuscan or lacinato kale) and other vegetables, layered with stale bread, left overnight and brought back to the boil the next day. On the first day you have a good bean and bread soup. After reboiling, the bread melts into the beans and greens and the whole pot turns so thick you could almost eat it with a fork.

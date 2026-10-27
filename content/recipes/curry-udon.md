@@ -20,6 +20,7 @@ richness: 7
 spice: 3
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 map: /map/?q=curry+udon
 mapLabel: Find curry udon shops on the map
 ---

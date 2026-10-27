@@ -20,6 +20,7 @@ richness: 4
 spice: 2
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Caldo verde* means "green broth", and it is about as plain as a soup gets: potatoes and onion simmered in water and puréed, a tangle of finely shredded greens, a few slices of smoky sausage and a thread of olive oil. It comes from the Minho, in the north-west of Portugal, and is now eaten all over the country.

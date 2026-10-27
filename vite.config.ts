@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import { cesiumAssets } from "./scripts/lib/cesium-assets.ts";
-import { ORDERED_SHOPS } from "./src/data/shops.ts";
+import { OPEN_CATALOG, ORDERED_SHOPS } from "./src/data/shops.ts";
 import { creditsHtml } from "./src/render/credits.ts";
 import { brothChipsHtml, cityButtonsHtml, resultCountText, shopListHtml } from "./src/render/templates.ts";
 import { catalogDocument, catalogPages } from "./src/render/catalog.ts";
@@ -11,8 +11,15 @@ import { esc } from "./src/ui/dom.ts";
 import { loadJournal } from "./src/journal/load.ts";
 import { journalBody, journalDocument, journalFeed, journalHead, journalPages } from "./src/render/journal.ts";
 import { loadRecipes } from "./src/recipes/load.ts";
-import { recipePages, recipesBody, recipesDocument, recipesHead } from "./src/render/recipes.ts";
+import { cuisineOf, recipePages, recipeQuality, recipesBody, recipesDocument, recipesHead } from "./src/render/recipes.ts";
 import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
+import { buildGuides, cityHubPath, styleHubPath } from "./src/guides/model.ts";
+import { guideSite, indexEligible } from "./src/render/guides.ts";
+import { placesForRecipe } from "./src/recipes/places.ts";
+import { affiliateConfig } from "./src/recipes/pantry.ts";
+import { formatAmount } from "./src/recipes/quantity.ts";
+import { assessPages, robotsFor } from "./src/seo/quality.ts";
+import { catalogQuality, llmsFullTxt, llmsTxt, recipesJson, robotsTxt, sitemapFiles, sitemapIndex, type DiscoveryContext, type SitemapEntry } from "./src/seo/site.ts";
 
 const JOURNAL_MODULE = "virtual:soupmap-journal";
 
@@ -48,8 +55,16 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   const journal = journalPages(articles);
   const journalIndex = journal.find(page => page.path === "/journal/")!;
   const recipes = loadRecipes(new Set(articles.map(a => a.slug)));
-  const recipeSite = recipePages(recipes);
+  // City × style guides, and the recipe pages that point at them.
+  const catalogDate = OPEN_CATALOG.generatedAt.slice(0, 10);
+  const guides = buildGuides(ORDERED_SHOPS);
+  const guidePages = guideSite(guides, { articles: new Map(articles.map(a => [a.slug, a.title])), lastmod: catalogDate });
+  const places = new Map(recipes.flatMap(r => { const p = placesForRecipe(r.slug, guides, indexEligible); return p ? [[r.slug, p] as const] : []; }));
+  const recipeSite = recipePages(recipes, { places, affiliate: affiliateConfig(env) });
   const recipesIndex = recipeSite.find(page => page.path === "/recipes/")!;
+  // The quality gate: pages that fail are published with noindex and left out of the sitemaps.
+  const verdicts = assessPages([...recipeSite.map(page => recipeQuality(page, recipes)), ...documents.map(catalogQuality), ...guidePages.map(page => page.quality)]);
+  for (const page of [...recipeSite, ...documents, ...guidePages]) page.robots = robotsFor(verdicts.get(page.path));
   let directoryChunk: string;
   let building = false;
   return {
@@ -59,7 +74,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
     // Run after Vite's HTML emitter so the compiled credits CSS URLs exist.
     enforce: "post",
     configureServer(server) {
-      const routes = new Map(documents.map(page => [page.path, page]));
+      const routes = new Map([...documents, ...guidePages].map(page => [page.path, page]));
       const journalRoutes = new Map(journal.filter(page => page !== journalIndex).map(page => [page.path, page]));
       const recipeRoutes = new Map(recipeSite.filter(page => page !== recipesIndex).map(page => [page.path, page]));
       server.middlewares.use((req, res, next) => {
@@ -76,7 +91,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
           res.end(journalDocument(journalPage, siteUrl, articles, ["/src/styles/journal.css"]));
           return;
         }
-        if (!/^\/(?:shop|city|catalog)(?:\/|$)/.test(url.pathname)) return next();
+        if (!/^\/(?:shop|city|catalog|guides)(?:\/|$)/.test(url.pathname)) return next();
         const path = `${url.pathname.replace(/\/index\.html$/, "").replace(/\/+$/, "")}/`;
         const page = routes.get(path);
         if (!page) {
@@ -124,7 +139,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
       const stylesheets = credits?.type === "asset"
         ? [...String(credits.source).matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(match => match[1]!) : [];
       if (!stylesheets.length) throw new Error("Missing compiled credits stylesheet for catalog documents.");
-      for (const page of documents) {
+      for (const page of [...documents, ...guidePages]) {
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`,
           source: catalogDocument(page, siteUrl, stylesheets, directoryChunk ? `/${this.getFileName(directoryChunk)}` : undefined) });
       }
@@ -151,50 +166,45 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         if (page === recipesIndex) continue;
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`, source: recipesDocument(page, siteUrl, recipes, recipeAssets) });
       }
-      const pages = ["/", "/map/", "/me/", "/credits/", ...recipeSite.map(page => page.path), ...journal.map(page => page.path), ...documents.map(page => page.path)];
-      this.emitFile({
-        type: "asset",
-        fileName: "sitemap.xml",
-        source: `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages.map((p) => `  <url><loc>${esc(siteUrl + p)}</loc></url>`).join("\n")}
-</urlset>
-`,
-      });
-      this.emitFile({
-        type: "asset",
-        fileName: "robots.txt",
-        source: `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
-      });
-      this.emitFile({
-        type: "asset",
-        fileName: "llms.txt",
-        source: `# Soupmap
-
-> A worldwide soup atlas for curious travelers. Current listings are a Japan pilot, not worldwide coverage.
-
-## Public resources
-
-- [Atlas](${siteUrl}/): Public homepage with an initial shop list; interactive map and search explore more listings.
-- [Soupmap Recipes](${siteUrl}/recipes/): ${recipes.length} soup recipes from Japan and around the world, browsable by region, kind of soup, diet and time. Each recipe page carries schema.org Recipe data. Reader reviews and tips, where present, load separately and are not part of the static pages.
-- [Soupmap Journal](${siteUrl}/journal/): ${articles.length} editorial essays on ramen styles, noodles, Japanese soups, ingredients, history, travel etiquette and soups of the world. Each article lists further reading. RSS: ${siteUrl}/journal/feed.xml
-- [Japan catalog](${siteUrl}/catalog/): Paginated, crawlable nationwide locations and featured city directories. Substantive editorial records have standalone shop pages; basic open-data records do not.
-- [Credits and source limitations](${siteUrl}/credits/): Data sources, attribution, licenses, and verification context.
-- [Open-data catalog](${siteUrl}/data/open-shops.json.gz): Downloadable gzip-compressed JSON of reported locations, with Overture IDs and per-record source licenses. Decompress before reading as JSON.
-
-## Data limitations
-
-Coverage is incomplete. Imported open-data listings are unverified reported locations, not independently checked recommendations. Do not infer that a business is still open or that coordinates, names, menus, prices, hours, or broth styles have been verified.
-
-Generated Latin romanizations of Japanese shop and locality names are approximate readings, not official English names or verified translations. Preserve original Japanese names when citing records. Follow the source credits and each record's licenses when reusing data.
-
-## Discovery and access
-
-This optional guide follows an emerging convention. It is not an indexing requirement, does not grant crawl access or training permission, and does not replace crawlable catalog pages, robots.txt, or the sitemap.
-
-Shop selections on the interactive map can still use fragments. These are not dedicated city or shop pages. Use the ordinary links in [the catalog](${siteUrl}/catalog/) and consult [the sitemap](${siteUrl}/sitemap.xml) for published canonical page URLs.
-`,
-      });
+      // Segmented sitemaps behind one index. /sitemap.xml serves the index too, so the
+      // URL already submitted to Search Console keeps working.
+      const recipeDates = new Map(recipes.map(r => [`/recipes/${r.slug}/`, r.updated ?? r.date]));
+      const articleDates = new Map(articles.map(a => [`/journal/${a.slug}/`, a.date]));
+      const segments: Record<"pages" | "journal" | "recipes" | "catalog" | "cities", SitemapEntry[]> = {
+        pages: ["/", "/map/", "/me/", "/credits/"].map(path => ({ path })),
+        journal: journal.map(page => ({ path: page.path, lastmod: articleDates.get(page.path) })),
+        recipes: recipeSite.map(page => ({ path: page.path, lastmod: recipeDates.get(page.path) })),
+        catalog: documents.map(page => ({ path: page.path, lastmod: catalogDate })),
+        cities: guidePages.map(page => ({ path: page.path, lastmod: page.lastmod })),
+      };
+      const files = sitemapFiles(segments, verdicts, siteUrl);
+      for (const file of files) this.emitFile({ type: "asset", fileName: file.file, source: file.source });
+      const index = sitemapIndex(files, siteUrl);
+      this.emitFile({ type: "asset", fileName: "sitemap_index.xml", source: index });
+      this.emitFile({ type: "asset", fileName: "sitemap.xml", source: index });
+      this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt(siteUrl) });
+      const indexable = (path: string) => verdicts.get(path)?.indexable !== false;
+      const byStyle = new Map<string, number>();
+      const byCity = new Map<string, { label: string; path: string; guides: number }>();
+      for (const guide of guides) {
+        byStyle.set(guide.style.id, (byStyle.get(guide.style.id) ?? 0) + 1);
+        const path = cityHubPath(guide.place);
+        const city = byCity.get(path) ?? { label: guide.place.label, path, guides: 0 };
+        city.guides++;
+        byCity.set(path, city);
+      }
+      const discovery: DiscoveryContext = {
+        siteUrl, recipes, articles, cuisine: cuisineOf, sitemaps: files,
+        styles: [...new Map(guides.map(g => [g.style.id, g.style])).values()].filter(style => indexable(styleHubPath(style)))
+          .map(style => ({ style, path: styleHubPath(style), cities: byStyle.get(style.id)! })),
+        cities: [...byCity.values()].filter(city => indexable(city.path)).sort((a, b) => b.guides - a.guides || a.label.localeCompare(b.label)),
+      };
+      this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt(discovery) });
+      this.emitFile({ type: "asset", fileName: "llms-full.txt", source: llmsFullTxt(discovery) });
+      this.emitFile({ type: "asset", fileName: "recipes/recipes.json", source: recipesJson(recipes, siteUrl, cuisineOf,
+        recipe => recipe.ingredients.flatMap(g => g.items.map(i => (i.amount ? `${formatAmount(i.amount)} ${i.text}` : i.text).replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")))) });
+      const counts = [...verdicts.values()].reduce((n, v) => (v.indexable ? n.index++ : n.noindex++, n), { index: 0, noindex: 0 });
+      if (typeof this.info === "function") this.info(`quality gate: ${counts.index} pages indexable, ${counts.noindex} noindex; sitemaps list ${files.reduce((n, f) => n + f.count, 0)} URLs`);
     },
   };
 }

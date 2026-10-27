@@ -22,6 +22,7 @@ richness: 2
 spice: 3
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: three-great-udon
 map: /map/?q=udon
 mapLabel: Find udon shops on the map

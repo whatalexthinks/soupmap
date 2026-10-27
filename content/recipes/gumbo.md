@@ -23,6 +23,7 @@ richness: 9
 spice: 4
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: gumbo
 ---
 

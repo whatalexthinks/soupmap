@@ -23,6 +23,7 @@ richness: 6
 spice: 4
 comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 journal: tom-yum
 ---
 

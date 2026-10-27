@@ -24,6 +24,7 @@ richness: 6
 spice: 3
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Mulligatawny is a soup with two homes. Its name comes from the Tamil *milagu thanni*, "pepper water", a thin, peppery broth from South India. In the kitchens of British colonial India it became something heartier: thickened with lentils, sweetened with apple, spiced like a curry and often made with chicken. That Anglo-Indian version travelled to Britain, where it had become a familiar dish by the early nineteenth century.

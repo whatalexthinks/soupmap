@@ -23,6 +23,7 @@ richness: 4
 spice: 3
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Sinigang* is the Philippines' great sour soup, really a whole family of dishes defined by their sharp broth, and *sinigang na baboy* is the pork version (*baboy* means pork). The most common souring agent is tamarind, *sampalok* in Tagalog, and the result is a light, tangy broth full of tender pork and vegetables, eaten with plenty of steamed rice.

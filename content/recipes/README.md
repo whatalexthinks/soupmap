@@ -92,6 +92,7 @@ work, and the one thing people usually get wrong.
 | `spice` | yes | Editorial 1–10 chilli heat **as written**. 1 = no chilli at all, 3 = a gentle warmth or optional chilli at the table, 6 = clearly spicy, 9–10 = very hot. Judge from the actual chilli quantities. |
 | `comfort` | yes | Editorial 1–10: how much of a warming, restorative, "make it on a bad day" bowl it is. Be discerning: not everything is a 9. |
 | `date` | yes | `YYYY-MM-DD`. |
+| `updated` | no | `YYYY-MM-DD` of the last substantive change (new section, corrected method). Feeds the sitemap `lastmod` and schema.org `dateModified`, so don't bump it for typo fixes. |
 | `journal` | no | Slug of a related Soupmap Journal essay (`content/journal/<slug>.md` must exist). |
 | `map` | no | `/map/?q=<words>`, only for dishes our Japan shop catalog can show (ramen styles, udon, soba, oden). |
 | `mapLabel` | with `map` | Button text. |

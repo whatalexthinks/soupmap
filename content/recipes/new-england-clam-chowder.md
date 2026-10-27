@@ -20,6 +20,7 @@ richness: 7
 spice: 1
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 New England clam chowder should taste first of clams: sweet, briny and a little porky from the salt pork, with soft potatoes and just enough milk and cream to make it rich. It's thinner than the thick, floury chowder many restaurants serve, closer to a creamy broth, thickened only by the starch from the potatoes.

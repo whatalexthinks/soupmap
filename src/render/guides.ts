@@ -68,7 +68,8 @@ const list = (items: readonly string[]) => items.length < 2 ? items.join("") : `
 const ja = (text: string) => `<span lang="ja">${esc(text)}</span>`;
 /** Place-named styles keep their capital mid-sentence: "Hakata ramen", but "miso ramen". */
 const PROPER = /^(?:Jiro|Hakata|Kurume|Kumamoto|Sapporo|Kitakata|Okinawa|Sanuki)\b/;
-export const inSentence = (style: GuideStyle) => PROPER.test(style.label) ? style.label : style.label.charAt(0).toLowerCase() + style.label.slice(1);
+export const sentence = (label: string) => PROPER.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1);
+export const inSentence = (style: GuideStyle) => sentence(style.label);
 
 /** "448 ramen places in Sapporo, Hokkaido" or "29 places in Sapporo, Hokkaido whose names point to…". */
 function counted(style: GuideStyle, n: number, where: string): string {
@@ -151,7 +152,7 @@ function guidePage(guide: Guide, byPlace: ReadonlyMap<string, Guide[]>, byStyle:
     <section class="guide-about" aria-labelledby="guide-about"><div><h2 id="guide-about">About ${esc(inSentence(style))}</h2><p>${esc(style.about)}</p>${guide.home ? `<p><strong>${esc(style.home!.note)}</strong></p>` : ""}${essays(style, context)}</div>
       <dl class="guide-facts">${wards.length > 1 ? `<div><dt>Where</dt><dd>${wards.slice(0, 6).map(([ward, count]) => `${esc(ward)} <small>${count}</small>`).join(" · ")}</dd></div>` : ""}
         <div><dt>Chains</dt><dd>${chains.length ? chains.slice(0, 4).map(([chain, count]) => `${esc(chain)} <small>${count}</small>`).join(" · ") : "None listed: every place here is independent."}</dd></div>
-        <div><dt>How we matched</dt><dd>${style.matchedBy === "cuisine" ? `The record's category or name says ${esc(inSentence(style))}.` : style.matchedBy === "broth" ? "The shop's name names the broth (味噌, 豚骨…), or our notes do for Soupmap selections." : `The shop's own name says ${ja(style.labelJa)}.`} Not a menu check.</dd></div></dl></section>
+        <div><dt>How we matched</dt><dd>${style.matchedBy === "cuisine" ? `The record's category or name says ${esc(inSentence(style))}.` : style.matchedBy === "broth" ? "The shop's name says which broth (味噌, 豚骨…), or our notes do for Soupmap selections." : `The shop's own name says ${ja(style.labelJa)}.`} Not a menu check.</dd></div></dl></section>
     <h2 class="guide-list-title">The list${n > LIST_SIZE ? `: the first ${LIST_SIZE} of ${n.toLocaleString("en-US")}` : ""}</h2>
     <p class="guide-list-note">Soupmap selections come first, then independent places with the most complete records. This is an order of detail, not a ranking of bowls.</p>
     <ol class="directory-grid" id="directory-results">${shown.map(shop => directoryCard(shop)).join("")}</ol>

@@ -23,6 +23,7 @@ richness: 5
 spice: 1
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: tokyo-shoyu-chuka-soba
 map: /map/?q=shoyu
 mapLabel: Find shoyu ramen shops on the map

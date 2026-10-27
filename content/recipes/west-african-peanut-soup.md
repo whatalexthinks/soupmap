@@ -24,6 +24,7 @@ richness: 8
 spice: 7
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Groundnut soup, as peanut soup is usually called in West Africa, is cooked right across the region, from Senegal and The Gambia to Nigeria, with a different name and a different balance in many places. In Ghana it's *nkatenkwan* (in Twi, one of Ghana's main languages, *nkate* means groundnuts and *nkwan* means soup), and that's the style this recipe follows: chicken in a tomato-red broth with ginger, garlic and scotch bonnet, thickened with ground peanuts rather than cream or flour.

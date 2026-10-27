@@ -24,6 +24,7 @@ richness: 4
 spice: 1
 comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 journal: hakodate-shio
 map: /map/?q=shio
 mapLabel: Find shio ramen shops on the map

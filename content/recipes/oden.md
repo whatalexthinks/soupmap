@@ -22,6 +22,7 @@ richness: 3
 spice: 1
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: oden
 map: /map/?q=oden
 mapLabel: Find oden spots on the map

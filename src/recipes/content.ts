@@ -46,6 +46,8 @@ export interface Recipe {
   /** Editorial 1–10 ratings shown as meters. */
   meters: Meters;
   date: string;
+  /** Last substantive change (YYYY-MM-DD), for sitemaps and dateModified. */
+  updated?: string;
   journal?: string;
   map?: string;
   mapLabel?: string;
@@ -62,6 +64,30 @@ export interface Recipe {
   ingredientCount: number;
   stepCount: number;
   photo?: RecipePhoto;
+  /** Sourced cost per bowl (content/recipes/costs.json); never estimated by us. */
+  cost?: RecipeCost;
+  /** Sourced nutrition per serving (content/recipes/nutrition.json). */
+  nutrition?: RecipeNutrition;
+}
+
+/** Per-bowl cost at home against a typical restaurant bowl, with where the prices came from. */
+export interface RecipeCost {
+  currency: "USD";
+  home: number;
+  out: number;
+  source: string;
+  /** YYYY-MM the prices were checked. */
+  checked: string;
+}
+
+/** Per serving, from a named analysis (a dietitian or a nutrition database run), not a guess. */
+export interface RecipeNutrition {
+  calories: number;
+  /** Grams. */
+  protein: number;
+  /** Milligrams. */
+  sodium: number;
+  source: string;
 }
 
 export interface Meters { richness: number; spice: number; comfort: number }
@@ -114,7 +140,7 @@ export function parseRecipe(slug: string, source: string): Recipe {
   catch (error) { throw error instanceof JournalError ? new RecipeError(slug, error.message.replace(/^content\/journal\/[^:]+: /, "")) : error; }
   const { data, body } = parsed;
   const known = new Set(["title", "dek", "mark", "region", "country", "type", "base", "diet", "season", "difficulty",
-    "serves", "active", "total", "prep", "cook", "richness", "spice", "comfort", "date", "journal", "map", "mapLabel"]);
+    "serves", "active", "total", "prep", "cook", "richness", "spice", "comfort", "date", "updated", "journal", "map", "mapLabel"]);
   for (const key of Object.keys(data)) if (!known.has(key)) throw new RecipeError(slug, `unknown field "${key}"`);
   const text = (key: string, required = true): string | undefined => {
     const value = data[key];
@@ -164,6 +190,8 @@ export function parseRecipe(slug: string, source: string): Recipe {
   const meters: Meters = { richness: integer("richness", 1, 10), spice: integer("spice", 1, 10), comfort: integer("comfort", 1, 10) };
   const date = text("date")!;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) throw new RecipeError(slug, "date must be YYYY-MM-DD");
+  const updated = text("updated", false);
+  if (updated && (!/^\d{4}-\d{2}-\d{2}$/.test(updated) || Number.isNaN(Date.parse(`${updated}T00:00:00Z`)) || updated < date)) throw new RecipeError(slug, "updated must be YYYY-MM-DD, on or after date");
   const journal = text("journal", false);
   if (journal && !SLUG.test(journal)) throw new RecipeError(slug, `bad journal slug "${journal}"`);
   const rawMap = text("map", false);
@@ -226,7 +254,7 @@ export function parseRecipe(slug: string, source: string): Recipe {
 
   const recipe: Recipe = {
     slug, title, dek, mark, region, country, type, base, diet, season, difficulty, time: timeBucket(total),
-    serves, active, total, prep, cook, meters, date, headnote, ingredients, method, secret, swaps, tips, storage, variations,
+    serves, active, total, prep, cook, meters, date, ...(updated ? { updated } : {}), headnote, ingredients, method, secret, swaps, tips, storage, variations,
     ingredientCount: ingredientItems.length, stepCount: stepItems.length,
     ...(journal ? { journal } : {}), ...(map ? { map, mapLabel } : {}),
   };

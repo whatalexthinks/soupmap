@@ -24,6 +24,7 @@ richness: 5
 spice: 4
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Mercimek çorbası* simply means "lentil soup", and in Turkey it's the one everybody knows. It's on the menu at almost every *lokanta* (a casual restaurant serving home-style cooking), it's made at home on weeknights, and it's eaten at any hour, breakfast included. It's cheap and quick, and far better than its short ingredient list suggests.

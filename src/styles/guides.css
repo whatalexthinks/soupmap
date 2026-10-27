@@ -1,0 +1,64 @@
+/* City × style guides and the "make it at home" cards: the directory's field-guide look. */
+.guide-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+.guide-crumbs a { color: var(--soot); text-underline-offset: 4px; }
+.guide-hero h1 { max-width: 18ch; }
+.guide-hero .directory-kicker span[lang="ja"] { letter-spacing: .04em; }
+.guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin: 0 0 32px; }
+
+.guide-about { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); margin: 0 0 40px; padding: 28px 0; border-top: 2px solid var(--soot); border-bottom: 1px solid var(--rule); }
+.guide-about h2, .guide-list-title, .guide-hub h2, .guide-related h2 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 500; letter-spacing: -.03em; }
+.guide-about h2 { font-size: 26px; }
+.guide-about p { max-width: 60ch; margin: 0 0 12px; font-size: 15px; }
+.guide-read { display: grid; gap: 4px; }
+.guide-read a { font-size: 14px; color: var(--soot); text-underline-offset: 4px; }
+.guide-facts { display: grid; gap: 14px; margin: 0; font-size: 14px; }
+.guide-facts dt { font-size: 10px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+.guide-facts dd { margin: 2px 0 0; }
+.guide-facts small, .guide-links small, .guide-related small { color: var(--muted); font-size: 12px; }
+
+.guide-list-title { font-size: clamp(26px, 3vw, 34px); }
+.guide-list-note { max-width: 70ch; margin: 0 0 18px; font-size: 13px; color: var(--muted); }
+.guide-more { margin: 20px 0 0; font-size: 14px; }
+
+.guide-recipe, .place-recipe { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: start; background: var(--soot); color: var(--paper-light); }
+.guide-recipe { margin: 44px 0; padding: clamp(22px, 3vw, 34px); }
+.guide-recipe h2, .place-recipe h2 { margin: 4px 0 8px; font-family: var(--font-display); font-weight: 500; letter-spacing: -.03em; color: var(--paper-light); }
+.guide-recipe h2 { font-size: clamp(26px, 3vw, 36px); }
+.guide-recipe p, .place-recipe p { max-width: 60ch; margin: 0 0 16px; font-size: 14px; color: color-mix(in srgb, var(--paper-light) 85%, transparent); }
+.guide-recipe .directory-kicker, .place-recipe .directory-kicker { color: color-mix(in srgb, var(--paper-light) 70%, transparent); }
+.guide-recipe .directory-button { background: var(--paper-light); color: var(--soot); border-color: var(--paper-light); }
+.guide-recipe .directory-button:hover { background: var(--clay); border-color: var(--clay); color: var(--paper-light); }
+.guide-recipe__mark, .place-recipe__mark { writing-mode: vertical-rl; font-size: 28px; line-height: 1; letter-spacing: .08em; color: color-mix(in srgb, var(--paper-light) 80%, transparent); }
+.place-recipe { margin: 20px 0 0; padding: 18px 20px; }
+.place-recipe__mark { font-size: 20px; }
+.place-recipe h2 { font-size: 20px; }
+.place-recipe a { color: var(--paper-light); padding: 4px 0; }
+
+.guide-related { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 40px 0; padding-top: 24px; border-top: 1px solid var(--rule); }
+.guide-related h2 { font-size: 20px; }
+.guide-related ul { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.guide-related li { padding: 7px 0; border-bottom: 1px solid var(--rule); }
+.guide-related a { color: var(--soot); }
+
+.guide-hub { margin: 0 0 36px; }
+.guide-hub h2 { font-size: 24px; }
+.guide-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 20px; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--soot); }
+.guide-links li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+.guide-links a { color: var(--soot); text-decoration: none; font-size: 15px; }
+.guide-links a:hover { color: var(--clay); text-decoration: underline; text-underline-offset: 4px; }
+.guide-links a span[lang="ja"] { margin-left: 4px; font-size: 12px; color: var(--muted); }
+.guide-links--cities { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.guide-links--cities a { font-size: 14px; }
+.guide-home { margin: 0 0 28px; font-size: 15px; }
+.guide-smaller, .guide-prefecture { margin: 14px 0 0; }
+.guide-smaller summary, .guide-prefecture summary { min-height: 44px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
+.guide-prefecture summary small { color: var(--muted); font-weight: 400; }
+.guide-prefecture { margin: 0; border-bottom: 1px solid var(--rule); }
+
+@media (max-width: 800px) {
+  .guide-about { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .guide-recipe { grid-template-columns: 1fr; }
+  .guide-recipe__mark { display: none; }
+}

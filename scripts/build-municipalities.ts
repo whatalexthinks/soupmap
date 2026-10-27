@@ -65,9 +65,10 @@ export function parseLocalGov(csv: string): MunicipalityRow[] {
   const rows: MunicipalityRow[] = [];
   const cityCodes = new Map<string, string>();
   for (const line of lines) {
-    // No field before lgcode contains a comma; the catchphrase after the URL can.
+    // The catchphrase can contain commas, so lgcode (the last column) is read from the end.
     const cells = line.split(",");
-    const code = cells[lgcode!]!.slice(0, 5);
+    if (lgcode !== header.length - 1) throw new Error("localgovjp CSV: expected lgcode to be the last column");
+    const code = cells.at(-1)!.trim().slice(0, 5);
     const prefecture = Number(cells[pid!]);
     const names = cells[city!]!.split(" ");
     const readings = cells[kana!]!.split(" ");

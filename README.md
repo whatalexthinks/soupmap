@@ -214,8 +214,10 @@ Cloudflare dashboard state or production responses were inspected for this sourc
 change.
 
 The build also emits `/llms.txt` with canonical resource links and Japan pilot data
-limitations. This emerging convention is optional, not an indexing requirement or a grant
-of crawling/training permission. It links to the crawlable `/catalog/` directory and sitemap;
+limitations, `/llms-full.txt` (every recipe, guide style, major city guide and journal essay
+with a one-line summary) and `/recipes/recipes.json` (every recipe as data). This emerging
+convention is optional, not an indexing requirement or a grant of crawling/training
+permission. They link to the crawlable `/catalog/` and `/guides/` pages and the sitemap index;
 interactive map fragments are not published documents.
 
 ### 3.7 Static catalog pages
@@ -226,7 +228,8 @@ only for substantive records. Basic imported locations remain visible in directo
 with names, reported coordinates, source IDs, licenses and unverified notices, but do not
 receive thin standalone pages. Shop pages retain original names, editorial notes, known
 facts and explicit unknowns. All generated documents include unique metadata, canonical
-URLs and structured data, and are listed in the sitemap. They work without JavaScript.
+URLs and structured data, and pass the quality gate (3.11) into `sitemap-catalog.xml`. They
+work without JavaScript.
 
 Eligibility lives in `src/data/indexation.ts`; page content in `src/render/catalog.ts` reuses
 the existing data and credits document layout. Keep page generation, shop/share links and
@@ -319,10 +322,60 @@ saved recipes, and reader reviews and tips.
   lists candidates for a person to choose from. Until a recipe has a photo it shows a
   typographic panel. When the first photo goes in, set the `recipe-photos` source in
   `src/sources.ts` to `live` (a test enforces it).
-- Code: `src/recipes/` (content, quantity, facets, browse, cook, reviews, storage),
-  `src/render/recipes.ts`, `src/styles/recipes.css` (builds on the journal's styles),
-  `recipes/index.html`. Tests: `tests/recipes.test.ts`, `tests/recipes-ui.test.ts`,
-  `tests/recipe-reviews.test.ts` (runs against Postgres when `DATABASE_URL` is set).
+- **Every recipe page** opens with a scorecard (prep, cook, total, effort, serves), three
+  editorial 1–10 meters (broth richness, spice, comfort; labelled as the team's ratings, not
+  readers'), a "Restaurant technique" secret, 1×/2×/4× batch buttons beside the servings
+  stepper, US/metric units, steps and ingredients you tap to cross off, timers on every
+  duration, gluten-free / plant-based / high-protein swap tabs, and, for the twelve Japanese
+  noodle and oden recipes, "Don't feel like cooking?": six independent places from the city
+  guides with map links. All of it is required content (`prep`, `cook`, `richness`, `spice`,
+  `comfort`, `## Restaurant secret`, `## Swaps`) checked by the parser.
+- **Cost per bowl and nutrition** render only from sourced data: `content/recipes/costs.json`
+  and `nutrition.json` (both `{}` today; the loader rejects entries without a `source`).
+- **Ingredient "Buy" links** appear beside specialty items (`src/recipes/pantry.ts`) only when
+  `VITE_AMAZON_ASSOCIATES_TAG` and/or `VITE_INSTACART_LINK_TEMPLATE` are set at build time;
+  they are `rel="sponsored nofollow"` with the programmes' disclosure.
+- **Structured data:** schema.org Recipe with prep/cook/total time, yield, `recipeCuisine`
+  ("Japanese"), a flat `HowToStep` list, author "Soupmap Culinary Team", `dateModified` from the
+  optional `updated:` field, `image` only with a licensed photo, `nutrition` only when sourced.
+  `aggregateRating` is added when the page is served (`server/recipe-pages.ts`), from published
+  reader ratings, together with the same figures in the visible summary; never at build time.
+- Code: `src/recipes/` (content, quantity, facets, browse, cook, reviews, storage, places,
+  pantry, catalog-links), `src/render/recipes.ts`, `src/styles/recipes.css` (builds on the
+  journal's styles), `recipes/index.html`. Tests: `tests/recipes.test.ts`,
+  `tests/recipes-ui.test.ts`, `tests/seo-graph.test.ts`, `tests/recipe-reviews.test.ts` (runs
+  against Postgres when `DATABASE_URL` is set).
+
+### 3.11 City guides, the quality gate, sitemaps and IndexNow
+
+- **City × style guides** (`/guides/<style>-in-<city>/`, hubs at `/guides/city/<city>/` and
+  `/guides/style/<style>/`, index `/guides/`) group catalog places by municipality and by the
+  style their names suggest: ramen, udon, soba, oden and 23 styles such as Hakata ramen or
+  Sanuki udon. Each lists up to 24 places (Soupmap selections first), links the rest in the
+  catalog, pins the first 20 on the map, and links the matching recipe. Code:
+  `src/guides/` and `src/render/guides.ts`, rendered in the catalog's document shell.
+- **Municipalities** come from localgovjp (CC0) via `npm run data:municipalities`, which reads
+  English names from the official kana (`scripts/lib/kana.ts`), not the catalog's generated
+  romanizations; a handful of word-boundary readings are corrected in the script.
+- **Recipe ⇄ catalog links**: `src/recipes/catalog-links.ts` maps the twelve Japanese recipes to
+  guide styles. Shop profiles (static pages and the catalog dialog) show "Make … at home", guide
+  pages show the recipe card, and recipe pages show places and guides.
+- **Quality gate** (`src/seo/quality.ts`), run over every generated page at build time:
+  entity pages (recipes, shop pages, guides) need a unique, non-boilerplate description, at
+  least 8 filled schema.org properties, and complete content (3+ ingredients and steps; valid
+  coordinates in Japan for every place; a guide needs 5+ places, 3+ of them independent).
+  Hubs need 2+ indexable guides; listings need a unique title and description. Pages that fail
+  are still published, with `noindex,follow`, and are left out of the sitemaps. The build log
+  prints the counts (today: about 3,480 indexable, 1,550 noindex).
+- **Sitemaps:** `/sitemap_index.xml` (also served as `/sitemap.xml`, the URL already in Search
+  Console) lists `sitemap-pages`, `-journal`, `-recipes`, `-catalog` and `-cities`, each split
+  past 50,000 URLs, with `lastmod` where it is known. `robots.txt` points to the index.
+- **IndexNow** (`server/indexnow.ts`): set `INDEXNOW_KEY` and apply
+  `migrations/003_indexnow.sql`. The server serves `/<key>.txt`, and each production start
+  submits sitemap URLs whose `lastmod` is new or changed (batches of 10,000) to
+  api.indexnow.org, which shares them with Bing, Yandex, Seznam and Naver. Google does not use
+  IndexNow. `POST /api/indexnow` with `Authorization: Bearer $INDEXNOW_ADMIN_TOKEN` submits on
+  demand (`{"urls": [...]}` or `{}` for everything changed).
 
 ---
 

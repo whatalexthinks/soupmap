@@ -22,6 +22,7 @@ richness: 9
 spice: 1
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: anatomy-of-a-bowl
 map: /map/?q=tori+paitan
 mapLabel: Find tori paitan shops on the map

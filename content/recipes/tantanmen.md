@@ -22,6 +22,7 @@ richness: 8
 spice: 5
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: tantanmen
 map: /map/?q=tantanmen
 mapLabel: Find tantanmen shops on the map

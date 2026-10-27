@@ -4,6 +4,7 @@ export const SAVED_RECIPES_KEY = "soupmap:recipes:saved:v1";
 export const NOTES_KEY = "soupmap:recipes:notes:v1";
 export const UNITS_KEY = "soupmap:recipes:units:v1";
 const checksKey = (slug: string) => `soupmap:recipes:checks:${slug}`;
+const stepsKey = (slug: string) => `soupmap:recipes:steps:${slug}`;
 
 function read(storage: Pick<Storage, "getItem"> | null, key: string): unknown {
   try { return JSON.parse(storage?.getItem(key) ?? "null"); } catch { return null; }
@@ -47,3 +48,10 @@ export function checkedIngredients(slug: string): number[] {
   return Array.isArray(value) ? value.filter((n): n is number => Number.isInteger(n)) : [];
 }
 export function setCheckedIngredients(slug: string, indexes: number[]): void { write(session(), checksKey(slug), indexes); }
+
+/** Steps ticked off in this tab, by step number. */
+export function checkedSteps(slug: string): number[] {
+  const value = read(session(), stepsKey(slug));
+  return Array.isArray(value) ? value.filter((n): n is number => Number.isInteger(n) && n > 0) : [];
+}
+export function setCheckedSteps(slug: string, steps: number[]): void { write(session(), stepsKey(slug), steps); }

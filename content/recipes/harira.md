@@ -23,6 +23,7 @@ richness: 6
 spice: 2
 comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Harira is the soup Moroccan families put on the table at sunset during Ramadan, at *iftar* (the meal that breaks the day's fast), usually with dates and a squeeze of lemon. It's eaten the rest of the year too, and it's easy to see why: tomato, lentils, chickpeas and small pieces of lamb, warmed with ginger, turmeric and cinnamon, and lifted by a startling amount of fresh coriander and parsley.

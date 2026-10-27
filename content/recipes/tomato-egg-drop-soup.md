@@ -24,6 +24,7 @@ richness: 3
 spice: 1
 comfort: 7
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 In China this is about as everyday as soup gets: *xīhóngshì dànhuā tāng* (西红柿蛋花汤), "tomato egg-flower soup". *Xīhóngshì*, literally "western red persimmon", is the usual northern word for tomato, while *fānqié* (番茄) is common in the south and in Taiwan. The "egg flowers" are the soft ribbons that bloom when beaten egg meets hot broth. It's the soup of a quick home dinner, set on the table with rice and a couple of stir-fries.

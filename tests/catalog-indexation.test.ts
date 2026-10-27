@@ -174,11 +174,26 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
     "journal/index.html": { type: "asset", source: '<link rel="stylesheet" crossorigin href="/assets/journal-built.css">' },
     "recipes/index.html": { type: "asset", source: '<script type="module" crossorigin src="/assets/recipes-built.js"></script><link rel="stylesheet" crossorigin href="/assets/recipes-built.css">' },
   });
-  const sitemap = assets.get("sitemap.xml")!;
+  // /sitemap.xml is an index of segments; every listed URL appears once.
+  const index = assets.get("sitemap.xml")!;
+  assert.equal(index, assets.get("sitemap_index.xml"));
+  const segments = [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => new URL(m[1]!).pathname.slice(1));
+  assert.deepEqual(segments, ["sitemap-pages.xml", "sitemap-journal.xml", "sitemap-recipes.xml", "sitemap-catalog.xml", "sitemap-cities.xml"]);
+  const sitemap = segments.map(file => assets.get(file)!).join("\n");
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+  assert.equal(new Set(locations).size, locations.length, "no URL is listed twice");
   const journal = journalPages(loadJournal());
   const recipes = recipePages(loadRecipes(new Set(loadJournal().map(a => a.slug))));
-  assert.equal(locations.length, pages.length + 4 + journal.length + recipes.length);
+  // City guides: indexable ones are listed; thin ones are published with noindex and left out.
+  const guides = [...assets.keys()].filter(name => name.startsWith("guides/") && name.endsWith("index.html"));
+  const listedGuides = guides.filter(name => locations.includes(`${origin}/${name.replace(/index\.html$/, "")}`));
+  assert.ok(listedGuides.length > 1000 && listedGuides.length < guides.length, `${listedGuides.length} of ${guides.length} guide pages listed`);
+  for (const name of guides) {
+    const html = assets.get(name)!;
+    const listed = listedGuides.includes(name);
+    assert.ok(html.includes(listed ? '<meta name="robots" content="index,follow">' : '<meta name="robots" content="noindex,follow">'), name);
+  }
+  assert.equal(locations.length, pages.length + 4 + journal.length + recipes.length + listedGuides.length);
   for (const page of recipes) {
     assert.ok(locations.includes(origin + page.path));
     // The recipes index is Vite's own entry; every other recipe page is generated with the compiled assets.

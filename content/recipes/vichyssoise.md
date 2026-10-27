@@ -23,6 +23,7 @@ richness: 7
 spice: 1
 comfort: 4
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Vichyssoise* (say "vee-shee-SWAHZ") is leek and potato soup made elegant: blended until silky, passed through a sieve, enriched with cream and served cold. The name means "of Vichy", the spa town in central France, but the dish most likely took shape in New York. It's usually credited to Louis Diat, the French-born chef of the Ritz-Carlton there, who is generally said to have created it around 1917 by chilling the hot leek and potato soup he grew up with in the countryside near Vichy. Some French writers point to older cold leek soups, so the story is best taken as likely rather than settled.

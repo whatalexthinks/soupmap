@@ -25,6 +25,7 @@ richness: 3
 spice: 3
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Kenchinjiru* comes from *shojin ryori*, the Buddhist temple cooking that uses no meat or fish. Its broth is a dashi of *kombu* (dried kelp) and dried shiitake rather than katsuobushi, and the richness pork brings to [tonjiru](/recipes/tonjiru/) comes here from toasted sesame oil. Root vegetables, *konnyaku* (a firm jelly made from the konjac plant) and torn tofu are fried in it before the stock goes in. The soup is seasoned with soy sauce, *sake*, *mirin* (sweet rice wine) and salt, so the broth stays clear and amber instead of turning cloudy with miso.

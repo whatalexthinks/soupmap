@@ -24,6 +24,7 @@ richness: 3
 spice: 1
 comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Wonton noodle soup is Cantonese cooking at its most precise: a small bowl where three things each have to be right. The wontons are mostly shrimp, bound with a little fatty pork, so they bite back with a clean snap. The broth is clear and savoury rather than heavy. The noodles are thin, springy egg noodles, cooked for barely a minute. *Wonton* is the Cantonese *wan tan*, written with characters that read "swallowing clouds", a fair description of the silky wrappers drifting in the bowl.
