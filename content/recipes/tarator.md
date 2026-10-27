@@ -16,6 +16,11 @@ difficulty: easy
 serves: 4
 active: 15
 total: 15
+prep: 15
+cook: 0
+richness: 3
+spice: 1
+comfort: 3
 date: 2026-10-21
 ---
 
@@ -44,6 +49,23 @@ The thing to get right is the temperature. Tarator should be properly cold, not 
 3. Put the yoghurt in a large bowl and whisk until smooth. Whisk in the garlic paste, the rest of the salt and the oil, then whisk in 300 ml iced water a little at a time, until the yoghurt pours like single (light) cream. Add up to 100 ml more water if you like it thinner.
 4. Stir in the cucumber and most of the dill and walnuts. Taste: it should be tangy, garlicky and clearly salted. Cold food needs a little more salt than you'd expect, so add a pinch more if it tastes flat.
 5. Ladle into bowls, scatter over the remaining dill and walnuts, add a few drops of oil and an ice cube or two if you like, and serve at once.
+
+## Restaurant secret
+
+Build the flavour in the thick yoghurt before you thin it. Garlic crushed with salt becomes a smooth paste that disappears into the yoghurt instead of leaving sharp little nuggets, and oil whisked into thick yoghurt breaks into fine droplets that the milk proteins hold in suspension, so it rounds out the body instead of floating as a slick. Only then does the iced water go in, a little at a time, keeping the soup smooth and evenly seasoned.
+
+## Swaps
+
+### Gluten-free
+- **Already gluten-free as written.** Use a plain yoghurt whose label lists only milk and cultures, and if you're coeliac, check the walnuts for "may contain" warnings.
+
+### Plant-based
+- **Vegetarian as written, not vegan.** For a vegan tarator, use an unsweetened plain soy yoghurt (see Variations) and a squeeze of lemon juice, since it tastes milder. Plant yoghurts vary in thickness, so add the water gradually.
+- If you also need it gluten-free, avoid oat-based yoghurts unless they're labelled gluten-free.
+
+### High-protein
+- **Strained yoghurt:** use strained (Greek-style) yoghurt for all 600 g and thin it with more iced water until it pours (see Tips): about 9 g more protein per bowl.
+- **More walnuts:** double them to 100 g: about 2 g more per bowl, and a richer soup.
 
 ## Tips
 - **Start cold and stay cold.** Put a jug of water in the fridge (or float ice in it and strain it) before you start, and chill the bowls if you have room. Tarator that has warmed up tastes sour and heavy.

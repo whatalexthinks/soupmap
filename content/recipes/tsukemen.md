@@ -18,6 +18,11 @@ difficulty: medium
 serves: 4
 active: 80
 total: 280
+prep: 25
+cook: 245
+richness: 8
+spice: 1
+comfort: 5
 date: 2026-10-20
 journal: tsukemen
 map: /map/?q=tsukemen
@@ -86,6 +91,24 @@ The common mistake is making the dip like a ramen soup: a weak dip on cold noodl
 12. Pile the noodles on plates with the nori, menma and halved eggs alongside. Empty the warmed bowls, ladle in the hot dip and top with the rest of the fish powder and the spring onions.
 13. To eat, dip a few strands at a time, about two-thirds of their length, and slurp. If the dip cools too much partway through, warm it briefly in a pan or the microwave.
 14. For the soup-wari, when the noodles are gone, add hot dashi to each bowl of leftover dip, about 100–150 ml per person, a little at a time, until it tastes like a soup you'd happily drink.
+
+## Restaurant secret
+
+The fish powder does two jobs. Dried sardines and bonito are rich in inosinate, while the kombu, soy sauce and stock bring glutamate, and the two together taste far more savoury than either alone: that's where the dip's depth comes from, rather than from more salt. And because the powder never fully dissolves, it gives the dip body and helps it cling to each noodle. Keeping half to scatter on top means the first dips get a fresh, toasty hit of fish before it's stirred through.
+
+## Swaps
+
+### Gluten-free
+- Use tamari labelled gluten-free instead of the soy sauce, tasting as you go, since brands vary in saltiness. The stock, dashi and homemade fish powder are gluten-free; check the mirin label (and any ready-made gyofun), and leave out the menma unless it's labelled gluten-free, as it's usually seasoned with soy sauce.
+- The noodles are wheat. Thick rice noodles or 100% buckwheat soba, labelled gluten-free, both work for dipping and rinse the same way, but neither has the chewy spring of tsukemen noodles, so it becomes a different, though still very good, meal.
+
+### Plant-based
+- The dip is built on trotters, chicken and dried fish, so a plant-based version is a different dish. For a vegan dip in the same spirit, soak 20 g kombu and 8 dried shiitake in 1.5 l cold water for at least 1 hour, heat slowly to just below a simmer and strain. Use 800 ml of this dashi for the dip, simmered with the soy sauce, mirin, sugar and 3 tbsp white sesame paste for body before the vinegar goes in, and the rest for the soup-wari.
+- Grind dried shiitake to a powder in place of the fish powder. Skip the eggs, and check the noodle and menma labels: some noodles contain egg.
+
+### High-protein
+- Include the eggs: one soft-boiled egg per person adds about 6 g protein, two about 12 g.
+- Add 300 g thinly sliced pork shoulder to the dip in step 7 and simmer until cooked through, 2–3 minutes, before the vinegar goes in: about 14 g more per bowl.
 
 ## Tips
 - **Make the dip bold.** It should taste noticeably saltier and more intense than a ramen soup, because cold noodles carry only a thin coat of it into your mouth. If it tastes balanced as a soup, it's too weak.

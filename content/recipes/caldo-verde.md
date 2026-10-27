@@ -14,6 +14,11 @@ difficulty: easy
 serves: 6
 active: 30
 total: 60
+prep: 15
+cook: 45
+richness: 4
+spice: 2
+comfort: 7
 date: 2026-10-20
 ---
 
@@ -54,6 +59,25 @@ The usual mistake is treating the greens like any other vegetable and stewing th
 6. Take the pot off the heat and purée until completely smooth with a stick blender, or mash hard with a potato masher for a more rustic soup. If you use a jug blender, work in batches, fill it no more than half full and hold the lid down with a folded cloth: hot soup expands and can force the lid off. Stir in another 2 tbsp olive oil.
 7. Return the pot to medium heat and bring the soup back to a simmer, stirring so it doesn't catch on the bottom. Add the greens, stir them through and simmer uncovered until bright green and tender but still slightly chewy, 3–5 minutes (curly kale may need 5–6 minutes). If the soup seems too thick, loosen it with a little hot water; it should be about as thick as single cream.
 8. Add the chouriço slices for the last minute to warm through. Taste for salt; it usually needs a little more. Ladle into bowls, making sure each gets a few slices of sausage, and finish with a thread of olive oil.
+
+## Restaurant secret
+
+Simmer the chouriço whole in the potato water before you purée, then lift it out. In those 15 minutes its paprika-red fat, smoke and garlic seep into the liquid, so the plain potato base tastes faintly of sausage all the way through. Left whole, the sausage keeps its bite and enough of its own fat; sliced and simmered, it would turn dry and pale. Blending then breaks that fat into fine droplets held by the puréed potato, so the soup tastes rich without looking greasy.
+
+## Swaps
+
+### Gluten-free
+- The soup itself contains no gluten, but some cured sausages include wheat as a filler, so choose a chouriço or chorizo labelled gluten-free.
+- Serve it with gluten-free bread rather than *broa*, which is usually made with wheat or rye flour as well as maize.
+
+### Plant-based
+- Leave out the chouriço and finish each bowl with extra olive oil and a small pinch of smoked paprika, as in Variations; everything else is already vegan. You lose the smoke and some richness, but the potato and greens carry it.
+- Plant-based chorizo can stand in for the sausage. Warm the slices through in the last minute only, and check the label if you also need it gluten-free, as many are made with wheat gluten.
+
+### High-protein
+- Stir 2 drained 400 g tins of white or kidney beans in with the greens: about 6 g more protein a bowl, on top of the roughly 10 g the soup has as written.
+- Double the chouriço to 300 g: about 6 g more a bowl, but also more salt and fat, so go easy on the salt in the base.
+- Top each bowl with a poached egg for about 6 g more.
 
 ## Tips
 - **Use floury potatoes.** Varieties sold for mashing or baking break down into a smooth, creamy base with no cream needed. Waxy salad potatoes give a thinner, less creamy soup.

@@ -17,6 +17,11 @@ difficulty: medium
 serves: 8
 active: 70
 total: 240
+prep: 30
+cook: 195
+richness: 6
+spice: 4
+comfort: 7
 date: 2026-10-20
 journal: pozole-and-menudo
 ---
@@ -80,6 +85,23 @@ The usual mistake is scorching those chiles. They go from fragrant to burnt in m
 ### Serve
 11. While the pozole simmers, prepare the garnishes and set them out in bowls with the tostadas.
 12. Ladle the pozole into deep bowls and let everyone finish their own: a handful of cabbage, a few radish slices, a spoonful of onion, oregano crumbled between the palms, a good squeeze of lime and a pinch of ground chile for anyone who wants heat, with tostadas on the side.
+
+## Restaurant secret
+
+Of the bone-in options, choose the split trotter. Traditional pozole is often built on pig's head and trotters, and the reason is collagen: over two hours at a simmer it melts into gelatine, which gives the broth a silky, lip-coating body that clings to every kernel of hominy and carries the chile with it. Neck bones and ribs add flavour but not that body, and without it the broth tastes thinner however much chile goes in.
+
+## Swaps
+
+### Gluten-free
+- Already gluten-free as written: the hominy and tostadas are corn. Check that the tostadas are labelled gluten-free, since some are made with wheat flour blended in or fried in shared oil, and check the labels on the canned hominy, ground chile and dried spices if you're cooking for someone with coeliac disease.
+
+### Plant-based
+- Use the neutral oil rather than lard, and make the broth with 3 l vegetable stock (check the label if you need it gluten-free) or water simmered for 45 minutes with the onion, garlic, bay and 20 g dried shiitake. Blend the chile sauce with this broth in step 6.
+- In place of the pork, tear 600 g oyster or king oyster mushrooms into strips, brown them hard in a little oil and add them with the hominy in step 9. Check that the tostadas aren't fried in lard. It's a good, earthy bowl, but lighter than the pork original: the hominy, chile and garnishes carry it.
+
+### High-protein
+- Already hearty: the shoulder alone gives roughly 25–30 g protein per bowl.
+- Simmer an extra 600 g pork shoulder, in 5 cm chunks, with the rest (about 13 g more per bowl), or poach 500 g boneless, skinless chicken breast in the finished pozole for 15–20 minutes, until it reads 74°C in the middle, then shred it back in (about 14 g more per bowl).
 
 ## Tips
 - **Toast by smell, not by colour.** The moment the chiles smell toasty and soften in the pan, they're done. A few seconds too long and they turn bitter, so if in doubt, under-toast.

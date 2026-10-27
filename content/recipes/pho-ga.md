@@ -18,6 +18,11 @@ difficulty: medium
 serves: 4
 active: 50
 total: 180
+prep: 20
+cook: 155
+richness: 3
+spice: 3
+comfort: 8
 date: 2026-10-20
 journal: pho
 ---
@@ -76,6 +81,24 @@ The usual mistake is boiling. A hard boil clouds the broth and turns the breast 
 11. Tear the chicken into bite-sized strips. Bring a pan of water and the broth to a rolling boil, and warm the bowls with hot water from the kettle.
 12. Working one portion at a time, dip the noodles in the boiling water in a sieve until soft but still springy, 20–30 seconds, then shake dry and tip into a bowl. Warm a portion of chicken in the boiling broth in a ladle or sieve for 30 seconds and lay it over the noodles.
 13. Ladle about 450 ml of boiling broth into each bowl and scatter with spring onion, coriander, a pinch of shredded lime leaf and black pepper. Serve at once, with lime wedges and chillies on the side.
+
+## Restaurant secret
+
+Run the meat and the broth on different clocks. Chicken is at its juiciest the moment it's cooked through and only dries out from there, while the collagen in bones, skin and cartilage needs hours to melt into the gelatine that gives a broth body. Pulling the bird at 74°C, then returning the stripped carcass for another hour, gets you both: silky meat and a broth with real depth, which one long simmer of a whole chicken can't give you.
+
+## Swaps
+
+### Gluten-free
+- Already gluten-free as written. Check the fish sauce, since a few brands add hydrolysed wheat protein, and choose rice noodles labelled gluten-free, as some are made on lines shared with wheat.
+- If you set out hoisin as in the Variations, use one labelled gluten-free: most contain wheat.
+
+### Plant-based
+- There's no phở gà without the chicken, but *phở chay*, the vegetarian phở of Vietnam's Buddhist kitchens, works on the same frame: simmer the charred onion and ginger in 3 l water with about 600 g daikon (white radish) and 2 carrots in large chunks, 1 corn cob and 20 g dried shiitake for 1 hour, adding the toasted spices for the last 40 minutes. It's lighter and sweeter, and a different soup.
+- Season with salt and a little tamari labelled gluten-free (or soy sauce, if gluten isn't a concern) instead of fish sauce, and top with fried tofu and torn, seared oyster mushrooms. Keep the lime leaf: it carries the bowl's perfume either way.
+
+### High-protein
+- Poach 2 boneless, skinless chicken breasts (about 400 g) alongside the whole bird for the last 15–20 minutes of step 4, until the thickest part reads 74°C, and chill them in the ice bath with it: about 23 g more protein per bowl.
+- A halved hard-boiled egg per bowl adds about 6 g.
 
 ## Tips
 - **Never let it boil.** At a bare simmer, the proteins that would cloud the broth set into clumps you can skim off or strain out, and the breast meat stays silky. A rolling boil breaks them up, churns the fat into the liquid and tightens the meat.

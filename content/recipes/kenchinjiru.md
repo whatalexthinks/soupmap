@@ -19,6 +19,11 @@ difficulty: easy
 serves: 4
 active: 40
 total: 235
+prep: 25
+cook: 55
+richness: 3
+spice: 3
+comfort: 7
 date: 2026-10-20
 ---
 
@@ -70,6 +75,24 @@ The mistake to avoid is rushing the frying. Give the vegetables a few minutes in
 10. Break the tofu into the pot with your hands in rough 2 cm pieces. Stir-fry gently until it firms up and takes on a little colour, about 2 minutes.
 11. Add the taro or potatoes, then pour in the dashi, sake and mirin. Bring to the boil over medium-high heat and skim off any foam, then lower the heat to a gentle simmer, partly cover and cook until the daikon is translucent and a skewer slides easily into the taro, 15–20 minutes.
 12. Stir in the soy sauce and salt and simmer for 2 minutes more. Taste: the broth should be savoury with a soft sweetness, seasoned well enough that you'd happily drink a whole bowl. Add more salt a pinch at a time if it needs it. Serve topped with the spring onion, with shichimi on the table.
+
+## Restaurant secret
+A broth this savoury with no meat or fish comes from pairing two kinds of umami. Kombu is rich in glutamate and dried shiitake in guanylate, and together they taste far stronger than either does alone. The cold soak helps too: guanylate is formed when the softened mushrooms are heated, and soaking them cold rather than in hot water keeps other enzymes from breaking it down first. That's why the shiitake get a gentle simmer of their own once the kombu is out.
+
+## Swaps
+
+### Gluten-free
+- **Swap the soy sauce for tamari labelled gluten-free,** in the same amount. Regular soy sauce is brewed with wheat; tamari is a little darker and richer, but the soup is otherwise the same.
+- **Check the labels on the mirin, sake, konnyaku and shichimi,** and choose ones labelled gluten-free: "mirin-style" seasonings and spice blends vary. The kombu, shiitake, tofu and vegetables are naturally gluten-free.
+- **For kenchin soba,** use 100% buckwheat soba labelled gluten-free. Most soba, and all udon, contain wheat.
+
+### Plant-based
+- **Already vegan as written.** Use plain soy sauce or tamari, never "dashi soy sauce" or *tsuyu*, and skip instant dashi powders, which can contain fish even when sold as kombu dashi (see Tips).
+
+### High-protein
+- **Double the tofu** to 400 g, pressed and torn as before: about 4–6 g more protein per bowl, depending on how firm it is.
+- **Add 4 sheets of aburaage** (thin fried tofu, about 80 g), rinsed with boiling water and cut into strips, with the dashi: about 5 g per bowl.
+- **Stir in 200 g shelled edamame** for the last 5 minutes of simmering: about 5 g per bowl.
 
 ## Tips
 - **Check every label if you're cooking for vegans.** Use plain soy sauce, not "dashi soy sauce" or *tsuyu* (noodle sauce concentrate), both of which usually contain bonito. Instant dashi powders, even ones sold as vegetable or kombu dashi, sometimes contain fish extract too.

@@ -14,6 +14,11 @@ difficulty: medium
 serves: 6
 active: 50
 total: 95
+prep: 30
+cook: 55
+richness: 7
+spice: 1
+comfort: 7
 date: 2026-10-20
 ---
 
@@ -63,6 +68,24 @@ The one thing people get wrong is boiling it once the dairy is in. Milk in a sal
 
 ### Serve
 10. Ladle into warm bowls, scatter with chives or parsley and serve with oyster crackers for crumbling over.
+
+## Restaurant secret
+Steaming the clams in just 500 ml of water is what makes this chowder taste of clams. The liquor that floods out as they open is the briny juice each clam holds, rich in the amino acids and succinic acid behind shellfish's sweet, savoury taste, and it becomes the cooking liquid for the potatoes. Pulling each clam out the moment it opens, and returning the meat only at the end, means the broth gets all that flavour while the clams stay tender.
+
+## Swaps
+
+### Gluten-free
+- **The chowder itself is gluten-free:** it's thickened only by potato. Serve it with crackers labelled gluten-free instead of oyster crackers, which are made from wheat flour, or with none.
+- **Check the labels** on the bottled clam juice and the salt pork or bacon, and skip the flour in the Thicker chowder variation: mash more of the potato against the pot instead.
+
+### Plant-based
+- **Honestly, this isn't clam chowder any more,** but a creamy New England-style corn and potato chowder is worth making. Soften the onion in 3 tbsp olive oil with 1/2 tsp smoked paprika in place of the salt pork and butter.
+- **For the liquid,** use 1 l vegetable stock (check the label: some cubes contain milk) warmed with a 10 cm square of kombu for a hint of the sea, lifting the kombu out before it boils. Replace the milk and cream with 750 ml unsweetened soy milk and keep it below a simmer.
+- **In place of the clams,** add 300 g sweetcorn kernels or torn oyster mushrooms with the potatoes, and check the crackers contain no milk or butter.
+
+### High-protein
+- **Add canned clams:** stir 150 g drained canned chopped clams in with the fresh ones at step 9, for about 6 g more protein per bowl.
+- **Make it a fish and clam chowder:** add 300 g skinless cod or haddock, in 3 cm chunks, with the milk and cream, and keep the heat low until it flakes easily, 5–6 minutes. About 9 g more per bowl.
 
 ## Tips
 - **Buy clams alive and keep them that way.** The shells should be tightly closed, or close when tapped. Keep them in the fridge in an open bowl under a damp cloth, never in fresh water or a sealed bag, which kill them, and cook them within a day.

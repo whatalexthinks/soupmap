@@ -18,6 +18,11 @@ difficulty: easy
 serves: 4
 active: 15
 total: 25
+prep: 5
+cook: 20
+richness: 3
+spice: 1
+comfort: 7
 date: 2026-10-21
 ---
 
@@ -56,6 +61,24 @@ The usual mistake is adding the water to barely softened tomatoes. You get a pal
 5. Stir the cornstarch mixture again, since it settles fast, and pour it into the simmering soup in a thin stream, stirring. Simmer for 1 minute, stirring, until the soup turns glossy and lightly coats a spoon.
 6. Turn the heat down so the soup barely simmers. Give it one slow stir in a circle, then pour the egg in a thin stream over the moving surface, ideally through the tines of a fork. Leave it alone until the egg sets into soft, opaque ribbons, 20–30 seconds, then stir gently once and check that no runny egg is left.
 7. Turn off the heat, stir in the sesame oil, scatter over the spring onion greens and serve.
+
+## Restaurant secret
+
+Silky "egg flowers" depend on order and heat. The cornstarch goes in first, making the broth just thick enough to hold the egg up, so it spreads into thin sheets instead of sinking into a clump, while the slow swirl stretches the stream into long ribbons. At a bare simmer the egg sets gently and stays soft; at a rolling boil it tightens fast and the bubbles tear it into small, firm curds. Leaving it alone for 20–30 seconds lets the ribbons set before you stir.
+
+## Swaps
+
+### Gluten-free
+- Gluten-free as written with water. If you use stock instead, choose one labelled gluten-free, since many stocks and stock cubes contain wheat or barley.
+- Check that the cornstarch is labelled gluten-free. In some countries "cornflour" can be made from wheat (sold as wheaten cornflour), so read the packet rather than going by the name.
+
+### Plant-based
+- Without the egg it's no longer egg-flower soup, but a tomato and tofu soup in the same spirit is still lovely. Use water or vegetable stock labelled vegan, and after thickening in step 5, slide in 300 g silken tofu, cut into small cubes or broken into soft pieces with a spoon, and simmer gently for 2 minutes.
+
+### High-protein
+- As written a bowl has about 6 g protein, mostly from the egg. Use 5 eggs instead of 3, poured in the same way: about 3 g more per bowl.
+- Add 300 g firm tofu, in 2 cm cubes, with the water in step 4: about 9 g more per bowl.
+- Simmer 200 g peeled raw prawns in the soup until pink and opaque, about 2 minutes, before you thicken it: about 10 g more per bowl. It's then no longer vegetarian.
 
 ## Tips
 - **Let the tomatoes break down.** Ripe, deep red tomatoes give the soup its colour and sweetness. Out of season, add 1 tbsp tomato paste with the tomatoes in step 2 for colour and depth; it's still vegetarian and, if it's just tomatoes, gluten-free.

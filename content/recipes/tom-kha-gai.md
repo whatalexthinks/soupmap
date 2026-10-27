@@ -17,6 +17,11 @@ difficulty: easy
 serves: 4
 active: 25
 total: 35
+prep: 15
+cook: 20
+richness: 6
+spice: 4
+comfort: 6
 date: 2026-10-20
 journal: tom-yum
 ---
@@ -58,6 +63,25 @@ The mistake to avoid is boiling the coconut milk hard. A rolling boil makes it s
 6. Turn off the heat. Stir in the palm sugar, the chillies, about two-thirds of the fish sauce and most of the lime juice.
 7. Taste: it should be sour and salty first, then creamy and faintly sweet. Add more fish sauce or lime juice until it's right.
 8. Scatter with coriander and serve straight away with rice. Leave the galangal, lemongrass and lime leaves in the bowl, but don't eat them.
+
+## Restaurant secret
+
+Give the aromatics a lively simmer on their own before the coconut milk goes in. Galangal and lemongrass are dense and fibrous and release their flavour slowly; five minutes bubbling in thin stock draws it out far faster than the gentle simmer the soup can take later. Once the coconut milk is in, it mustn't boil hard or its emulsion breaks, so this is your only chance. Thin slices and well-bashed stalks give the heat more surface to work on.
+
+## Swaps
+
+### Gluten-free
+- **Already gluten-free as written,** as long as the fish sauce and chicken stock are labelled gluten-free (some fish sauces contain wheat).
+- **In the variations,** light soy sauce contains wheat, so use tamari labelled gluten-free, and check the label on nam prik pao.
+
+### Plant-based
+- **Make *tom kha het*** (see Variations): vegetable stock, 400 g mixed mushrooms and 200 g cubed firm tofu, seasoned with salt or tamari labelled gluten-free instead of fish sauce. Leave out the nam prik pao, which usually contains dried shrimp; everything else is already vegan.
+- Without fish sauce it's less deeply savoury, so season boldly and lean a little harder on the lime. It's a recognised version in its own right, not a compromise.
+
+### High-protein
+- **More chicken:** use 600 g thighs instead of 400 g: about 9 g more protein per bowl. They still cook in 6–8 minutes if sliced thinly.
+- **Prawns too:** add 200 g peeled raw prawns with the mushrooms and cook until pink and opaque all the way through, 2–3 minutes: about 9 g more per bowl.
+- **Tofu:** add 200 g cubed firm tofu with the mushrooms: about 7 g more per bowl.
 
 ## Tips
 - **Be generous with galangal.** It's the soup's name and its main flavour. Young galangal doesn't need peeling; frozen galangal is a good substitute for fresh. Ginger is warmer and sweeter and makes a nice soup, but not tom kha.

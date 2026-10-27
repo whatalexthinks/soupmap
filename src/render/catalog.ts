@@ -15,6 +15,16 @@ export interface CatalogPage {
   description: string;
   content: string;
   structuredData: Record<string, unknown>;
+  /** Set by the quality gate (src/seo/quality.ts); index,follow when absent. */
+  robots?: string;
+}
+
+/** schema.org links (`url`, `item`) are written site-relative; documents need them absolute. */
+function absolute(value: unknown, siteUrl: string): unknown {
+  if (Array.isArray(value)) return value.map(item => absolute(item, siteUrl));
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+    [key, (key === "url" || key === "item") && typeof item === "string" && item.startsWith("/") ? new URL(item, siteUrl).href : absolute(item, siteUrl)]));
 }
 
 const limitations = `<p>Coverage is incomplete. Reported locations are not independently checked recommendations. Check the shop before visiting; coordinates and current trading status may be inaccurate. Unknown menus, prices, hours and broth styles are not inferred.</p>
@@ -132,16 +142,12 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
 
 export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: string | readonly string[], script?: string): string {
   const canonical = `${siteUrl}${page.path}`;
-  const data: Record<string, unknown> = { "@context": "https://schema.org", ...structuredClone(page.structuredData), url: canonical };
-  if (data["@type"] === "CollectionPage") {
-    const list = data.mainEntity as { itemListElement: { url: string }[] };
-    for (const item of list.itemListElement) item.url = new URL(item.url, siteUrl).href;
-  }
+  const data = { "@context": "https://schema.org", ...absolute(page.structuredData, siteUrl) as Record<string, unknown>, url: canonical };
   const json = JSON.stringify(data).replaceAll("<", "\\u003c");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${esc(page.title)}</title><meta name="description" content="${esc(page.description)}">
-    <link rel="canonical" href="${esc(canonical)}"><meta name="robots" content="index,follow">
+    <link rel="canonical" href="${esc(canonical)}"><meta name="robots" content="${esc(page.robots ?? "index,follow")}">
     <meta property="og:type" content="website"><meta property="og:site_name" content="Soupmap">
     <meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}">
     <meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(siteUrl)}/social/soupmap-world.png">

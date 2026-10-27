@@ -16,6 +16,11 @@ difficulty: easy
 serves: 4
 active: 20
 total: 145
+prep: 10
+cook: 15
+richness: 1
+spice: 1
+comfort: 4
 date: 2026-10-20
 journal: suimono
 ---
@@ -53,6 +58,23 @@ What goes wrong is usually grit or salt. Clams live in sand, so they need a prop
 5. Turn the heat to medium-low so the pot stays just below a boil and skim off the white foam as it rises. As each clam opens, lift it out with tongs into a bowl; they'll open over 3–5 minutes. Discard any that stay firmly shut once the others have opened.
 6. Strain the broth through a fine sieve lined with a damp paper towel into a clean pan, to catch any last sand. Warm it over low heat and add the usukuchi soy sauce. Taste, then add salt a pinch at a time only if it needs it: the broth should taste of the sea, gently rounded, not salty.
 7. If using mitsuba, dip the stems into the hot broth for a few seconds to soften them and tie each sprig into a loose knot. Return the clams to the broth for 30 seconds to rewarm, then divide clams and broth among 4 bowls, 2 clams each. Add the mitsuba or spring onion and serve at once.
+
+## Restaurant secret
+
+A clear soup should be clear enough to see the shells through, and the enemy is a rolling boil. The clams' juices carry protein that sets as the broth heats. At a bare simmer it gathers into foam that floats to the top to be skimmed away; at a rolling boil the bubbles tear it into fine particles and churn them through the broth, clouding it for good. So the pot never boils, the foam goes as it appears, and each clam comes out the moment it opens.
+
+## Swaps
+
+### Gluten-free
+- The usukuchi soy sauce is the only gluten: it's brewed with wheat. Ushiojiru is at heart a salt-seasoned soup, so you can simply leave it out and season with salt, or use 1/4 tsp tamari labelled gluten-free; tamari is darker, so the broth will be a shade deeper.
+- Sake is brewed from rice. Use a plain drinking sake, and check the label of any "cooking sake", which often has added salt and other ingredients.
+
+### Plant-based
+- There's no plant-based ushiojiru: the clams are the stock. For a vegan clear soup in the same spirit, make the kombu-shiitake dashi from our [miso soup](/recipes/miso-soup/), season it with salt and a few drops of usukuchi, and warm cubes of soft tofu and a little soaked wakame in it before topping with mitsuba.
+
+### High-protein
+- This is a light soup by design, at around 4 g protein a bowl. Doubling the clams to 4 per bowl (about 1 kg in all) roughly doubles that and deepens the broth; use a wider pan and taste before adding any salt.
+- Warm 100 g cubed soft tofu per bowl in the broth just before serving (about 5 g).
 
 ## Tips
 - **Purge them like the sea.** Shallow, about 3% salt, dark and cool is what makes clams open up and spit out their sand. Fresh water or a deep bowl of salt water stresses or suffocates them.

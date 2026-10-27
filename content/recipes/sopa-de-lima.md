@@ -17,6 +17,11 @@ difficulty: medium
 serves: 6
 active: 50
 total: 110
+prep: 15
+cook: 95
+richness: 3
+spice: 3
+comfort: 6
 date: 2026-10-20
 ---
 
@@ -73,6 +78,24 @@ The mistake to avoid is boiling the citrus. Cooked lime juice tastes flat, and p
 8. Squeeze 3 of the limas (or, for the substitute, 3 limes and the grapefruit quarter); you should have about 100 ml juice. Thinly slice the remaining lima or lime.
 9. Take the soup off the heat. Stir in two-thirds of the juice, taste, and add more until the broth is bright and tangy but still tastes of chicken. Adjust the salt.
 10. Ladle into bowls, float a slice of lima in each and top with a handful of tortilla strips and some coriander. Serve straight away, with the habanero on the side for anyone who wants heat.
+
+## Restaurant secret
+
+The perfume comes from the peel, the sourness from the juice, and both go in at the last moment. Lima agria's scent lives in the oil glands of its zest, and those aromas are volatile: simmer them and they fade, while pith left stewing turns the pot bitter. A thin slice floated in each hot bowl releases that oil right as you eat, and juice stirred in off the heat stays bright instead of tasting cooked.
+
+## Swaps
+
+### Gluten-free
+- **Already gluten-free as written,** as long as the tortillas are made with corn only: some "corn" tortillas are part wheat flour, so check the label.
+- Fry the strips in fresh oil, not oil that has already fried anything breaded or floured. If you use the shortcut broth, choose a stock labelled gluten-free.
+
+### Plant-based
+- **Not vegan:** chicken is both the broth and the filling. For a vegan soup in the same style, char the onion, garlic and spices as in step 2, simmer them in 2 l vegetable stock (labelled gluten-free if you need it) for 30 minutes, then carry on from step 5, adding 300 g oyster mushrooms, torn and seared in a hot pan until golden, instead of the chicken.
+- **It's a charred-vegetable lime soup rather than sopa de lima:** lighter and less savoury, so season it a little more boldly. The tortilla strips, lime and coriander are already vegan.
+
+### High-protein
+- **More chicken:** poach 400 g boneless, skinless chicken breast in the strained broth in step 6 until it reaches 74 °C (165 °F) in the thickest part, 12–15 minutes, then shred it in with the rest: about 15 g more protein per bowl.
+- **An egg:** half a hard-boiled egg in each bowl adds about 3 g, a whole one about 6 g. It isn't traditional, but it sits well with the lime.
 
 ## Tips
 - **The lime substitute.** Lima agria is hard to find outside Yucatán. Use about 3 parts lime juice to 1 part grapefruit juice, and for the bitter perfume of the peel, drop a 5 cm strip of grapefruit zest (no white pith) into the simmering soup for 2 minutes before you take it off the heat, then lift it out.

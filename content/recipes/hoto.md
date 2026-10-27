@@ -17,6 +17,11 @@ difficulty: medium
 serves: 4
 active: 60
 total: 95
+prep: 35
+cook: 55
+richness: 6
+spice: 2
+comfort: 9
 date: 2026-10-20
 journal: hoto
 ---
@@ -79,6 +84,24 @@ The usual mistake is rinsing the noodles or shaking off their flour. Put them in
 10. With the broth bubbling, add the noodles a handful at a time, with the flour that clings to them, stirring gently so they don't clump. Simmer over medium-low heat with the lid ajar, stirring gently and scraping the bottom every few minutes (the starchy broth catches and boils over easily), until the noodles are soft right through with no floury core, 15–20 minutes. The broth will thicken noticeably.
 11. Add the napa cabbage and negi and simmer until wilted and tender, about 5 minutes. Dissolve the rest of the miso into the pot the same way, taste, add a little more if it needs it and simmer for 2 more minutes. If it's thicker than you like, loosen it with a splash of hot water.
 12. Ladle into deep bowls straight from the pot, piping hot, with shichimi on the table.
+
+## Restaurant secret
+
+Cutting the kabocha two ways is what gives hōtō its thick, sweet, velvety broth. The 2 cm pieces cook through long before the noodles are done, then soften at the edges and start to collapse, so their starch and sugar melt into the pot alongside the flour from the noodles. The 4 cm pieces, kept in their skin, hold together, so you still get whole chunks of pumpkin to bite into. The gentle stirring in step 10 helps the small pieces break down.
+
+## Swaps
+
+### Gluten-free
+- Hōtō is a wheat-noodle dish, so a gluten-free version is really a miso vegetable stew with noodles. Wide, flat rice noodles labelled gluten-free come closest: soak or par-cook them as the packet directs and add them for the last 2–3 minutes, or they turn to mush.
+- Without the noodle flour the broth stays thinner, so cut all the kabocha into 2 cm pieces, and if you want it thicker, stir in 1 tbsp potato starch mixed with 2 tbsp cold water at the end.
+- Check the miso: barley (*mugi*) miso contains gluten and some blends include barley or wheat, so choose one labelled gluten-free. Check the shichimi too.
+
+### Plant-based
+- Use the kombu-shiitake dashi from Variations in place of the niboshi. The noodles (just flour and water) and the vegetables are already vegan; check that the miso isn't *dashi-iri* (with added dashi), which usually contains fish.
+
+### High-protein
+- Around 15 g protein a bowl as written, much of it from the noodles and miso. Add 300 g boneless chicken thigh in bite-sized pieces with the root vegetables in step 8 for about 13 g more per bowl; it's cooked through long before the noodles are.
+- Or add 300 g *atsuage* (thick deep-fried tofu), cubed, with the kabocha (about 8 g more per bowl), or crack 4 eggs into the pot for the last 4–5 minutes, lid on, until the whites are set (about 6 g each).
 
 ## Tips
 - **Leave the flour on.** The dusting on the noodles is what thickens the pot, so don't rinse them or shake them clean. Just leave behind any loose heaps of flour on the tray, which would make the broth gluey.

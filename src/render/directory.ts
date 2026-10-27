@@ -7,6 +7,14 @@ import { displayName } from '../names.ts';
 import { getSource } from '../sources.ts';
 import { esc } from '../ui/dom.ts';
 import { contactHtml, stylesHtml } from '../ui/shop-details.ts';
+import { recipeForShop } from '../recipes/catalog-links.ts';
+
+/** "Make miso ramen at home": the recipe this shop's style points to. */
+export function recipeCardHtml(shop: Shop): string {
+  const match = recipeForShop(shop);
+  if (!match) return '';
+  return `<aside class="place-recipe" aria-label="Cook it at home"><span class="place-recipe__mark" lang="ja" aria-hidden="true">${esc(match.link.mark)}</span><div><span class="directory-kicker">Rather cook?</span><h2>${esc(match.heading)}</h2><p>${esc(match.link.title)}: our tested recipe, with a servings scaler, timers and gluten-free, plant-based and high-protein swaps.</p><a class="directory-text-link" href="/recipes/${esc(match.link.recipe)}/">Get the recipe →</a></div></aside>`;
+}
 
 export const profileUrl = (shop: Shop): string => isIndexableShop(shop) ? `/shop/${shop.slug}/` : `/catalog/?place=${encodeURIComponent(shop.slug)}`;
 export function recordSource(shop: Shop): string {
@@ -55,6 +63,6 @@ export function profileHtml(shop: Shop): string {
 </section>
     <section data-profile-contact><h2>Contact &amp; location</h2>${contactHtml(shop)}</section>
     <details class="directory-source"><summary>Sources &amp; verification</summary><p>${shop.verified ? 'Verified on the ground.' : 'Not verified. Unverified location; not independently checked on the ground.'}</p><p>${recordSource(shop)}</p><p>Reported coordinates: ${shop.lat}, ${shop.lng}</p><p>Soupmap notes are editorial content, not copied reviews. Prices and menu notes may change. Generated romanizations are approximate; the Japanese name is preserved.</p><a href="/credits/">All data credits</a></details></div>
-    <aside class="place-profile__live">${googlePanelShell()}<a class="directory-text-link" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">Open in Google Maps ↗</a></aside></div>
+    <aside class="place-profile__live">${googlePanelShell()}<a class="directory-text-link" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>${recipeCardHtml(shop)}</aside></div>
   </article>`;
 }

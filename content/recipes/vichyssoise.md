@@ -17,6 +17,11 @@ difficulty: medium
 serves: 6
 active: 40
 total: 355
+prep: 25
+cook: 50
+richness: 7
+spice: 1
+comfort: 4
 date: 2026-10-20
 ---
 
@@ -58,6 +63,24 @@ Two more things matter. Cold dulls flavour, so season it again once it's chilled
 ### Serve
 7. Stir the soup well. It thickens as it chills, so loosen it with a little cold milk or stock until it flows like pouring cream. Taste and season assertively with salt and white pepper.
 8. Ladle into the chilled bowls, scatter with chives and serve at once. Put the rest straight back in the fridge.
+
+## Restaurant secret
+
+The silkiness comes from the sieve, not from more blending. Cooked potato cells are fragile: a short blend breaks them into a smooth purée, but keep going and they burst, releasing starch that turns the soup gluey, and it sets thicker still as it chills. So the classic method is to blend only until smooth, then pass the purée through a fine sieve to catch the stringy leek fibres the blades leave behind. It's five more minutes, and it's the difference between a good soup and a velvety one.
+
+## Swaps
+
+### Gluten-free
+- Gluten-free as written, as long as the stock is. Many bought stocks and stock cubes contain wheat or barley, so choose one labelled gluten-free, including any you use to loosen the soup.
+
+### Plant-based
+- Soften the leeks in 3 tbsp mild olive oil or a plant-based butter instead of butter, and use a light vegetable stock labelled vegan (and gluten-free if you need it).
+- Replace the cream with 250 ml unsweetened plain soy or oat cream, or with cashew cream (100 g raw cashews soaked for 2 hours, drained and blended with 200 ml water until smooth), and loosen with unsweetened soy or oat milk. Cashew gives the closest body. It's a tree nut, and oat products need a gluten-free label for anyone with coeliac disease.
+
+### High-protein
+- As written a bowl has only about 5 g protein. Stir 250 g strained Greek yoghurt into the cold soup in place of half the cream: about 4 g more per bowl, with a gentle tang.
+- Simmer 400 g drained cooked white beans (cannellini or haricot) with the potatoes and blend them in: about 4 g more per bowl. The soup stays pale but tastes a little earthier.
+- Top each bowl with 50 g cooked white crab meat or chopped cooked prawns: about 9–12 g more.
 
 ## Tips
 - Use only the white parts of the leeks for that ivory colour and clean flavour. Save the green tops for making stock.

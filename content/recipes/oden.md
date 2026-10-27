@@ -16,6 +16,11 @@ difficulty: medium
 serves: 4
 active: 60
 total: 260
+prep: 25
+cook: 165
+richness: 3
+spice: 1
+comfort: 8
 date: 2026-10-20
 journal: oden
 map: /map/?q=oden
@@ -73,6 +78,25 @@ Two things make oden good. First, it never boils: a hard simmer clouds the broth
 11. Add the atsuage, chikuwa and satsuma-age, nudging them under the broth, and cook at the same gentle heat for 30 minutes more.
 12. Turn off the heat, cover the pot and leave it to rest for 1 hour. As it cools, the broth soaks into the daikon and eggs, which slowly turn a deeper gold.
 13. To serve, reheat the pot over low heat until everything is steaming hot right through, 10–15 minutes, adding the hanpen for the last 5 minutes; it puffs up and turns tender, and deflates if cooked longer. Taste the broth and add salt if it needs it. Bring the pot to the table and serve a few pieces at a time in bowls with a ladle of broth, with karashi on the side.
+
+## Restaurant secret
+An oden broth is seasoned twice: once by you, and again by the fish cakes. Chikuwa and satsuma-age are made from salted, lightly sweetened fish paste, and as they sit in the pot they give fish flavour, salt and sweetness to the dashi, which the daikon and eggs then soak up as everything rests. That's why the broth starts out lightly seasoned, why you adjust the salt only at the end, and why the fish cakes get a full 30 minutes rather than a quick warm-through.
+
+## Swaps
+
+### Gluten-free
+- **Use tamari labelled gluten-free** in place of the usukuchi: 3 tbsp, plus an extra 1/2 tsp salt, tasting at the end. The broth will be darker, closer to the Tokyo style in Variations.
+- **Fish cakes are the hard part.** Many chikuwa, satsuma-age and hanpen contain wheat starch or flour, and often soy sauce, so use only ones labelled gluten-free, or leave them out and add more daikon, eggs, atsuage and potatoes; the broth will be lighter and less savoury. Skip chikuwabu, which is wheat dough.
+- **Check the konnyaku, atsuage, mirin and karashi labels** too.
+
+### Plant-based
+- **Make the broth with kombu and shiitake.** Keep the 25 g kombu, replace the katsuobushi with 8 dried shiitake (about 25 g), and soak both in the cold water in the fridge for at least 5 hours. Warm slowly, lift out the kombu before it boils, simmer the shiitake for 5 minutes, then strain and add them to the pot.
+- **Leave out the eggs and fish cakes** and fill the pot with more atsuage and daikon, the mochi pouches and potatoes from Variations, and *ganmodoki* (fried tofu fritters; check the label, as some contain egg). It's a gentler vegetable oden, honestly a different pot, but a good one.
+
+### High-protein
+- **Boil 10 eggs** instead of 6, so everyone gets 2–3: about 6 g protein for each extra egg.
+- **Double the atsuage** to 600 g: about 8 g more per bowl.
+- **Add 200 g more fish cakes** with the others: about 6 g more per bowl.
 
 ## Tips
 - **Never let it boil.** Keep the broth at a lazy shiver. Boiling clouds the dashi, makes fish cakes swell and then go spongy and tasteless, toughens the eggs and breaks up the daikon.

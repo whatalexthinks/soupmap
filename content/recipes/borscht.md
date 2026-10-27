@@ -17,6 +17,11 @@ difficulty: medium
 serves: 8
 active: 50
 total: 235
+prep: 30
+cook: 185
+richness: 5
+spice: 1
+comfort: 7
 date: 2026-10-20
 journal: borscht
 ---
@@ -75,6 +80,24 @@ Serve it with *smetana*, the thick, tangy cultured sour cream eaten all over Eas
 9. Stir in the beetroot mixture and the meat. Bring the soup back to a gentle simmer and cook until the potatoes are tender, 5 minutes. Don't let it boil hard from here on, or the colour dulls.
 10. Stir in the garlic and most of the dill and turn off the heat. Taste and balance: it should be savoury, gently sweet and clearly but not sharply sour. Add salt (it will likely need another 1–2 tsp), pepper, or a few more drops of vinegar as needed.
 11. Cover the pot and let it rest for 15–20 minutes so the flavours settle. Serve in deep bowls with a spoonful of smetana and the rest of the dill.
+
+## Restaurant secret
+
+The separate pan of onion, carrot and beetroot fried in oil with tomato paste and vinegar, which Ukrainian cooks call the *zasmazhka*, is where borscht gets most of its flavour and colour. Frying browns the onion and cooks out the tomato paste for a depth that simmering alone can't give, and the oil dissolves the fat-soluble carotenes from the carrot and tomato, which is what gives a good bowl its orange-red sheen. The vinegar, meanwhile, holds the beetroot's red until it joins the pot.
+
+## Swaps
+
+### Gluten-free
+- It's already gluten-free as written. If you take the stock shortcut, choose a stock labelled gluten-free, and check the label on the sour cream if it contains anything beyond cream and cultures.
+- Serve it with gluten-free bread rather than *pampushky*, which are wheat rolls.
+
+### Plant-based
+- Follow the meatless variation (vegetable stock or water plus soaked dried mushrooms), check the stock label for milk, and finish with unsweetened plant-based yoghurt instead of smetana. It's still very much borscht: meatless borscht is part of the Ukrainian Christmas Eve supper.
+- Add a drained 400 g tin of kidney or white beans with the beetroot to make up for some of the body the beef gives.
+
+### High-protein
+- Use 1.5 kg bone-in beef instead of 1 kg: about 8 g more protein a bowl, on top of the roughly 15 g the meat gives as written, and a meatier broth.
+- Add 2 drained 400 g tins of kidney or white beans with the beetroot: about 5 g more a bowl.
 
 ## Tips
 - **Acid keeps the colour.** Beetroot's red pigment is most stable in slightly acidic conditions and breaks down with long boiling. The vinegar in the pan and the short, gentle final simmer are what keep the soup ruby rather than brown.

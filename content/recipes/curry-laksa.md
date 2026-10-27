@@ -17,6 +17,11 @@ difficulty: medium
 serves: 4
 active: 80
 total: 105
+prep: 35
+cook: 70
+richness: 8
+spice: 6
+comfort: 6
 date: 2026-10-20
 journal: laksa
 ---
@@ -85,6 +90,25 @@ The mistake nearly everyone makes is under-frying the paste. Raw shallot and chi
 10. While the broth simmers, bring a large pan of water to a boil. Cook the rice vermicelli until just tender, 2–3 minutes (or as the packet says), lift it out with a sieve and drain. Dip the yellow noodles in the same water for 30–60 seconds to loosen and warm them, drain, and finally blanch the bean sprouts for 1 minute (or 10 seconds if they're labelled ready to eat).
 11. Divide both kinds of noodles between deep bowls and top with the bean sprouts and shredded chicken. Ladle over the hot broth, about 400 ml per bowl, sharing out the prawns and tofu puffs.
 12. Scatter with laksa leaf and serve with lime wedges and sambal (chilli relish) on the side, to stir in a little at a time.
+
+## Restaurant secret
+
+Treat the prawn heads as an ingredient, not trimmings. They hold the soft, rich tomalley, the most flavourful part of the prawn, and frying them in oil before the stock goes in browns them and draws their red pigment, astaxanthin, into the fat. Pressing on them as they fry, and again in the sieve, squeezes out everything they have. That's where a hawker-style laksa gets its sweet shellfish depth and part of its orange sheen, which coconut milk alone never gives.
+
+## Swaps
+
+### Gluten-free
+- Skip the yellow noodles, which are wheat and egg, and use 250 g rice vermicelli for four, as in Variations.
+- Check the labels on the belacan, dried shrimp, tofu puffs, chicken stock and sambal, and choose ones labelled gluten-free; some contain wheat or soy sauce. Fish cake, if you add it as a topping, often contains wheat starch too.
+
+### Plant-based
+- Leave out the belacan, dried shrimp, prawns and chicken, and make the broth with 1.4 l vegetable stock (check the label, as some contain milk) simmered with 4 dried shiitake for 20 minutes. Fry 1 tbsp white miso with the paste for some of the lost savouriness, checking that it isn't made with fish-based dashi.
+- Use rice vermicelli only (the yellow noodles contain egg), add extra tofu puffs and some fried tofu or oyster mushrooms, and choose a sambal made without shrimp paste. Honestly, without the belacan it's a very good coconut curry noodle soup rather than quite laksa.
+
+### High-protein
+- Double the prawns to 800 g shell-on: about 12 g more protein a bowl, on top of the roughly 35 g the chicken, prawns and tofu already give.
+- Add a halved hard-boiled egg to each bowl, a common laksa topping, for about 6 g more.
+- Add 100 g cubed firm tofu per bowl, fried until golden: about 12 g more.
 
 ## Tips
 - **Fry the paste low and long.** The water in the shallots and lemongrass has to cook off before the paste can really fry, and that frying is what builds the colour and depth. If it starts to catch, add a spoonful of oil, not water, and turn the heat down.

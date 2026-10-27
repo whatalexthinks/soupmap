@@ -19,6 +19,11 @@ difficulty: easy
 serves: 6
 active: 40
 total: 630
+prep: 20
+cook: 130
+richness: 6
+spice: 1
+comfort: 6
 date: 2026-10-20
 ---
 
@@ -80,6 +85,23 @@ The usual mistakes are impatience and timidity. The beans should be cooked until
 
 ### Serve
 10. Ladle the soup into bowls over or alongside a scoop of rice. Top with the chopped onion and a thread of olive oil.
+
+## Restaurant secret
+
+Let the beans sleep. Cuban cooks often say black beans are better *dormidos*, "slept", left overnight before eating, and this soup gains the same way. As the pot cools, starch that has leached out of the beans sets into a loose gel, so the soup reheats thicker and glossier, while the salt, garlic, cumin and vinegar keep working their way into the beans themselves. Make it the day before if you can, then loosen and re-season it as you reheat.
+
+## Swaps
+
+### Gluten-free
+- It's already gluten-free as written. Keep to distilled white or cider vinegar (malt vinegar is made from barley), and if you need to be strict, buy ground cumin and dried oregano labelled gluten-free, since spices can be packed alongside wheat products.
+
+### Plant-based
+- It's already vegan as written. The one label to check is the sherry, which can be clarified with animal products: choose one labelled vegan or leave it out. The sour cream and ham hock variations aren't vegan.
+
+### High-protein
+- Stir 2 drained 400 g tins of black beans into the pot with the sofrito in step 6: about 6 g more protein a bowl, on top of the roughly 20 g the beans and rice already give, and a chunkier soup.
+- Top each bowl with a fried egg, about 6 g more (no longer vegan).
+- Serve each bowl with about 100 g shredded roast pork or chicken: roughly 25 g more (no longer vegetarian).
 
 ## Tips
 - **Salt the soaking water.** It seasons the beans all the way through and helps their skins soften, so they cook more evenly with fewer split beans. The old idea that salt keeps beans hard doesn't hold up; acid is what does that, which is why the vinegar waits until the end.

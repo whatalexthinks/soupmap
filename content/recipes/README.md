@@ -86,6 +86,11 @@ work, and the one thing people usually get wrong.
 | `serves` | yes | Number of people, 1–12. |
 | `active` | yes | Hands-on minutes. Honest. |
 | `total` | yes | Minutes from start to bowl, including simmering, soaking and resting (not overnight steps you mention as optional). |
+| `prep` | yes | Minutes of preparation: washing, chopping, measuring, mixing a paste, folding dumplings. Not passive soaking or resting. |
+| `cook` | yes | Minutes the food is actually on the heat (or in the oven), including unattended simmering. `0` for no-cook soups. `prep + cook` must not exceed `total`; any difference is soaking, resting or chilling. |
+| `richness` | yes | Editorial 1–10: how rich and heavy the broth is. 1 = clear and delicate (ushiojiru), 5 = medium body (shoyu ramen), 10 = thick and emulsified (tonkotsu, gumbo with dark roux). |
+| `spice` | yes | Editorial 1–10 chilli heat **as written**. 1 = no chilli at all, 3 = a gentle warmth or optional chilli at the table, 6 = clearly spicy, 9–10 = very hot. Judge from the actual chilli quantities. |
+| `comfort` | yes | Editorial 1–10: how much of a warming, restorative, "make it on a bad day" bowl it is. Be discerning: not everything is a 9. |
 | `date` | yes | `YYYY-MM-DD`. |
 | `journal` | no | Slug of a related Soupmap Journal essay (`content/journal/<slug>.md` must exist). |
 | `map` | no | `/map/?q=<words>`, only for dishes our Japan shop catalog can show (ramen styles, udon, soba, oden). |
@@ -96,9 +101,14 @@ work, and the one thing people usually get wrong.
 1. **Headnote** (paragraphs before the first `##`): 80–220 words.
 2. **`## Ingredients`** (required). Optional `### Group` subheadings. Every ingredient is a `- ` bullet.
 3. **`## Method`** (required). Optional `### Stage` subheadings. Every step is a numbered `1.` item. Number straight through the whole method (don't restart at 1 in each stage).
-4. **`## Tips`** (required): 3–6 bullets. The things that make the difference.
-5. **`## Make ahead and storage`** (optional): bullets.
-6. **`## Variations`** (optional): bullets.
+4. **`## Restaurant secret`** (required): one paragraph, 30–90 words. The single technique that separates a restaurant-quality bowl from a home one, and *why* it works. It must be true and specific to this dish (not "use good ingredients"). It may expand on a Tip, but say something worth highlighting.
+5. **`## Swaps`** (required): exactly three `###` subheadings, in this order, each with 1–3 bullets:
+   - `### Gluten-free`: the specific substitutions that make *this recipe* gluten-free (e.g. tamari labelled gluten-free for soy sauce, 100% buckwheat soba, rice noodles), and what changes in the result. If it's already gluten-free as written, say so and name any labels to check. If a gluten-free version isn't really the same dish, say so honestly.
+   - `### Plant-based`: how to make it vegan (kombu-shiitake dashi, vegetable stock, tofu, mushrooms…), and what changes. If already vegan, say so.
+   - `### High-protein`: realistic additions or swaps that raise protein (an extra egg, more tofu, chicken breast, edamame, a second portion of the main protein…), with rough amounts per bowl.
+6. **`## Tips`** (required): 3–6 bullets. The things that make the difference.
+7. **`## Make ahead and storage`** (optional): bullets.
+8. **`## Variations`** (optional): bullets.
 
 No other `##` sections.
 
@@ -126,6 +136,8 @@ the onions are deep amber and jammy, 35–45 minutes". Write times as numbers wi
 timers. Name heat levels. Say what "done" looks, smells or sounds like.
 
 Inline `**bold**` and `*italic*` are fine. Links only to `/journal/<slug>/` or `/recipes/<slug>/`.
+
+Swaps are claims people with coeliac disease or allergies will rely on: never call something gluten-free or vegan unless every ingredient in the swap qualifies, and tell people which labels to check.
 
 ## What makes a recipe "incredible" here
 

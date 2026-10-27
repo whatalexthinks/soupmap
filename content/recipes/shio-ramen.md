@@ -18,6 +18,11 @@ difficulty: project
 serves: 4
 active: 70
 total: 305
+prep: 25
+cook: 245
+richness: 4
+spice: 1
+comfort: 6
 date: 2026-10-20
 journal: hakodate-shio
 map: /map/?q=shio
@@ -93,6 +98,24 @@ The one thing to avoid is boiling the stock. A rolling boil churns fat into the 
 14. Empty the bowls and put 35 ml (2 tbsp plus 1 tsp) tare and 2 tsp spring onion oil in each.
 15. Cook the noodles as the packet says, usually 1–2 minutes for thin noodles, two portions at a time unless your pot is very large. While they cook, ladle 375 ml broth into each bowl and stir. Taste the first bowl: it should taste clearly, fully seasoned, not just salty. Add more tare 1 tsp at a time if it needs it.
 16. Drain the noodles well, shaking hard, and fold them into the soup. Top with the pork, spinach, menma, narutomaki and spring onions, and serve at once with white pepper on the table.
+
+## Restaurant secret
+
+With no soy sauce or miso to supply savouriness, shio ramen relies on umami synergy. Kombu, in both the tare and the broth, is rich in glutamate; the chicken and pork bring inosinate; dried scallops add more glutamate and the sweet shellfish savour of succinic acid. Glutamate and inosinate together taste several times more savoury than either alone, which is why a bowl seasoned with what is mostly salt can taste so deep, and why skipping the kombu steep leaves it thin and merely salty.
+
+## Swaps
+
+### Gluten-free
+- Ramen noodles are wheat. Use noodles labelled gluten-free (rice, or brown rice and millet ramen-style noodles), cooked as their packet says. They don't have the springy, alkaline bite of real ramen, so this is a good shio soup with noodles rather than quite the same dish.
+- The broth, tare and spring onion oil are otherwise gluten-free, but check the sake and mirin labels, and leave out the menma and narutomaki unless they're labelled gluten-free: menma is usually seasoned with soy sauce, and fish cakes often contain wheat starch.
+
+### Plant-based
+- Make a kombu-shiitake broth instead: soak 30 g kombu and 6 dried shiitake in 2 l cold water for at least 3 hours, heat it slowly and lift out the kombu just before it boils, then simmer with the onion, ginger and leek greens for 30 minutes and strain. Leave the scallops out of the tare. Expect a lighter, earthier soup: a different bowl, not a copy.
+- Top with pan-fried firm tofu or seared king oyster mushroom instead of the pork, leave out the narutomaki, and check that the noodles are egg-free (many fresh ramen noodles contain egg) and that the menma has no fish-based seasoning.
+
+### High-protein
+- Simmer a second 400 g piece of pork shoulder alongside the first: about 18 g more protein per bowl.
+- Add a halved boiled egg per bowl (about 6 g), or marinated eggs as in the [shoyu ramen](/recipes/shoyu-ramen/); their marinade contains soy sauce, so they're not for a gluten-free bowl.
 
 ## Tips
 - **Weigh the salt.** A spoonful of flaky salt can weigh half as much as a spoonful of fine salt, so spoon measures are unreliable in a tare that is mostly salt. Any salt works if you weigh it.

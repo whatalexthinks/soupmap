@@ -15,6 +15,11 @@ difficulty: medium
 serves: 4
 active: 50
 total: 265
+prep: 30
+cook: 230
+richness: 7
+spice: 3
+comfort: 7
 date: 2026-10-20
 journal: sapporo-miso-ramen
 map: /map/?q=miso+ramen
@@ -83,6 +88,26 @@ The usual mistake is a wok that isn't hot enough, or one that's too full: the ve
 10. Drop the noodles into the boiling water and cook as the packet says, usually 2–4 minutes for thick noodles, stirring early so they don't stick. Meanwhile, loosen the tare with a ladle of stock and whisk it into the pot. Bring the soup just back to a boil, then turn off the heat. A brief bubble is part of the style, but a long boil dulls the miso's aroma.
 11. Taste the soup: it should be rich and fully savoury. If it needs more, whisk in a little extra red miso.
 12. Drain the noodles thoroughly, shaking hard, and divide them among the empty bowls. Ladle over the soup, then heap the pork and vegetables on top. Add the corn and a pat of butter if you're using them, scatter over the spring onions and serve at once, with ichimi on the table. Warn everyone: under its layer of fat, the soup stays scalding for a long time.
+
+## Restaurant secret
+The hiss when the stock hits the smoking wok is the moment that matters. Searing leaves browned, toasty flavours on the pork, the cabbage and the pan itself, and the violent boil lifts them off and churns them, with some of the lard, into the liquid. The soup itself ends up tasting of the wok, instead of being plain broth with fried toppings. Many Sapporo shops still cook each order this way, and it's where that faint smokiness comes from.
+
+## Swaps
+
+### Gluten-free
+- **Swap the noodles, and accept a different bowl.** Ramen noodles are made from wheat, so use noodles labelled gluten-free (usually rice or rice-and-millet "ramen"), cooked as the packet says. They're softer and lack the springy chew that kansui gives.
+- **Use misos labelled gluten-free.** Some miso is made with barley (*mugi* miso) and some is made alongside it, so check both the red and the white, and the mirin and sake too.
+- **Mind the extras:** use stock labelled gluten-free for the shortcut, and for the spicy version skip the doubanjiang, which usually contains wheat flour, in favour of a chilli oil labelled gluten-free.
+
+### Plant-based
+- **Without bones it's a different, lighter bowl,** but still a good one. Use 1.5 l kombu-shiitake dashi or vegetable stock (check the label: some stock cubes contain milk) in place of the pork and chicken stock, and neutral oil instead of lard.
+- **Swap the minced pork for 250 g pressed firm tofu,** crumbled and fried until golden before the vegetables, or finely chopped mushrooms. Leave out the butter or use a plant-based one.
+- **Check the noodles and miso:** many fresh ramen noodles contain egg, and miso labelled *dashi-iri* (with added dashi) contains fish.
+
+### High-protein
+- **Double the pork** to 400 g and fry it in two batches: about 9 g more protein per bowl.
+- **Add a soft-boiled egg** to each bowl: about 6 g.
+- **Add chashu:** 2–3 slices (about 60 g) per bowl of the braised pork belly from the [shoyu ramen](/recipes/shoyu-ramen/) adds roughly 8 g.
 
 ## Tips
 - **Choosing miso.** *Aka* (red) miso is aged longer and tastes deeper and saltier; *shiro* (white or light) miso is younger and sweeter. Most pairs work. Avoid very sweet, Kyoto-style white miso here: it's much less salty, so if it's all you have, lean on the red and taste as you go.

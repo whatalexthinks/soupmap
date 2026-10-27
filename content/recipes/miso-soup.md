@@ -18,6 +18,11 @@ difficulty: easy
 serves: 4
 active: 20
 total: 60
+prep: 5
+cook: 20
+richness: 2
+spice: 1
+comfort: 6
 date: 2026-10-20
 journal: miso-soup
 ---
@@ -54,6 +59,24 @@ The usual mistake is boiling the soup after the miso goes in. Much of miso's app
 6. Slide the tofu into the simmering dashi and let it warm through for 2 minutes.
 7. Turn the heat to low. Put about three-quarters of the miso in a ladle or a small sieve, lower it into the pot and stir it with chopsticks or a spoon until it has dissolved with no lumps. Taste, then add more miso a little at a time until the soup tastes savoury and rounded rather than sharp or salty.
 8. Add the wakame and keep the heat low until the soup is just about to bubble, with steam rising and the surface shivering, about 1 minute. Turn off the heat before it boils, ladle into bowls, scatter over the spring onion and serve at once.
+
+## Restaurant secret
+Treat the miso as an aroma as much as a seasoning. Much of its fragrance comes from volatile compounds formed as it ferments and ages, and they start escaping as the soup nears the boil, which is why a boiled bowl tastes flat. So the soup is served at *niebana*, just before it boils. If people are eating at different times, don't hold the finished soup: reheat a portion of plain dashi and dissolve the miso into it, serving by serving.
+
+## Swaps
+
+### Gluten-free
+- **Choose a miso labelled gluten-free.** Barley (*mugi*) miso contains gluten, and some rice misos are made alongside it. The kombu, katsuobushi, wakame and plain tofu contain none, so with the right miso the soup is gluten-free.
+- **Check dashi packs and granules** if you take the shortcut in Variations: some contain wheat or soy sauce.
+
+### Plant-based
+- **Make the kombu-shiitake dashi in Variations** and use a plain miso, not *dashi-iri*. The wakame, tofu and spring onion are plant-based, so the soup is then vegan. It's earthier and rounder, without the smoky, sea-like edge of bonito.
+- **Skip instant dashi** for this version unless it's labelled vegan; even kombu-flavoured ones can contain fish extract.
+
+### High-protein
+- **Double the tofu** to 300 g: about 4 g more protein per bowl with firm tofu, roughly half that with silken.
+- **Poach an egg per bowl:** before the miso goes in, slip 4 eggs into the simmering dashi and cook gently until the whites are set, 3–4 minutes, then turn the heat to low and carry on from step 7. About 6 g per bowl.
+- **Add aburaage** (thin fried tofu): one sheet (about 20 g) per bowl, rinsed with boiling water, cut into strips and simmered for 1 minute before the miso. About 5 g per bowl.
 
 ## Tips
 - **Keep it off the boil once the miso is in.** The aroma is the first thing to go, and a boiled miso soup tastes flat and slightly grainy. Japanese cooks call the moment just before boiling *niebana*, and it's when the soup is at its best.

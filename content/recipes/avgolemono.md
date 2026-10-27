@@ -18,6 +18,11 @@ difficulty: medium
 serves: 6
 active: 35
 total: 135
+prep: 15
+cook: 105
+richness: 5
+spice: 1
+comfort: 8
 date: 2026-10-20
 journal: chicken-soup-world
 ---
@@ -66,6 +71,23 @@ Season the broth well, be generous with the lemon, and eat it as soon as it's ma
 8. Temper the eggs: still whisking constantly, ladle in about 250 ml of the hot broth (try to leave the rice behind) in a thin stream. Add a second ladle the same way, then a third. The mixture should now feel hot and look like a smooth, frothy, pale yellow sauce. Because the eggs have been warmed and diluted gradually, they won't seize when they meet the pot.
 9. Pour the egg mixture back into the pot in a steady stream, stirring the soup constantly. Set it over low heat and stir gently for 2–3 minutes, until the soup is steaming and very slightly thickened, with a silky, opaque look (about 75°C if you have a thermometer). Don't let it boil, or even simmer, after adding the eggs: they will curdle into flecks.
 10. Taste and add more salt or a squeeze more lemon. Serve straight away, with plenty of black pepper and the dill, if using.
+
+## Restaurant secret
+
+Cook the rice in the broth itself, never on the side. As it simmers it sheds starch into the liquid, and that starch is your insurance when the eggs go in: dissolved starch gets between the egg proteins as they heat and slows them from knotting together, so the liaison thickens smoothly instead of curdling. It's the same reason a custard made with a little flour is harder to split than one made with eggs alone, and it gives the soup its velvety body without any cream.
+
+## Swaps
+
+### Gluten-free
+- It's already gluten-free as written: chicken, vegetables, rice, eggs and lemon. Stick with the rice rather than the orzo variation, which is wheat pasta, and if you take the stock shortcut, choose a stock labelled gluten-free, because many cubes and powders contain wheat.
+
+### Plant-based
+- Honestly, a vegan version isn't avgolemono: the eggs are the dish. The closest is a lemony rice soup. Cook the rice in 2 l well-seasoned vegetable stock (check the label, as some contain milk), then blend one ladle of the soup with the lemon juice and stir it back in. The blended rice gives it some body, but not the silkiness of egg.
+- If you eat eggs, a vegetarian version is much closer: use vegetable stock instead of the chicken broth, add a drained 400 g tin of chickpeas with the rice for substance, and temper the eggs exactly as in steps 7–9.
+
+### High-protein
+- Poach 2 boneless, skinless chicken breasts (about 400 g) alongside the whole bird for the last 25 minutes of step 2, until they reach 75°C, and shred them in with the rest: about 15 g more protein a bowl, on top of the roughly 25–30 g the whole chicken already gives.
+- Add a drained 400 g tin of chickpeas with the chicken in step 5: about 3 g more a bowl, and a heartier soup.
 
 ## Tips
 - **Whisk the eggs thoroughly first.** Fully blended whites and yolks temper evenly; streaks of unbeaten white are what turn into stringy bits in the pot.

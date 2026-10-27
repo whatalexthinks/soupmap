@@ -17,6 +17,11 @@ difficulty: easy
 serves: 4
 active: 40
 total: 85
+prep: 25
+cook: 55
+richness: 5
+spice: 3
+comfort: 8
 date: 2026-10-20
 journal: tonjiru
 ---
@@ -66,6 +71,25 @@ The usual mistake is the one every miso soup invites: boiling it hard after the 
 10. Pour in the dashi and bring it to the boil over medium-high heat, skimming off the grey foam that rises. Lower the heat to a gentle simmer, partly cover and cook until the daikon is translucent and a skewer slides easily into the taro, 15–20 minutes.
 11. Turn the heat to low. Dissolve about two-thirds of the miso in a ladle or small sieve dipped into the pot, taste, and add the rest gradually until the soup tastes rich and savoury. Heat until it's just about to bubble, about 1 minute, then turn off the heat.
 12. Ladle into bowls and top with the spring onion. Put the shichimi on the table so everyone can add it a pinch at a time; it builds.
+
+## Restaurant secret
+
+Fry before you simmer. The pork goes into hot sesame oil until its fat turns translucent and sizzles, then the burdock, carrot, daikon and konnyaku are turned in that fat until glossy. Many aroma compounds dissolve far more readily in fat than in water, so this step draws the nutty, earthy smell out of the burdock and sesame and holds it in the fat, which then floats on the soup and carries it to every spoonful. Simmered from raw, the same vegetables taste cleaner but flatter.
+
+## Swaps
+
+### Gluten-free
+- Use a miso labelled gluten-free. Barley miso (*mugi miso*) contains gluten, and some rice and blended misos are made with barley or wheat too.
+- The homemade dashi, pork, vegetables and konnyaku are gluten-free; check the shichimi label as well.
+
+### Plant-based
+- Without pork it isn't tonjiru any more (*ton* means pork), but it makes a miso-seasoned cousin of [kenchinjiru](/recipes/kenchinjiru/), the temple vegetable soup. Soak 4 dried shiitake with the kombu and leave out the katsuobushi, for a kombu-shiitake dashi.
+- Instead of the pork, tear 200 g firm tofu into chunks and fry it with the vegetables in step 9, with 1 tbsp more sesame oil to make up some of the lost richness.
+- Check the miso label: *dashi-iri* miso (miso with dashi added) contains bonito.
+
+### High-protein
+- As written a bowl has roughly 9 g protein. Add 300 g firm tofu, in 2 cm cubes, just before the miso: about 9 g more per bowl.
+- Add 200 g thinly sliced pork shoulder or loin with the belly: about 10 g more per bowl.
 
 ## Tips
 - **Let the pork sizzle, not stew.** Rendering the fat in sesame oil and coating the vegetables in it gives a deeper, rounder soup than simmering everything raw. If the pot looks wet and the pork is turning grey without sizzling, turn up the heat.

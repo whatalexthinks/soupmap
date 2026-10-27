@@ -17,6 +17,11 @@ difficulty: medium
 serves: 6
 active: 50
 total: 630
+prep: 30
+cook: 120
+richness: 6
+spice: 2
+comfort: 8
 date: 2026-10-20
 ---
 
@@ -70,6 +75,25 @@ That's also where most pots go wrong. Pour the tadwira in too fast, or into soup
 6. Add the vermicelli to the pot and simmer for 5 minutes.
 7. Whisk the tadwira again, since the flour settles. With the soup at a steady simmer, pour it in a thin stream, stirring all the time. Keep stirring over medium-low heat for 10–15 minutes, until the soup turns glossy and velvety, coats the back of a spoon and no longer tastes of raw flour. Stir right down to the bottom: once thickened, it catches easily.
 8. Stir in the remaining herbs and simmer for 2 minutes. Taste and adjust the salt and pepper; it should be generously seasoned. If it's too thick to pour easily from a ladle, loosen it with a splash of hot water. Serve with lemon wedges for squeezing and dates on the side.
+
+## Restaurant secret
+
+The tadwira is what turns a brothy bean soup into harira, and it works because of the order of events. Flour whisked into cold water separates into loose grains of starch that can't swell yet. Pour it into simmering soup while you stir and each grain is surrounded by hot liquid before it can meet another, so they swell evenly and thicken without lumps. Then comes the patient part: a full 10–15 minutes at a simmer cooks out the raw cereal taste and leaves only silkiness.
+
+## Swaps
+
+### Gluten-free
+- Use 50 g short-grain rice instead of the vermicelli, added in step 4 as the recipe allows.
+- Make the tadwira with 60 g fine rice flour in place of the wheat flour, whisked into the same 500 ml cold water and cooked the same way. The texture is a little less silky but still smooth.
+- Lentils and chickpeas can carry stray grains of wheat or barley, so pick them over carefully, or buy packs labelled gluten-free if you need to be strict.
+
+### Plant-based
+- Leave out the lamb and add another 50 g lentils, as in Variations. Made with olive oil, everything else is vegan; check the vermicelli has no egg, as some does.
+- Without the meat the soup tastes lighter, so season it generously and don't skip the lemon.
+
+### High-protein
+- Already over 20 g protein a bowl from the lamb, lentils and chickpeas. Use 600 g lamb instead of 350 g for about 8 g more per bowl, or add 100 g more lentils with 500 ml more water in step 4 for about 4 g more.
+- Finish with the egg ribbons from Variations using 4 eggs (about 4 g per bowl), or serve a hard-boiled egg alongside, as it often is on the Ramadan table (about 6 g).
 
 ## Tips
 - Be generous with the herbs and chop them finely. Two large bunches sounds like a lot, but they're an ingredient here, not a garnish: half goes in early for depth, half at the end for freshness.

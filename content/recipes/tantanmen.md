@@ -16,6 +16,11 @@ difficulty: medium
 serves: 4
 active: 45
 total: 180
+prep: 20
+cook: 160
+richness: 8
+spice: 5
+comfort: 7
 date: 2026-10-20
 journal: tantanmen
 map: /map/?q=tantanmen
@@ -83,6 +88,25 @@ The thing that trips people up is the sesame. Pour all the hot stock onto the pa
 10. Empty the bowls and divide the sesame tare among them, about 4 tbsp each. Whisk about 100 ml hot stock into each bowl until smooth, then whisk in another 250 ml.
 11. Cook the noodles in the same boiling water as the packet says, usually 1 1/2–2 1/2 minutes, two portions at a time unless your pot is very large. Drain them well, shaking hard, and add them to the bowls.
 12. Top each bowl with the pork and bok choy. Spoon about 1 1/2 tbsp chilli oil over each so it pools in a red ring, then scatter over the toasted sesame and spring onions. Serve at once, with more chilli oil on the table, and stir the pork into the soup as you eat.
+
+## Restaurant secret
+
+The creaminess is an emulsion, and it has to be built in stages. Sesame paste is finely ground seed suspended in its own oil. A little liquid makes the particles swell and cling together, which is why the tare tightens before it loosens; keep adding stock gradually and those seed solids coat the oil droplets and hold them in the broth, giving a pale, velvety body with no dairy at all. Pour in all the stock at once and the paste clumps before it can disperse.
+
+## Swaps
+
+### Gluten-free
+- **Not gluten-free as written:** the ramen noodles, soy sauce and tianmianjiang (made from wheat flour) all contain gluten, and most doubanjiang does too. Use ramen-style noodles labelled gluten-free (usually rice-based, softer and less springy), tamari labelled gluten-free for the soy sauce, sake rather than Shaoxing wine, and rice vinegar rather than Chinese black vinegar, which usually contains wheat.
+- **For the tianmianjiang,** use 1 tbsp rice miso labelled gluten-free plus 1 tsp sugar (many miso contain barley or wheat). Use a doubanjiang and chilli oil labelled gluten-free, or leave the doubanjiang out and add an extra spoonful of chilli oil to the pork.
+
+### Plant-based
+- **Not vegan as written** (chicken stock and pork). For the soup, use unsweetened soy milk and kombu-shiitake dashi or vegetable stock half and half, warmed together gently without boiling (see the soy milk variation). Instead of the pork, fry 250 g finely chopped shiitake with 200 g crumbled firm tofu until browned and dry, then season it the same way.
+- Check the noodles (some ramen contains egg) and the chilli oil (some contain dried shrimp or fish). The sesame does most of the work, so the bowl stays creamy and satisfying, if a little less savoury.
+
+### High-protein
+- **Double the pork** to 500 g, with its seasoning doubled too: about 11 g more protein per bowl.
+- **Add an egg:** a halved soft-boiled egg on each bowl adds about 6 g.
+- **Soy milk:** replace a third of the stock with unsweetened soy milk (see Variations): about 4 g more per bowl.
 
 ## Tips
 - **Choosing sesame paste.** Japanese neri goma and Chinese sesame paste are both made from deeply toasted seeds and give the soup its nutty depth. Tahini works, but it's made from lightly toasted or raw seeds and tastes milder, so add 1/2 tsp toasted sesame oil to each bowl. Stir the jar well first, because the oil separates.

@@ -16,6 +16,11 @@ difficulty: project
 serves: 4
 active: 150
 total: 825
+prep: 30
+cook: 780
+richness: 10
+spice: 1
+comfort: 6
 date: 2026-10-20
 journal: hakata-tonkotsu
 map: /map/?q=tonkotsu
@@ -94,6 +99,25 @@ The mistake people make is turning the heat down. A polite simmer gives you a cl
 15. Cook the noodles two portions at a time. For *kata* (firm), boil for about 30 seconds less than the packet says, usually 40–60 seconds for fresh Hakata-style noodles; a strand should be cooked through with a slightly firm core. Drain well, shaking hard.
 16. Drop the noodles into the soup and top with chashu, kikurage, spring onions and sesame seeds, crushing the seeds between your fingers as you scatter them. Serve at once, with beni shoga on the table.
 17. For *kaedama*, cook about 60 g of extra noodles the same way when someone is nearly out of noodles but still has soup, and drop them straight into the bowl. Add 1 tsp tare if the soup now tastes thin.
+
+## Restaurant secret
+
+Tonkotsu is an emulsion, like milk: fat broken into droplets so fine that, with specks of marrow and bone, they scatter light and turn the broth white. The rolling boil does the breaking; the trotters supply the glue. Gelatin from their skin and joints, with proteins from the mashed marrow, coats each droplet and stops it floating back to the top. That's why the method has you mash the softened bones and whisk or blitz the strained broth: more glue and smaller droplets make a creamier, more stable bowl.
+
+## Swaps
+
+### Gluten-free
+- The noodles are wheat, and they're half the dish. Use thin, straight noodles labelled gluten-free (usually rice or millet) and cook them just to tender. They won't have the firm, springy bite that *kansui* (alkaline salts) gives ramen noodles, so think of it as a gluten-free tonkotsu bowl rather than true Hakata ramen, and use the same noodles for kaedama.
+- Make the chashu marinade and dress the kikurage with tamari labelled gluten-free instead of soy sauce. The broth and shio tare have no gluten ingredients, but check the labels on the mirin and beni shoga.
+
+### Plant-based
+- There's no plant-based tonkotsu: the dish is pork bone by definition. The closest bowl in spirit is a creamy soy milk ramen, with the shio tare made without katsuobushi.
+- For its broth, soak 10 g kombu and 4 dried shiitake in 1 l cold water for at least 1 hour, heat slowly to just below a simmer and strain. For each bowl, heat 175 ml of it with 175 ml unsweetened soy milk and 1 tbsp white sesame paste until steaming, without letting it boil, so the soy milk doesn't split.
+- Top it with fried tofu instead of chashu; the kikurage, spring onions, sesame and beni shoga are already plant-based. Check the noodle label, as some ramen noodles contain egg.
+
+### High-protein
+- Add a soft-boiled or marinated egg to each bowl (the *ajitama* from the [shoyu ramen](/recipes/shoyu-ramen/) are ideal): about 6 g protein each.
+- Cook a second 500 g block of pork belly alongside the first, doubling the marinade, and add about 50 g extra chashu to each bowl: about 8 g more. Pork shoulder, cooked the same way, gives leaner slices with more protein in each.
 
 ## Tips
 - **Keep it rolling, and top up with boiling water.** Agitation is what emulsifies the fat into the broth. If the surface is merely trembling, turn the heat up. Cold water knocks the pot off the boil, so always add water from the kettle.
