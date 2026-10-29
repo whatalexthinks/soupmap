@@ -6,6 +6,7 @@
  */
 import { readFileSync } from "node:fs";
 import { CITIES } from "../src/data/cities.ts";
+import { municipalityByCode } from "../src/data/municipalities.ts";
 import { ShopsSchema, type Shop } from "../src/data/schema.ts";
 import { SHOPS } from "../src/data/shops.ts";
 
@@ -39,7 +40,10 @@ for (const s of shops) {
 
   const city = CITIES.find((c) => c.name === s.city);
   if (!city && !s.slug.startsWith("open-")) {
-    errors.push(`${s.slug}: city "${s.city}" is not in src/data/cities.ts`);
+    // Outside the featured cities, a selection names the real municipality its cityCode points to.
+    const place = municipalityByCode.get(s.cityCode);
+    const named = place?.parent ? municipalityByCode.get(place.parent) : place;
+    if (!named || named.name !== s.city) errors.push(`${s.slug}: city "${s.city}" is neither in src/data/cities.ts nor the municipality of cityCode ${s.cityCode} (${named?.name ?? "unknown code"})`);
   } else if (city) {
     const [w, south, e, n] = city.bbox;
     if (s.lng < w || s.lng > e || s.lat < south || s.lat > n) {

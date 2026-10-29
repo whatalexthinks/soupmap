@@ -11,10 +11,13 @@ import { isEditorial } from "../data/indexation.ts";
 import type { Shop } from "../data/schema.ts";
 import { shortlistHash, SHORTLIST_LIMIT } from "../shortlist.ts";
 import { PREFECTURES } from "../data/prefectures.ts";
+import { CITIES } from "../data/cities.ts";
 import {
   GUIDE_STYLES, cityHubPath, distanceKm, matchPhrase, styleHubPath, type Guide, type GuidePlace, type GuideStyle,
 } from "../guides/model.ts";
 import { recipeForStyle } from "../recipes/catalog-links.ts";
+import { inline, renderMarkdown } from "../journal/markdown.ts";
+import type { GuideIntro } from "../guides/intros.ts";
 import { GUIDE_INDEX_MIN_INDEPENDENT, GUIDE_INDEX_MIN_SHOPS, type QualityInput } from "../seo/quality.ts";
 
 export interface GuideSitePage extends CatalogPage {
@@ -23,9 +26,25 @@ export interface GuideSitePage extends CatalogPage {
   lastmod: string;
 }
 
+/**
+ * The /me/ planner's area for a place: a featured city when the guide is one (Tokyo's wards
+ * plan as Tokyo), otherwise the prefecture when it has enough places to plan a day.
+ */
+export function plannerArea(place: GuidePlace, plannable: ReadonlySet<string>): string | undefined {
+  if (place.municipality.kind === "special-ward") return "city:tokyo";
+  const featured = place.municipality.kind === "city" ? CITIES.find(c => c.name === place.municipality.name) : undefined;
+  if (featured) return `city:${featured.slug}`;
+  return plannable.has(place.prefecture.name) ? `pref:${place.prefecture.name}` : undefined;
+}
+const planLink = (area: string | undefined, label: string) => area ? `<a class="directory-text-link" href="/me/?${new URLSearchParams({ area })}#plan">${label} <span aria-hidden="true">↗</span></a>` : "";
+
 export interface GuideContext {
   /** Journal article titles by slug, for further reading. */
   articles: ReadonlyMap<string, string>;
+  /** Editorial intros by guide slug (content/guides/). */
+  intros?: ReadonlyMap<string, GuideIntro>;
+  /** Prefectures the trip planner offers (`areaOptions` in src/me/planner.ts). */
+  plannable?: ReadonlySet<string>;
   /** ISO date of the catalog the guides were built from. */
   lastmod: string;
 }
@@ -135,7 +154,11 @@ function guidePage(guide: Guide, byPlace: ReadonlyMap<string, Guide[]>, byStyle:
   const chainCount = n - guide.independents;
   const wards = [...guide.wards].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   const websites = guide.shops.filter(shop => shop.website).length;
-  const description = fit(count => `${plural(n, "place")} for ${inSentence(style)} in ${place.label} in the Soupmap catalog${count ? `, including ${list(names.slice(0, count))}` : ""}. ${guide.independents.toLocaleString("en-US")} independent${chainCount ? `, ${plural(chainCount, "chain location")}` : ""}. Map links and sources.`);
+  const intro = context.intros?.get(guide.path.slice("/guides/".length, -1));
+  const description = intro
+    ? fit(count => `${intro.dek} ${plural(n, "place")} in the Soupmap catalog${count ? `, including ${list(names.slice(0, count))}` : ""}.`)
+    : fit(count => `${plural(n, "place")} for ${inSentence(style)} in ${place.label} in the Soupmap catalog${count ? `, including ${list(names.slice(0, count))}` : ""}. ${guide.independents.toLocaleString("en-US")} independent${chainCount ? `, ${plural(chainCount, "chain location")}` : ""}. Map links and sources.`);
+  const lastmod = intro && intro.updated > context.lastmod ? intro.updated : context.lastmod;
   const where = wards.length > 1 ? ` Most are in ${list(wards.slice(0, 2).map(([ward]) => ward))}.` : "";
   const others = (byPlace.get(place.municipality.code) ?? []).filter(other => other !== guide);
   const nearby = (byStyle.get(style.id) ?? []).filter(other => other !== guide)
@@ -145,10 +168,11 @@ function guidePage(guide: Guide, byPlace: ReadonlyMap<string, Guide[]>, byStyle:
   const content = `${crumbs([{ name: "Guides", path: "/guides/" }, { name: city, path: cityHubPath(place) }, { name: style.label }])}
     <section class="directory-hero guide-hero"><div><span class="directory-kicker">${esc(place.prefecture.name)} · ${ja(place.municipality.nameJa)} · ${ja(style.labelJa)}</span>
       <h1>${esc(heading)}</h1>
-      <p class="lede">Soupmap lists ${esc(counted(style, n, place.label))}.${esc(where)}${guide.home ? ` ${esc(style.home!.note)}` : ""}</p></div>
+      ${intro ? `<p class="lede">${esc(intro.dek)}</p><p class="guide-count">Soupmap lists ${esc(counted(style, n, place.label))}.${esc(where)}</p>` : `<p class="lede">Soupmap lists ${esc(counted(style, n, place.label))}.${esc(where)}${guide.home ? ` ${esc(style.home!.note)}` : ""}</p>`}</div>
       <aside class="directory-hero__aside"><strong>${n.toLocaleString("en-US")}</strong><p>${esc(counted(style, n, city).replace(/^[\d,]+ /, ""))}.</p>
       <p>${guide.independents.toLocaleString("en-US")} independent${chainCount ? ` · ${plural(chainCount, "chain location")}` : ""}${websites ? ` · ${websites} with a website` : ""}</p></aside></section>
-    <nav class="guide-actions" aria-label="Use this list"><a class="directory-button" href="${esc(mapLink(guide))}">See ${n > SHORTLIST_LIMIT ? `the first ${SHORTLIST_LIMIT}` : n === 1 ? "it" : `all ${n}`} on the map <span aria-hidden="true">↗</span></a><a class="directory-text-link" href="${esc(catalogSearch(guide))}">Search them in the catalog <span aria-hidden="true">↗</span></a><a class="directory-text-link" href="${cityHubPath(place)}">Everything in ${esc(city)}</a></nav>
+    ${intro ? `<section class="guide-intro" aria-label="Introduction"><div class="guide-intro__text">${renderMarkdown(intro.body)}<p class="guide-intro__by">By the Soupmap editors · Updated ${esc(new Date(`${intro.updated}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }))}</p></div>${intro.tips.length ? `<aside class="guide-intro__tips" aria-labelledby="guide-tips"><h2 id="guide-tips">Know before you go</h2><ul>${intro.tips.map(tip => `<li>${inline(tip)}</li>`).join("")}</ul></aside>` : ""}</section>` : ""}
+    <nav class="guide-actions" aria-label="Use this list"><a class="directory-button" href="${esc(mapLink(guide))}">See ${n > SHORTLIST_LIMIT ? `the first ${SHORTLIST_LIMIT}` : n === 1 ? "it" : `all ${n}`} on the map <span aria-hidden="true">↗</span></a><a class="directory-text-link" href="${esc(catalogSearch(guide))}">Search them in the catalog <span aria-hidden="true">↗</span></a><a class="directory-text-link" href="${cityHubPath(place)}">Everything in ${esc(city)}</a>${planLink(plannerArea(place, context.plannable ?? new Set()), "Plan a day here")}</nav>
     <section class="guide-about" aria-labelledby="guide-about"><div><h2 id="guide-about">About ${esc(inSentence(style))}</h2><p>${esc(style.about)}</p>${guide.home ? `<p><strong>${esc(style.home!.note)}</strong></p>` : ""}${essays(style, context)}</div>
       <dl class="guide-facts">${wards.length > 1 ? `<div><dt>Where</dt><dd>${wards.slice(0, 6).map(([ward, count]) => `${esc(ward)} <small>${count}</small>`).join(" · ")}</dd></div>` : ""}
         <div><dt>Chains</dt><dd>${chains.length ? chains.slice(0, 4).map(([chain, count]) => `${esc(chain)} <small>${count}</small>`).join(" · ") : "None listed: every place here is independent."}</dd></div>
@@ -169,7 +193,8 @@ function guidePage(guide: Guide, byPlace: ReadonlyMap<string, Guide[]>, byStyle:
   const path = guide.path;
   const title = `${style.label} in ${place.label} · ${plural(n, "place")} · Soupmap`;
   const structuredData = {
-      "@type": "CollectionPage", name: heading, description, inLanguage: "en", dateModified: context.lastmod,
+      "@type": "CollectionPage", name: heading, description, inLanguage: "en", dateModified: lastmod,
+      ...(intro ? { abstract: intro.dek, author: { "@type": "Organization", name: "Soupmap" } } : {}),
       isPartOf: { "@type": "WebSite", name: "Soupmap" },
       about: { "@type": "Thing", name: style.label, alternateName: style.labelJa, description: style.about },
       spatialCoverage: { "@type": "AdministrativeArea", name: place.label, alternateName: place.municipality.nameJa,
@@ -180,7 +205,7 @@ function guidePage(guide: Guide, byPlace: ReadonlyMap<string, Guide[]>, byStyle:
         "@type": "ListItem", position: index + 1, name: citedName(shop), url: profileUrl(shop) })) },
   };
   return {
-    path, title, description, content, lastmod: context.lastmod, structuredData,
+    path, title, description, content, lastmod, structuredData,
     quality: { path, kind: "guide", title, description, data: { ...structuredData, url: path }, items: n, independents: guide.independents,
       places: guide.shops.map(shop => ({ lat: shop.lat, lng: shop.lng })) },
   };
@@ -206,7 +231,7 @@ function cityHub(place: GuidePlace, guides: readonly Guide[], hubs: ReadonlyMap<
       <aside class="directory-hero__aside"><strong>${(total || guides[0]!.shops.length).toLocaleString("en-US")}</strong><p>places across ${plural(guides.length, "guide")}.</p></aside></section>
     ${cuisines.length ? `<section class="guide-hub"><h2>By kind of noodle</h2><ul class="guide-links">${cuisines.map(item).join("")}</ul></section>` : ""}
     ${styles.length ? `<section class="guide-hub"><h2>By style</h2><ul class="guide-links">${styles.map(item).join("")}</ul></section>` : ""}
-    <nav class="guide-actions" aria-label="More ways to browse"><a class="directory-text-link" href="/catalog/?${new URLSearchParams({ q: place.municipality.nameJa })}">Search ${esc(city)} in the catalog ↗</a><a class="directory-text-link" href="/me/#plan">Plan a day of bowls ↗</a></nav>
+    <nav class="guide-actions" aria-label="More ways to browse"><a class="directory-text-link" href="/catalog/?${new URLSearchParams({ q: place.municipality.nameJa })}">Search ${esc(city)} in the catalog ↗</a>${planLink(plannerArea(place, context.plannable ?? new Set()), "Plan a day of bowls")}</nav>
     ${near.length ? `<section class="guide-related"><div><h2>Nearby</h2><ul>${near.map(({ other, km }) => `<li><a href="${cityHubPath(other)}">${esc(other.label)}</a> <small>${Math.round(km)} km</small></li>`).join("")}</ul></div></section>` : ""}`;
   const title = `${kinds} in ${place.label} · Soupmap city guide`;
   const structuredData = {

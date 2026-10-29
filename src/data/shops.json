@@ -388,5 +388,738 @@
     "dataSource": "overture",
     "sourceId": "db289c4e-a5ed-43bf-98d2-610c83da079b",
     "verified": false
+  },
+  {
+    "slug": "junren-sapporo",
+    "name": "Sapporo Junren",
+    "nameJa": "さっぽろ純連 札幌本店",
+    "city": "Sapporo",
+    "cityCode": "01105",
+    "neighborhood": "Hiragishi",
+    "lat": 43.020821,
+    "lng": 141.366928,
+    "broth": "miso",
+    "styles": [
+      "sapporo",
+      "miso"
+    ],
+    "signatureBowl": "Miso ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "Junren and Sumire, founded by members of the same family, set the pattern for Sapporo's rich miso bowl: a dark, garlicky miso broth sealed under a hot layer of lard, with firm curly noodles.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E3%81%95%E3%81%A3%E3%81%BD%E3%82%8D%E7%B4%94%E9%80%A3%20%E6%9C%AD%E5%B9%8C%E6%9C%AC%E5%BA%97",
+    "address": "豊平区平岸2条17-1-41",
+    "postcode": "062-0932",
+    "website": "http://junren.co.jp/",
+    "dataSource": "overture",
+    "sourceId": "f7ef43c5-2dc2-4162-a76f-a9cc76fa3953",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "hachiya-asahikawa",
+    "name": "Hachiya Ramen",
+    "nameJa": "蜂屋ラーメン本店",
+    "city": "Asahikawa",
+    "cityCode": "01204",
+    "neighborhood": "3-jo-dori",
+    "lat": 43.764465,
+    "lng": 142.371841,
+    "broth": "shoyu",
+    "signatureBowl": "Shoyu ramen with scorched lard",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A long-running Asahikawa shoyu house known for its scorched lard: fat cooked until dark and bittersweet, floating on a soy broth with a smoky edge that milder bowls don't have.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E8%9C%82%E5%B1%8B%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3%E6%9C%AC%E5%BA%97",
+    "address": "3条通15丁目",
+    "postcode": "070-0033",
+    "phone": "+81166233729",
+    "socials": [
+      "https://www.facebook.com/176143645801240"
+    ],
+    "dataSource": "overture",
+    "sourceId": "2a31e77f-31b5-465f-b619-a75e503f617e",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "aoba-asahikawa",
+    "name": "Aoba Ramen",
+    "nameJa": "青葉らーめん店",
+    "city": "Asahikawa",
+    "cityCode": "01204",
+    "neighborhood": "2-jo-dori",
+    "lat": 43.766544,
+    "lng": 142.360947,
+    "broth": "shoyu",
+    "signatureBowl": "Asahikawa shoyu ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "One of Asahikawa's oldest ramen shops, dating to the late 1940s, serving the city's classic double soup: pork and chicken stock with seafood, thin wavy noodles and a film of lard to hold the heat.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E9%9D%92%E8%91%89%E3%82%89%E3%83%BC%E3%82%81%E3%82%93%E5%BA%97",
+    "address": "2条通8丁目左8",
+    "postcode": "070-0032",
+    "phone": "+81166232820",
+    "website": "http://www5b.biglobe.ne.jp/~aoba1948",
+    "socials": [
+      "https://www.facebook.com/216031778441701"
+    ],
+    "dataSource": "overture",
+    "sourceId": "ba0cf897-f117-425f-8201-fbdb1ef49353",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "santouka-asahikawa",
+    "name": "Ramen Santouka",
+    "nameJa": "らーめん山頭火旭川本店",
+    "city": "Asahikawa",
+    "cityCode": "01204",
+    "neighborhood": "1-jo-dori",
+    "lat": 43.764778,
+    "lng": 142.360001,
+    "broth": "shio",
+    "styles": [
+      "shio"
+    ],
+    "signatureBowl": "Shio ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "The first shop of the Santouka chain, founded in Asahikawa in 1988: a mild, milky pork broth seasoned with salt and topped with a single pickled plum, a bowl now served from North America to Southeast Asia.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E3%82%89%E3%83%BC%E3%82%81%E3%82%93%E5%B1%B1%E9%A0%AD%E7%81%AB%E6%97%AD%E5%B7%9D%E6%9C%AC%E5%BA%97",
+    "address": "一条通8丁目348-3",
+    "postcode": "070-0031",
+    "phone": "+81166253401",
+    "website": "http://www.santouka.co.jp/",
+    "socials": [
+      "https://www.facebook.com/154946804531033"
+    ],
+    "dataSource": "overture",
+    "sourceId": "6c975a14-a9b0-4a86-90c2-873a439452f1",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "ajisai-hakodate",
+    "name": "Hakodate Men Chubo Ajisai",
+    "nameJa": "函館麺厨房あじさい 本店",
+    "city": "Hakodate",
+    "cityCode": "01202",
+    "neighborhood": "Goryokaku",
+    "lat": 41.794453,
+    "lng": 140.753448,
+    "broth": "shio",
+    "styles": [
+      "shio"
+    ],
+    "signatureBowl": "Hakodate shio ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "Serving Hakodate shio ramen since 1930: a clear broth built on kombu from southern Hokkaido with chicken and pork bones, and straight noodles, near the star-shaped Goryokaku fort.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E5%87%BD%E9%A4%A8%E9%BA%BA%E5%8E%A8%E6%88%BF%E3%81%82%E3%81%98%E3%81%95%E3%81%84%20%E6%9C%AC%E5%BA%97",
+    "address": "五稜郭町29-22",
+    "postcode": "040-0001",
+    "website": "http://www.ajisai.tv/",
+    "dataSource": "overture",
+    "sourceId": "196a4ecd-7956-47ea-88a3-9267c196baa4",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "aoba-nakano",
+    "name": "Chuka Soba Aoba",
+    "nameJa": "中華そば 青葉中野本店",
+    "city": "Tokyo",
+    "cityCode": "13114",
+    "neighborhood": "Nakano",
+    "lat": 35.707981,
+    "lng": 139.666458,
+    "broth": "shoyu",
+    "styles": [
+      "chuka-soba"
+    ],
+    "signatureBowl": "Chuka soba (double soup)",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "The Nakano shop that made the double soup famous in the 1990s: a pork-and-chicken stock blended with a dried-fish stock, now standard in Tokyo ramen. Its tsukemen uses the same pairing.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E4%B8%AD%E8%8F%AF%E3%81%9D%E3%81%B0%20%E9%9D%92%E8%91%89%E4%B8%AD%E9%87%8E%E6%9C%AC%E5%BA%97",
+    "address": "中野5丁目58-1",
+    "postcode": "164-0001",
+    "phone": "+81333885552",
+    "website": "http://www.nakano-aoba.jp/",
+    "socials": [
+      "https://www.facebook.com/103948822227381"
+    ],
+    "dataSource": "overture",
+    "sourceId": "748d0f83-370a-4541-a58e-20d7503d3aa1",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "jiro-mita",
+    "name": "Ramen Jiro Mita Honten",
+    "nameJa": "ラーメン二郎三田本店",
+    "city": "Tokyo",
+    "cityCode": "13103",
+    "neighborhood": "Mita",
+    "lat": 35.648033,
+    "lng": 139.741608,
+    "broth": "shoyu",
+    "styles": [
+      "jiro"
+    ],
+    "signatureBowl": "Jiro ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "The original Ramen Jiro, by Keio University: thick noodles, chunks of pork, a mountain of bean sprouts and cabbage, and garlic if you ask. The bowl behind every Jiro-style shop in Japan.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3%E4%BA%8C%E9%83%8E%E4%B8%89%E7%94%B0%E6%9C%AC%E5%BA%97",
+    "address": "三田2丁目16-4",
+    "postcode": "108-0073",
+    "socials": [
+      "https://www.facebook.com/104118275560227"
+    ],
+    "dataSource": "overture",
+    "sourceId": "8cd8be22-daf1-4aa3-836a-ed9271064387",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "namiki-yabu-asakusa",
+    "name": "Namiki Yabu Soba",
+    "nameJa": "並木藪蕎麦",
+    "city": "Tokyo",
+    "cityCode": "13106",
+    "neighborhood": "Asakusa",
+    "lat": 35.70969,
+    "lng": 139.795898,
+    "broth": "soba",
+    "signatureBowl": "Zaru soba",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A soba house near Asakusa's Kaminarimon gate, founded in 1913 and part of Tokyo's Yabu family: firm noodles and a strong, salty dipping sauce meant for only a quick dip.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E4%B8%A6%E6%9C%A8%E8%97%AA%E8%95%8E%E9%BA%A6",
+    "address": "雷門2丁目11-9",
+    "postcode": "111-0034",
+    "phone": "+81338411340",
+    "socials": [
+      "https://www.facebook.com/107002352692998"
+    ],
+    "dataSource": "overture",
+    "sourceId": "108d2315-5a4d-40e2-a775-b238acb1a31c",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "marucho-ogikubo",
+    "name": "Marucho Chuka Soba",
+    "nameJa": "丸長中華そば店",
+    "city": "Tokyo",
+    "cityCode": "13115",
+    "neighborhood": "Ogikubo",
+    "lat": 35.704269,
+    "lng": 139.623077,
+    "broth": "tsukemen",
+    "styles": [
+      "tsukemen"
+    ],
+    "signatureBowl": "Tsukesoba (dipping noodles)",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "An Ogikubo noodle shop from the late 1940s, the root of a family of shops that includes Tokyo's Taishoken. Its tsukesoba, noodles with a separate sweet-sour soy dip, is one of the early forms of tsukemen.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E4%B8%B8%E9%95%B7%E4%B8%AD%E8%8F%AF%E3%81%9D%E3%81%B0%E5%BA%97",
+    "address": "荻窪4丁目31-12",
+    "postcode": "167-0051",
+    "phone": "+81333917518",
+    "socials": [
+      "https://www.facebook.com/126913827357195"
+    ],
+    "dataSource": "overture",
+    "sourceId": "6a5343d4-af25-43de-9438-65896f3cde8b",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "shinasobaya-totsuka",
+    "name": "Shinasobaya",
+    "nameJa": "支那そばや 本店",
+    "city": "Yokohama",
+    "cityCode": "14110",
+    "neighborhood": "Totsuka",
+    "lat": 35.401352,
+    "lng": 139.531815,
+    "broth": "shoyu",
+    "styles": [
+      "chuka-soba"
+    ],
+    "signatureBowl": "Shoyu ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "The shop of the late Minoru Sano, the exacting chef Japanese television called the ramen devil: a clear, carefully sourced shoyu bowl that helped set the standard for Japan's modern craft ramen.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E6%94%AF%E9%82%A3%E3%81%9D%E3%81%B0%E3%82%84%20%E6%9C%AC%E5%BA%97",
+    "address": "戸塚区戸塚町4081-1",
+    "postcode": "244-0003",
+    "website": "https://shinasobaya.shop-pro.jp/",
+    "dataSource": "overture",
+    "sourceId": "5d53fb88-ff03-43b0-8f9c-2697f26c2191",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "yoshimuraya-yokohama",
+    "name": "Yoshimuraya",
+    "nameJa": "吉村家",
+    "city": "Yokohama",
+    "cityCode": "14103",
+    "neighborhood": "Okano",
+    "lat": 35.463017,
+    "lng": 139.615067,
+    "broth": "tonkotsu",
+    "styles": [
+      "iekei"
+    ],
+    "signatureBowl": "Iekei ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "Where iekei began in 1974: rich pork-bone and soy broth with chicken oil, thick noodles, spinach and nori, with firmness, oil and strength chosen to order. Iekei shops across Japan trace their style here.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E5%90%89%E6%9D%91%E5%AE%B6",
+    "address": "西区岡野町1-6-31",
+    "postcode": "220-0073",
+    "website": "http://ieke1.com/",
+    "dataSource": "overture",
+    "sourceId": "e5c69900-e137-4f3e-a634-b5945dfff250",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "tomita-matsudo",
+    "name": "Chuka Soba Tomita",
+    "nameJa": "中華蕎麦とみ田",
+    "city": "Matsudo",
+    "cityCode": "12207",
+    "neighborhood": "Matsudo",
+    "lat": 35.781757,
+    "lng": 139.901016,
+    "broth": "tsukemen",
+    "styles": [
+      "tsukemen"
+    ],
+    "signatureBowl": "Tsukemen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A Matsudo shop known across Japan for thick, deeply savoury pork-and-seafood tsukemen with chewy house-made noodles, often held up as the model of the modern rich dipping style.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E4%B8%AD%E8%8F%AF%E8%95%8E%E9%BA%A6%E3%81%A8%E3%81%BF%E7%94%B0",
+    "address": "松戸1339",
+    "postcode": "271-0092",
+    "phone": "+81473688860",
+    "website": "http://www.tomita-cocoro.jp/",
+    "socials": [
+      "https://www.facebook.com/142871175753910"
+    ],
+    "dataSource": "overture",
+    "sourceId": "3481dbe4-f1f0-4d35-a3d6-7a2fd69f613d",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "kinryu-dotonbori",
+    "name": "Kinryu Ramen",
+    "nameJa": "金龍ラーメン 道頓堀店",
+    "city": "Osaka",
+    "cityCode": "27128",
+    "neighborhood": "Dotonbori",
+    "lat": 34.666428,
+    "lng": 135.501801,
+    "broth": "tonkotsu",
+    "signatureBowl": "Tonkotsu ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A Dotonbori landmark under a giant dragon sign: a light pork-bone ramen eaten at an open counter, with kimchi, garlic chives and garlic set out to add yourself.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E9%87%91%E9%BE%8D%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3%20%E9%81%93%E9%A0%93%E5%A0%80%E5%BA%97",
+    "address": "大阪府大阪市中央区道頓堀１丁目７−２６",
+    "postcode": "542-0071",
+    "phone": "+81662116202",
+    "website": "http://loco.yahoo.co.jp/place/d019115fceb8fbe8c2af5f877c922b64c33f2170/",
+    "socials": [
+      "https://www.facebook.com/104578221348540"
+    ],
+    "dataSource": "overture",
+    "sourceId": "0a027174-cc7b-4a93-985c-3b0dfd6f2894",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "marutaka-arochi",
+    "name": "Honke Arochi Marutaka",
+    "nameJa": "本家 アロチ 丸高中華そば",
+    "city": "Wakayama",
+    "cityCode": "30201",
+    "neighborhood": "Arochi",
+    "lat": 34.23262,
+    "lng": 135.184799,
+    "broth": "tonkotsu",
+    "signatureBowl": "Wakayama chuka soba",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "Often called the root of Wakayama ramen: a family shop in the Arochi nightlife district that grew from a street stall, serving a pork-bone broth seasoned with soy, the city's chuka soba.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E6%9C%AC%E5%AE%B6%20%E3%82%A2%E3%83%AD%E3%83%81%20%E4%B8%B8%E9%AB%98%E4%B8%AD%E8%8F%AF%E3%81%9D%E3%81%B0",
+    "address": "友田町2-50",
+    "postcode": "640-8342",
+    "phone": "+81734323313",
+    "website": "http://arochi.exblog.jp/",
+    "socials": [
+      "https://www.facebook.com/159013067446076"
+    ],
+    "dataSource": "overture",
+    "sourceId": "47025483-6c59-4b9e-a515-200c54d230e9",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "taiho-kurume",
+    "name": "Taiho Ramen",
+    "nameJa": "大砲ラーメン 本店",
+    "city": "Kurume",
+    "cityCode": "40203",
+    "neighborhood": "Central Kurume",
+    "lat": 33.315277,
+    "lng": 130.525696,
+    "broth": "tonkotsu",
+    "styles": [
+      "kurume"
+    ],
+    "signatureBowl": "Kurume tonkotsu ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A Kurume tonkotsu house that began as a street stall in 1953 and still tops up its broth the old way, adding fresh bones and stock to a long-running pot so the soup deepens over time.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E7%A0%B2%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3%20%E6%9C%AC%E5%BA%97",
+    "address": "通外町11-8",
+    "postcode": "830-0005",
+    "phone": "+81942336695",
+    "website": "http://www.taiho.net/",
+    "socials": [
+      "https://www.facebook.com/157234410954503"
+    ],
+    "dataSource": "overture",
+    "sourceId": "7dc94a37-62c8-4b14-9626-a7e2c4c1e915",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "keika-kumamoto",
+    "name": "Keika Ramen",
+    "nameJa": "桂花ラーメン 本店",
+    "city": "Kumamoto",
+    "cityCode": "43101",
+    "neighborhood": "Hanabatacho",
+    "lat": 32.801861,
+    "lng": 130.707336,
+    "broth": "tonkotsu",
+    "styles": [
+      "kumamoto"
+    ],
+    "signatureBowl": "Taro-men (braised pork belly ramen)",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "One of Kumamoto ramen's founding shops, open since 1955: a pork-and-chicken broth with black garlic oil, and its signature taro-men, topped with soft braised pork belly.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E6%A1%82%E8%8A%B1%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3%20%E6%9C%AC%E5%BA%97",
+    "address": "中央区花畑町11-9",
+    "postcode": "860-0806",
+    "phone": "+81963259609",
+    "website": "http://keika-raumen.co.jp/",
+    "socials": [
+      "https://www.facebook.com/112348626113573"
+    ],
+    "dataSource": "overture",
+    "sourceId": "cf739d62-bf54-488c-bbd2-3f13e005d63f",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "komurasaki-kagoshima",
+    "name": "Komurasaki",
+    "nameJa": "こむらさき 天文館本店",
+    "city": "Kagoshima",
+    "cityCode": "46201",
+    "neighborhood": "Tenmonkan",
+    "lat": 31.591105,
+    "lng": 130.554214,
+    "broth": "tonkotsu",
+    "signatureBowl": "Kagoshima ramen",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A long-standing Tenmonkan ramen house, said to date to around 1950, known for a mild pork-bone broth, straight noodles under a heap of shredded cabbage, and chashu from Kagoshima black pork.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E3%81%93%E3%82%80%E3%82%89%E3%81%95%E3%81%8D%20%E5%A4%A9%E6%96%87%E9%A4%A8%E6%9C%AC%E5%BA%97",
+    "address": "東千石町11-19",
+    "postcode": "892-0842",
+    "website": "http://www.kagoshimakomurasaki.com/",
+    "dataSource": "overture",
+    "sourceId": "c3349da4-5a66-492a-8e1d-a9abc1d92867",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "todai-tokushima",
+    "name": "Tokushima Ramen Todai",
+    "nameJa": "徳島ラーメン東大大道本店",
+    "city": "Tokushima",
+    "cityCode": "36201",
+    "neighborhood": "Omichi",
+    "lat": 34.065414,
+    "lng": 134.547943,
+    "broth": "tonkotsu",
+    "signatureBowl": "Tokushima ramen (brown)",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "The main shop of a well-known Tokushima ramen house serving the city's brown style: dark pork-bone and soy broth, sweet simmered pork belly instead of chashu, and a raw egg to break into the hot soup.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E5%BE%B3%E5%B3%B6%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3%E6%9D%B1%E5%A4%A7%E5%A4%A7%E9%81%93%E6%9C%AC%E5%BA%97",
+    "socials": [
+      "https://www.facebook.com/471641166362060"
+    ],
+    "dataSource": "overture",
+    "sourceId": "86e66ebb-5a3c-4668-8863-ad8d3aa21faf",
+    "sourceLicenses": [
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "darumado-kokura",
+    "name": "Darumado",
+    "nameJa": "だるま堂",
+    "city": "Kitakyushu",
+    "cityCode": "40106",
+    "neighborhood": "Kokura",
+    "lat": 33.884892,
+    "lng": 130.878174,
+    "broth": "udon",
+    "signatureBowl": "Yaki udon",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "The Kokura restaurant credited with inventing yaki udon in 1945, when its founder used dried udon in place of scarce yakisoba noodles. It still makes it with dried noodles, sauce and bonito flakes.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E3%81%A0%E3%82%8B%E3%81%BE%E5%A0%82",
+    "address": "小倉北区船場町1-1",
+    "postcode": "802-8511",
+    "socials": [
+      "https://www.twitter.com/yakiudon0723",
+      "https://www.facebook.com/108359407570463"
+    ],
+    "dataSource": "overture",
+    "sourceId": "ed2c30f0-e6d7-4f2c-a40a-b5dd109f2dc7",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
+  },
+  {
+    "slug": "yamagoe-ayagawa",
+    "name": "Yamagoe Udon",
+    "nameJa": "山越うどん",
+    "city": "Ayagawa",
+    "cityCode": "37387",
+    "neighborhood": "Hayuka",
+    "lat": 34.225777,
+    "lng": 133.928207,
+    "broth": "udon",
+    "styles": [
+      "sanuki"
+    ],
+    "signatureBowl": "Kamatama udon",
+    "priceYen": null,
+    "hours": null,
+    "blurb": "A country udon shop in Ayagawa, south-west of Takamatsu, widely credited with creating kamatama: hot Sanuki noodles tossed with raw egg and a splash of soy, Kagawa's answer to carbonara.",
+    "videoUrl": null,
+    "photo": {
+      "url": null,
+      "credit": null,
+      "license": null
+    },
+    "splatUrl": null,
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%E5%B1%B1%E8%B6%8A%E3%81%86%E3%81%A9%E3%82%93",
+    "address": "羽床上602-2",
+    "postcode": "761-2207",
+    "website": "http://www.yamagoeudon.com/",
+    "socials": [
+      "https://www.facebook.com/420070271368478"
+    ],
+    "dataSource": "overture",
+    "sourceId": "e50248cd-8b69-471f-b8a1-60563889a3c6",
+    "sourceLicenses": [
+      "Apache-2.0",
+      "CDLA-Permissive-2.0"
+    ],
+    "verified": false
   }
 ]

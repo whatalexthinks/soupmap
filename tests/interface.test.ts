@@ -620,7 +620,8 @@ test('field notes can target an imported shop without rendering the entire natio
   click('#card [data-action="contribute"]');
   const select=el('#note-shop') as HTMLSelectElement;
   assert.equal(select.value,shop.slug);
-  assert.ok(select.options.length<30);
+  // Soupmap selections plus this shop, never the nationwide catalog.
+  assert.ok(select.options.length<100);
   await new Promise(resolve=>setTimeout(resolve,0));
   assert.equal((el('#note-submit') as HTMLButtonElement).disabled,true);
   assert.match(el('#community-status').textContent??'',/not connected/);

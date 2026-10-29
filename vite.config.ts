@@ -16,10 +16,15 @@ import { cuisineOf, recipePages, recipeQuality, recipesBody, recipesDocument, re
 import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
 import { buildGuides, cityHubPath, styleHubPath } from "./src/guides/model.ts";
 import { guideSite, indexEligible } from "./src/render/guides.ts";
+import { areaOptions } from "./src/me/planner.ts";
+import { loadGuideIntros } from "./src/guides/load-intros.ts";
+import { validateGuideIntros } from "./src/guides/intros.ts";
 import { placesForRecipe } from "./src/recipes/places.ts";
 import { affiliateConfig } from "./src/recipes/pantry.ts";
 import { formatAmount } from "./src/recipes/quantity.ts";
 import { assessPages, robotsFor } from "./src/seo/quality.ts";
+import { cardPng, type CardText } from "./src/seo/cards.ts";
+import { guideCard, guideCardPath, recipeCard, recipeCardPath, styleCard, styleCardPath } from "./src/seo/share.ts";
 import { catalogQuality, llmsFullTxt, llmsTxt, recipesJson, robotsTxt, sitemapFiles, sitemapIndex, type DiscoveryContext, type SitemapEntry } from "./src/seo/site.ts";
 
 const JOURNAL_MODULE = "virtual:soupmap-journal";
@@ -60,13 +65,41 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   // City × style guides, and the recipe pages that point at them.
   const catalogDate = OPEN_CATALOG.generatedAt.slice(0, 10);
   const guides = buildGuides(ORDERED_SHOPS);
-  const guidePages = guideSite(guides, { articles: new Map(articles.map(a => [a.slug, a.title])), lastmod: catalogDate });
+  const intros = loadGuideIntros();
+  // "Plan a day here" may only link to prefectures the planner itself offers.
+  const plannable = new Set(areaOptions(ORDERED_SHOPS).flatMap(a => a.id.startsWith("pref:") ? [a.id.slice("pref:".length)] : []));
+  const guidePages = guideSite(guides, { articles: new Map(articles.map(a => [a.slug, a.title])), lastmod: catalogDate, intros: new Map(intros.map(i => [i.slug, i])), plannable });
   const places = new Map(recipes.flatMap(r => { const p = placesForRecipe(r.slug, guides, indexEligible); return p ? [[r.slug, p] as const] : []; }));
   const recipeSite = recipePages(recipes, { places, affiliate: affiliateConfig(env) });
   const recipesIndex = recipeSite.find(page => page.path === "/recipes/")!;
+  {
+    const published = new Set(["/", "/map/", "/me/", "/credits/", "/catalog/", ...recipeSite, ...journal, ...documents, ...guidePages].map(page => typeof page === "string" ? page : page.path));
+    const problems = validateGuideIntros(intros, new Set(guides.map(g => g.path.slice("/guides/".length, -1))), published);
+    // A data refresh can shrink a guide below three places; that shouldn't stop a publish.
+    const orphans = problems.filter(p => p.includes("no guide at"));
+    if (orphans.length) console.warn(`Guide intros without a guide (not shown):\n- ${orphans.join("\n- ")}`);
+    if (problems.length > orphans.length) throw new Error(`Guide intro problems:\n- ${problems.filter(p => !orphans.includes(p)).join("\n- ")}`);
+  }
   // The quality gate: pages that fail are published with noindex and left out of the sitemaps.
   const verdicts = assessPages([...recipeSite.map(page => recipeQuality(page, recipes)), ...documents.map(catalogQuality), ...guidePages.map(page => page.quality)]);
   for (const page of [...recipeSite, ...documents, ...guidePages]) page.robots = robotsFor(verdicts.get(page.path));
+  // Share cards: every recipe, every guide with an editorial intro, and the indexable style hubs.
+  const host = new URL(siteUrl).host;
+  const cards = new Map<string, CardText>();
+  for (const page of recipeSite) if (page.recipe) { page.image = recipeCardPath(page.recipe.slug); cards.set(page.image, recipeCard(page.recipe, host)); }
+  const introBySlug = new Map(intros.map(i => [i.slug, i]));
+  const guideByPath = new Map(guides.map(g => [g.path, g]));
+  for (const page of guidePages) {
+    const guide = guideByPath.get(page.path);
+    const intro = guide && introBySlug.get(guide.path.slice("/guides/".length, -1));
+    if (guide && intro) { page.image = guideCardPath(intro.slug); cards.set(page.image, guideCard(guide, intro, host)); continue; }
+    const style = page.path.match(/^\/guides\/style\/([a-z0-9-]+)\/$/)?.[1];
+    if (style && verdicts.get(page.path)?.indexable) {
+      const list = guides.filter(g => g.style.id === style);
+      page.image = styleCardPath(style);
+      cards.set(page.image, styleCard(list[0]!.style, list, host));
+    }
+  }
   let directoryChunk: string;
   let building = false;
   return {
@@ -172,6 +205,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         if (page === recipesIndex) continue;
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`, source: recipesDocument(page, siteUrl, recipes, recipeAssets) });
       }
+      for (const [path, card] of cards) this.emitFile({ type: "asset", fileName: path.slice(1), source: cardPng(card) });
       // Segmented sitemaps behind one index. /sitemap.xml serves the index too, so the
       // URL already submitted to Search Console keeps working.
       const recipeDates = new Map(recipes.map(r => [`/recipes/${r.slug}/`, r.updated ?? r.date]));

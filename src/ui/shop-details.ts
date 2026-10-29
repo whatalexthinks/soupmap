@@ -48,7 +48,9 @@ export function stylesHtml(shop: Shop): string {
   const styles = (shop.styles ?? []).map(id => STYLE_BY_ID.get(id))
     .filter((s): s is StyleTag => !!s && s.label !== broth);
   if (!styles.length) return "";
-  return `<div class="style-tags"><p class="card__fine">Suggested by the shop's name</p><ul>${styles.map(s =>
+  // Imported places get styles from their names; Soupmap selections from our notes.
+  const from = isEditorial(shop) ? "From our notes on this place" : "Suggested by the shop's name";
+  return `<div class="style-tags"><p class="card__fine">${from}</p><ul>${styles.map(s =>
     `<li title="${esc(s.description)}">${esc(s.label)} <span class="ja" lang="ja">${esc(s.labelJa)}</span></li>`).join("")}</ul></div>`;
 }
 
