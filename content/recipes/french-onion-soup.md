@@ -15,7 +15,13 @@ difficulty: medium
 serves: 4
 active: 50
 total: 135
+prep: 20
+cook: 110
+richness: 7
+spice: 1
+comfort: 9
 date: 2026-10-20
+updated: 2026-10-27
 journal: french-onion-soup
 ---
 
@@ -64,6 +70,25 @@ The rest is good stock, a splash of dry white wine, and a lid of dry toast and c
 10. Bring the soup back to a simmer and ladle it into the bowls, filling them to about 1 cm below the rim. Float 2 toasts on each, garlic side up, then pile on the cheese, letting it reach the edges of the bowls so it can stick and crisp there.
 11. Slide the tray under the grill for 3–5 minutes, until the cheese has melted, bubbled and browned in patches. Stay close: it goes from golden to burnt in under a minute.
 12. Lift the tray out with oven gloves. The bowls are now as hot as the grill and stay that way for a long time, so set each one on a plate or folded napkin before it goes to the table and warn everyone. Let the soup stand for 2 minutes before eating; the cheese traps a lot of steam.
+
+## Restaurant secret
+
+Bistro onion soup gets its depth from browning the onions in layers. While the onions are wet, their water holds them near 100°C, too cool to brown quickly, but the juices that dry onto the base of the pot get much hotter and brown fast. Each splash of water dissolves that film and coats the onions with it, and the next film starts from a darker base. Repeated for most of an hour, it builds a colour and depth that onions left to soften alone never reach.
+
+## Swaps
+
+### Gluten-free
+- Use 15 g rice flour in place of the plain flour, cooked exactly as in step 4, or leave it out for a slightly thinner broth.
+- Use a loaf labelled gluten-free instead of the baguette, sliced and dried in the oven as in step 8 until crisp right through.
+- Check the stock: stock cubes, bouillon and some cartons contain wheat or barley. The wine, cognac, Gruyère and Comté are gluten-free.
+
+### Plant-based
+- Use 1.5 l dark mushroom stock (check the label) and olive oil in place of the butter; the onions brown just as well, though the soup is a little less rich. Some wines are fined with egg, milk or fish products, so choose one labelled vegan, and check the baguette is a plain one of flour, water, yeast and salt.
+- The gratin is the hard part. Vegan cheeses melt and brown very differently, so test one on a toast under the grill first, or skip the cheese and float the garlic toasts on top, brushed with olive oil. It's still a very good onion soup, but no longer a *gratinée*.
+
+### High-protein
+- About 20 g protein a bowl as written, mostly from the cheese. For about 25 g more, stir 80–100 g shredded cooked beef per bowl into the soup before you fill the bowls, such as the shin or brisket left from making your stock.
+- Use 300 g cheese instead of 200 g for about 7 g more per bowl, and a thicker crust.
 
 ## Tips
 - **Slice evenly and use ordinary onions.** Slices of the same thickness brown at the same rate, so you don't get burnt slivers among pale ones, and cutting root to tip helps them hold some shape. Yellow (brown) onions have enough sugar to brown deeply and enough bite to keep the soup savoury.

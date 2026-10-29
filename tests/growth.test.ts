@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';
 import { CURATED_SHOPS, OPEN_SHOPS } from '../src/data/shops.ts';
-import { restaurantSchema, absoluteSchema } from '../src/growth/schema.ts';
+import { restaurantSchema, absoluteSchema, schemaName } from '../src/growth/schema.ts';
 import { COMMERCE, isFeatured, trackedUrl } from '../src/growth/config.ts';
 import { badgeDetails, badgeSvg } from '../src/growth/badge.ts';
 import { robotsText } from '../src/growth/crawlers.ts';
@@ -10,6 +10,7 @@ import { validateCommerce } from '../scripts/lib/validate-commerce.ts';
 import { growthPublicApi, growthAccountApi } from '../server/growth-api.ts';
 import { GrowthStore } from '../server/growth-store.ts';
 import { WeatherService, soupScore } from '../server/weather.ts';
+import { catalogQuality } from '../src/seo/site.ts';
 import { apiProtection } from '../server/protection.ts';
 const place=CURATED_SHOPS[0]!;
 
@@ -18,6 +19,9 @@ test('restaurant markup preserves sourced facts and never manufactures ratings o
   const rich=absoluteSchema(restaurantSchema(place),'https://soupmap.com') as any;
   assert.equal(rich.geo.latitude,place.lat);assert.equal(rich.hasMenu.hasMenuItem.name,place.signatureBowl);
   assert.equal(rich.url,`https://soupmap.com/catalog/${place.slug}/`);assert.ok(!rich.aggregateRating);
+  assert.equal(catalogQuality({path:`/catalog/${place.slug}/`,title:'Soup',description:'A restaurant profile',content:'',structuredData:{'@type':'WebPage',mainEntity:rich,about:rich}}).kind,'shop','Canonical migration must retain entity quality checks');
+  assert.equal(schemaName({...OPEN_SHOPS[0]!,name:'拉麺',nameJa:'拉麺',nameRomanized:'Generated reading'}),'拉麺');
+  assert.equal((absoluteSchema({item:'/catalog/'},'https://soupmap.com') as any).item,'https://soupmap.com/catalog/');
   COMMERCE.push({slug:place.slug,rating:{value:4.5,count:8,source:'https://soupmap.com/ratings/source',checkedAt:'2026-10-27'}});
   try{assert.equal((restaurantSchema(place).aggregateRating as any).ratingCount,8);}finally{COMMERCE.pop();}
 });

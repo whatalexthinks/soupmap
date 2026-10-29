@@ -16,6 +16,8 @@ import { ListStore } from "./lists.ts";
 import { recipesApi } from "./recipes-api.ts";
 import { ReviewStore } from "./reviews.ts";
 import { readdirSync } from "node:fs";
+import { indexNowApi, indexNowConfig, keyFile, PgSubmissionLog, submitChanged } from "./indexnow.ts";
+import { recipePagesWithRatings } from "./recipe-pages.ts";
 
 const app = express();
 const httpServer = createHttpServer(app);
@@ -29,6 +31,13 @@ app.use(express.json({limit:"64kb"}));
 app.use(express.urlencoded({extended:true, limit:"64kb"}));
 const growthStore = new GrowthStore();
 app.use('/api/growth', growthPublicApi(growthStore));
+
+// IndexNow is the owner's tool, authorised by its own token, so it doesn't wait on Clerk.
+const indexNow = indexNowConfig(process.env);
+const reviews = new ReviewStore();
+const submissions = new PgSubmissionLog();
+app.use("/api/indexnow", indexNowApi(indexNow, submissions, process.env.INDEXNOW_ADMIN_TOKEN));
+if (indexNow) app.use(keyFile(indexNow));
 // Public map/content do not depend on the identity provider being reachable.
 app.use("/api", clerkMiddleware((req) => ({
   publishableKey: publishableKeyFromHost(
@@ -39,7 +48,7 @@ app.use("/api", clerkMiddleware((req) => ({
 app.use('/api/passport', growthAccountApi(growthStore));
 // Recipe reviews are public to read, so they mount before the account-only API.
 const recipeSlugs = new Set(readdirSync(resolve("content/recipes")).filter(name => name.endsWith(".md") && name !== "README.md").map(name => name.slice(0, -3)));
-app.use("/api/recipes", recipesApi(new ReviewStore(), recipeSlugs));
+app.use("/api/recipes", recipesApi(reviews, recipeSlugs));
 app.use("/api", personalApi(new ListStore()));
 app.use("/api", (_req, res) => { res.status(404).json({error:"Not found."}); });
 
@@ -70,9 +79,11 @@ if (!production) {
       res.sendFile(resolve("dist/account/index.html"));
     } else next();
   });
+  // Add real reader ratings before static delivery.
+  app.use(recipePagesWithRatings(reviews));
   app.use(sirv("dist", {etag:true, setHeaders(res,path){
     if (/\/(?:assets|cesium)\//.test(path)) res.setHeader('Cache-Control','public, max-age=31536000, immutable');
-    else if (/\/(?:catalog|city)\//.test(path)||/\/(?:robots\.txt|llms\.txt|sitemap\.xml)$/.test(path))
+    else if (/\/(?:catalog|city|guides)\//.test(path)||/\/(?:robots\.txt|llms(?:-full)?\.txt|sitemap[^/]*\.xml)$/.test(path))
       res.setHeader('Cache-Control','public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
   }}));
 }
@@ -88,3 +99,12 @@ app.use((error: Error & {status?: number}, _req: express.Request, res: express.R
 const portArg = process.argv.indexOf("--port");
 const port = Number(process.env.PORT || (portArg >= 0 ? process.argv[portArg + 1] : undefined)) || 5000;
 httpServer.listen(port, "0.0.0.0", () => console.log("Soupmap serving on port " + port));
+
+// Each publish restarts the server: tell IndexNow about pages that are new or changed since the last one.
+if (production && indexNow && process.env.DATABASE_URL && process.env.INDEXNOW_AUTO !== "off") {
+  setTimeout(() => {
+    submitChanged(indexNow, submissions)
+      .then(r => console.log(`IndexNow: ${r.submitted} of ${r.pending} changed URLs submitted${r.failed.length ? `; rejected with ${r.failed.join(", ")}` : ""}`))
+      .catch(error => console.error("IndexNow: submission skipped:", (error as Error).message));
+  }, 30_000).unref();
+}

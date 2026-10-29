@@ -17,7 +17,13 @@ difficulty: project
 serves: 4
 active: 120
 total: 315
+prep: 30
+cook: 265
+richness: 5
+spice: 1
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: tokyo-shoyu-chuka-soba
 map: /map/?q=shoyu
 mapLabel: Find shoyu ramen shops on the map
@@ -112,6 +118,25 @@ Plan ahead: the *ajitama* (marinated soft-boiled eggs) need at least 4 hours in 
 18. Empty the bowls and put 40 ml (about 2 1/2 tbsp) tare and 1 tbsp chicken oil in each.
 19. Shake the noodles loose and drop them into the boiling water, two portions at a time unless your pot is very large. Stir with chopsticks for the first 30 seconds so they don't clump, and cook as the packet says, usually 1 1/2–2 1/2 minutes. While they cook, ladle 375 ml hot broth into each bowl and stir.
 20. Drain the noodles thoroughly, shaking the sieve hard, then slide them into the soup and fold them into a neat bundle with chopsticks. Top with chashu, egg halves, menma and spring onions, and tuck the nori upright against the side of the bowl so it stays crisp. Serve at once, with white pepper on the table.
+
+## Restaurant secret
+
+Treat the tare like the *kaeshi* (soy seasoning) of a soba shop: heat it only until it steams, never let it boil, and make it a day or two ahead if you can. Boiling the mirin and sake first drives off their alcohol, but soy sauce's toasty aroma is volatile, and boiling flattens it into plain saltiness; in a clear broth, that aroma is half the flavour. Resting lets the soy's sharp edges and the kombu's savouriness settle into one rounded seasoning.
+
+## Swaps
+
+### Gluten-free
+- Use tamari labelled gluten-free in place of the koikuchi soy sauce in the tare, the egg marinade and the chashu, in the same amounts. It's thicker and darker, with less of koikuchi's toasty aroma, so the soup comes out deeper in colour and a little heavier; taste the first bowl and adjust the tare.
+- Ramen noodles are wheat: use noodles labelled gluten-free (rice, or brown rice and millet ramen-style noodles). They lack the springy, alkaline bite, so it's a softer bowl and not quite the same dish. Check the sake and mirin labels, and leave out the menma unless it's labelled gluten-free, as it's usually seasoned with soy sauce.
+
+### Plant-based
+- Replace the chicken broth with a kombu-shiitake broth: soak 30 g kombu and 6 dried shiitake in 2 l cold water for at least 3 hours, heat it slowly and lift out the kombu just before it boils, then simmer with the onion, ginger, garlic and leek greens for 30 minutes and strain. Skip the katsuobushi. The tare is already vegan.
+- Make the aroma oil by warming 4 tbsp neutral oil gently with the spring onion and ginger instead of the chicken fat, and simmer thick slices of firm tofu in a half batch of the chashu liquid (no pork) for 15–20 minutes in place of the chashu. Leave out the eggs, and check that the noodles are egg-free and the menma has no fish-based seasoning.
+- It's a good vegetable shoyu ramen, but lighter and earthier than the chicken original rather than a copy of it.
+
+### High-protein
+- Marinate a second egg per person: cook 8 eggs and double the marinade. Each adds about 6 g protein.
+- Poach 2 small chicken breasts (about 350 g) in the broth for its last 20 minutes in step 13, until the thickest part reads 74°C, then slice and add to the bowls with the chashu: about 20 g more protein per bowl.
 
 ## Tips
 - **Keep the broth at a tremble.** A rolling boil churns fat and protein into the liquid and turns it cloudy and heavy-tasting. At a bare simmer they rise to the surface, where you can skim them off. If you see big bubbles, turn it down.

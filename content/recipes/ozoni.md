@@ -16,7 +16,13 @@ difficulty: medium
 serves: 4
 active: 35
 total: 75
+prep: 20
+cook: 35
+richness: 2
+spice: 1
+comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 journal: ozoni
 ---
 
@@ -61,6 +67,24 @@ Grill the mochi rather than simmering it in the pot, or it slumps into the broth
 7. Meanwhile, cut each mochi square in half (see the safety note in the Tips) and grill the pieces under a hot grill, in a toaster oven, or on a lightly oiled rack or dry non-stick pan over medium-low heat, turning once, until puffed and golden with brown freckles, 6–10 minutes. Leave space between the pieces, because they swell and stick to each other, and watch closely: mochi goes from puffed to scorched quickly.
 8. Season the broth with the soy sauce and salt, then taste. It should be a little stronger than a soup you'd sip on its own, because the mochi is plain. Add the kamaboko and komatsuna and warm for 30 seconds.
 9. Put the mochi in warmed bowls and arrange the chicken, carrot, kamaboko and greens around it. Ladle the hot broth over, top with mitsuba or yuzu peel and serve at once, before the mochi softens too much.
+
+## Restaurant secret
+
+The 30-second dip in step 5 is what Japanese cooks call *shimofuri*, "falling frost", after the white bloom it leaves on the meat. Boiling water sets the blood and loose proteins on the surface of the chicken so they stay behind in the blanching pan, while the inside stays raw and finishes gently in the dashi. Skip it and those proteins seep into the broth as grey scum and a faint haze that skimming never fully clears, and in a Kanto ozoni, clarity is the point.
+
+## Swaps
+
+### Gluten-free
+- Use tamari labelled gluten-free instead of the soy sauce, in the same amount. It's a little darker and rounder, so the broth comes out a shade deeper in colour. The dashi, chicken, vegetables and salt are gluten-free as written; plain sake (rice, koji and water) is too, but cooking sake can contain additives, so check its label.
+- Check the kamaboko: many fish cakes contain wheat starch, so use one labelled gluten-free or leave it out. Kiri mochi is made from glutinous rice, which despite its name contains no gluten, but check the packet for added ingredients and "may contain" warnings.
+
+### Plant-based
+- Make a kombu-shiitake dashi: soak the kombu with 4 dried shiitake in the cold water for at least 3 hours (or overnight in the fridge), heat it as in step 2, lifting out both the kombu and the shiitake, and leave out the katsuobushi. It's softer and earthier, without the smoky depth of bonito.
+- Leave out the chicken and kamaboko. Slice the soaked shiitake and simmer them with the carrot instead, with cubes of firm tofu or a few thin rounds of daikon (white radish). With both swaps the bowl is vegan.
+
+### High-protein
+- Double the chicken to 400 g and cook it exactly as in steps 5 and 6: roughly 10 g more protein per bowl.
+- Add 2 peeled prawns per bowl for the last 2–3 minutes, as in the Variations (about 5–8 g), or 100 g firm tofu per bowl, cubed and warmed with the greens (roughly 8–12 g, depending on how firm it is).
 
 ## Tips
 - **Mochi is a real choking hazard, so please take care.** It's soft, sticky and dense, and every New Year in Japan there are serious choking accidents, most of them among older people. Cut each square in half before grilling (smaller still for anyone who has trouble chewing or swallowing), sip some broth first to moisten the throat, take small bites and chew thoroughly, and keep tea or water within reach. Don't eat mochi alone; supervise young children and older relatives throughout. I wouldn't give it to toddlers at all.

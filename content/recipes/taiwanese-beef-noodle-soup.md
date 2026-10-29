@@ -16,7 +16,13 @@ difficulty: medium
 serves: 4
 active: 50
 total: 210
+prep: 15
+cook: 195
+richness: 7
+spice: 3
+comfort: 9
 date: 2026-10-20
+updated: 2026-10-27
 journal: taiwan-beef-noodle-soup
 ---
 
@@ -90,6 +96,25 @@ The common mistake is letting the pot boil. A hard boil squeezes the moisture ou
 11. Bring a large pot of water to a boil and warm 4 deep bowls. Blanch the bok choy for 1–2 minutes, until the stems are just tender, and lift it out.
 12. Cook the noodles in the same water according to the packet, usually 3–5 minutes for fresh thick noodles, until cooked through but still chewy. Drain well.
 13. Divide the noodles and beef between the bowls and ladle about 450 ml of boiling broth over each. Add the bok choy, spring onion and coriander, and put the pickled greens and chilli oil on the table.
+
+## Restaurant secret
+
+Treat the pickled mustard greens as part of the bowl, not a garnish. Soaking draws out excess salt, and frying them with sugar until dry drives off the brine, concentrating their sourness and keeping them crisp so they don't water down the broth. A spoonful stirred in as you eat cuts through the gelatin and fat of the braise, which is why beef noodle shops in Taiwan commonly keep a jar of them on the table.
+
+## Swaps
+
+### Gluten-free
+- **Not gluten-free as written:** the noodles, both soy sauces and the Shaoxing wine contain wheat, and most doubanjiang is made with wheat flour. Use thick rice noodles labelled gluten-free, replace both soy sauces with 100 ml tamari labelled gluten-free, use dry sherry instead of Shaoxing wine, and find a chilli bean paste labelled gluten-free.
+- Check the labels on the pickled mustard greens and chilli oil too. The broth comes out a shade paler and the noodles softer and less chewy, but the braise itself stays close to the original.
+
+### Plant-based
+- **The beef is the dish,** so a vegan version is really a different soup: a red-braised mushroom noodle soup rather than niu rou mian.
+- To make it, follow steps 2–6 without the beef, adding 6 dried shiitake, 500 g king oyster mushrooms in thick slices and 500 g daikon in large chunks, and braise for 45 minutes; add cubes of fried tofu for the last 10. Check that your doubanjiang, chilli oil and noodles contain no animal products (some wheat noodles contain egg).
+
+### High-protein
+- **Already generous:** about 300 g raw shank per bowl, roughly 60 g protein.
+- **Braised eggs:** simmer 4 peeled hard-boiled eggs in the braise for the last 30 minutes so they take on its colour, and halve one into each bowl: about 6 g more per bowl.
+- **Pressed tofu:** add 200 g firm pressed tofu (*dou gan*), sliced, to the braise for the last 30 minutes: about 8 g more per bowl.
 
 ## Tips
 - **Know your doubanjiang.** Taiwanese chilli bean paste is smooth and fairly mild; Sichuan (Pixian) doubanjiang is saltier, chunkier and hotter. If you are using the Sichuan kind, chop it finely, start with 2 tbsp and make up any shortfall with salt at the end.

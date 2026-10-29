@@ -6,6 +6,7 @@
 @import "./directory.css";
 @import "./growth.css";
 @import "./google-place.css";
+@import "./guides.css";
 
 body {
   background: var(--paper);

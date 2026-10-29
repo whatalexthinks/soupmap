@@ -17,7 +17,13 @@ difficulty: medium
 serves: 8
 active: 100
 total: 195
+prep: 25
+cook: 165
+richness: 9
+spice: 4
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: gumbo
 ---
 
@@ -79,6 +85,24 @@ The common mistake is rushing the roux. Turn the heat up and it scorches; walk a
 9. Take out the bay leaves. Taste and adjust with salt, black pepper and cayenne: it should be savoury and gently peppery, with a long, toasty finish. Stir in most of the spring onions and parsley.
 10. If you're using filé, take the pot off the heat and stir it in just before serving, or let everyone sprinkle about 1/2 tsp over their own bowl. Don't let the gumbo boil once the filé is in.
 11. Put a scoop of rice in each bowl, ladle the gumbo around it and scatter with the rest of the spring onions and parsley. Pass the hot sauce at the table.
+
+## Restaurant secret
+
+A dark roux is there for flavour, and the price is fat. Browning breaks down the flour's starch, so it thickens weakly, and the thin gravy can't keep all that oil suspended: as the gumbo simmers, it rises and pools at the edges of the pot. Skimming it patiently through the hour is what lets a gumbo taste deep and toasty rather than greasy. Made a day ahead it's easier still: chilled, the last of the fat sets on top and lifts off in one piece.
+
+## Swaps
+
+### Gluten-free
+- Make the roux with 125 g white rice flour, or a plain flour blend labelled gluten-free, in place of the wheat flour, and cook it exactly as in step 3, watching the colour and smell. The flavour is very close; the gravy can be a touch less silky.
+- Check the andouille, stock, hot sauce and filé: some sausages contain wheat-based fillers, and stock cubes and some cartons contain wheat or barley. The rice is gluten-free.
+
+### Plant-based
+- Leave out the chicken and andouille and use vegetable stock (check the label). In step 2, brown 400 g torn oyster mushrooms in 2 tbsp oil until golden, 8–10 minutes, and return them with the stock. Add 250 g sliced okra with the trinity for body (and skip the filé), and 1 tsp sweet smoked paprika with the thyme for smokiness. Simmer for 45 minutes and skip step 8.
+- The oil roux, trinity and seasonings are already vegan. Plant-based smoked sausages can stand in for the andouille, but many are made from wheat gluten. It's a different gumbo, still deep and toasty, without the meaty richness.
+
+### High-protein
+- Already over 30 g protein a bowl from the chicken and andouille. For more, add 500 g peeled raw prawns for the last 4–5 minutes of step 8, just until pink and firm: about 12 g more per bowl.
+- Or add 2 more chicken thighs with the others (about 5 g more per bowl), or a halved hard-boiled egg in each bowl (about 6 g).
 
 ## Tips
 - **Treat hot roux with respect.** It's far hotter than boiling water and it sticks to skin, so a splash burns badly. Wear long sleeves, use a long-handled spoon, keep children and pets out of the kitchen and never taste it from the pot.

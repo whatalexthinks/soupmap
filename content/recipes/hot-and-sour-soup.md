@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 30
 total: 55
+prep: 20
+cook: 20
+richness: 4
+spice: 6
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Hot and sour soup, *suan la tang* ("sour-spicy soup"), is made across northern China and in Sichuan, and at its best it is a jolt: thick and glossy, crowded with fine shreds of pork, mushroom, bamboo shoot and tofu, and both sharp and fiery. The surprise for many people is where the fire comes from. In this style the "hot" is white pepper, and plenty of it, not chilli. It catches at the back of your throat rather than on your lips, and it is what makes the soup so warming.
@@ -72,6 +78,25 @@ What usually goes wrong is timing. Vinegar and pepper both lose their edge if th
 6. Stir the 3 tbsp cornstarch into the 5 tbsp cold water (it settles fast, so stir again just before using). With the soup at a steady simmer, pour in about two-thirds of it, stirring, and cook for 1 minute, until the soup turns glossy and lightly coats the back of a spoon. If you like it thicker, add the rest and simmer for 1 minute more.
 7. Turn the heat down so the soup barely simmers. Stir it once in a slow circle, then pour the eggs in a thin stream over the moving surface, ideally through the tines of a fork. Leave it completely alone for 15 seconds so the egg sets into ribbons, then stir gently once.
 8. Turn off the heat. Stir in 4 tbsp vinegar, 1 tsp white pepper and the sesame oil, then taste: it should be distinctly sour, with the pepper catching at the back of your throat. Add more vinegar and pepper until it does, scatter with spring onion and serve, with chilli oil on the table for anyone who wants it.
+
+## Restaurant secret
+
+The pork in a good restaurant bowl is silky rather than stringy, and that comes from the marinade in step 2. Tossing thin shreds in soy, Shaoxing wine and cornstarch is a light form of *velveting*, the Chinese technique of coating meat in starch before it cooks. In the hot broth the starch sets into a thin film that slows the heat and holds the juices in, so the shreds stay tender. Stir them apart the moment they go in, before the coating sets and glues them together.
+
+## Swaps
+
+### Gluten-free
+- Use tamari labelled gluten-free in place of the light soy sauce, in the marinade and the soup, and leave out the dark soy: tamari is dark enough to colour the soup. Use dry sherry instead of the Shaoxing wine, which is brewed with wheat.
+- Chinkiang vinegar is brewed with wheat bran, so it isn't gluten-free. Use the rice vinegar and balsamic swap from Tips, checking both labels; the sourness is a little less malty.
+- Check the stock and chilli oil, and make sure the cornstarch is labelled gluten-free: in some countries "cornflour" can be made from wheat.
+
+### Plant-based
+- Follow the vegetarian Variation (vegetable stock, no pork, 100 g more tofu and 2 more shiitake) and leave out the eggs; everything else is vegan. Check the stock and chilli oil labels.
+- The egg ribbons are part of the texture, so the vegan bowl is a little less silky. Cutting the extra tofu into fine matchsticks and thickening with the full amount of cornstarch helps.
+
+### High-protein
+- Roughly 20 g protein a bowl as written. Double the pork to 300 g (about 7 g more per bowl), marinated the same way and simmered until pale all the way through, 2–3 minutes.
+- Use 400 g firm tofu instead of 200 g (about 6 g more), or 4 eggs instead of 2 (about 3 g more), poured in two passes so the ribbons stay fine.
 
 ## Tips
 - **Fresh white pepper is the heat.** Ground white pepper loses its punch quickly once opened, so use a fresh jar or grind whole white peppercorns. It goes in off the heat so its aroma isn't cooked away.

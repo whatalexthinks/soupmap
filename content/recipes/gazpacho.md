@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 25
 total: 270
+prep: 20
+cook: 5
+richness: 3
+spice: 1
+comfort: 2
 date: 2026-10-20
+updated: 2026-10-27
 journal: gazpacho
 ---
 
@@ -62,6 +68,25 @@ The common mistake is serving it cool rather than cold. Chill it for at least 4 
 6. Shortly before serving, make the croutons. Toss the bread cubes with 1 tbsp olive oil in a frying pan over medium heat and fry, tossing often, until golden and crisp, 4–5 minutes. Tip onto kitchen paper to cool.
 7. Stir the chilled gazpacho well, since it can separate slightly as it sits, and taste it again. It will probably want another pinch of salt or a few drops of vinegar now that it's cold.
 8. Pour into the chilled bowls or glasses. Scatter over the diced cucumber, pepper and onion and the croutons, and finish with a thread of olive oil.
+
+## Restaurant secret
+
+The silkiest gazpacho comes from two steps done in order: an emulsion, then a sieve. Streaming the oil into the running blender shears it into droplets so fine that the bread's starch and the tomato pulp can coat them and hold them in suspension. Those droplets scatter light, which is why the soup turns from red to coral: the colour change tells you it has worked. Pressing it through a fine sieve then removes the last specks of skin and seed, leaving only that creamy body.
+
+## Swaps
+
+### Gluten-free
+- The bread is the only gluten. Use the same weight of a white loaf labelled gluten-free, crusts removed and soaked the same way; if you also need it vegan, check its label for egg and milk, which some gluten-free breads contain.
+- Or leave the bread out, as in Variations: the soup is thinner and less creamy, so add the oil especially slowly.
+- Make the croutons from the gluten-free bread in a clean pan, or skip them. Sherry vinegar is gluten-free.
+
+### Plant-based
+- Already vegan as written, as long as the bread is a plain loaf of flour, water, yeast and salt, with no milk, butter, egg or honey. Only the salmorejo variation's egg and ham toppings aren't.
+
+### High-protein
+- Gazpacho is light, at roughly 5 g protein a bowl. Top each bowl with a chopped hard-boiled egg (about 6 g) and 30 g diced *jamón* or other cured ham (about 9 g), the salmorejo toppings.
+- Or scatter 80–100 g cooked, peeled prawns per bowl, well chilled, over the soup with the garnishes: about 20 g.
+- For a plant-based boost, swap the croutons for 30 g crisp roasted chickpeas per bowl (about 6 g).
 
 ## Tips
 - **Let the tomatoes ripen.** Keep them at room temperature, never in the fridge, and use them when they give slightly to a gentle press. Plum and vine tomatoes are reliable; out of season, gazpacho is rarely worth making.

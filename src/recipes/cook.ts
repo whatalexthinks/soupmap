@@ -5,7 +5,7 @@
 import { esc } from "../ui/dom.ts";
 import { trackEvent } from "../analytics.ts";
 import { formatAmount, scaleAmount, type Amount, type System, type Unit } from "./quantity.ts";
-import { checkedIngredients, preferredUnits, recipeNote, savedRecipes, setCheckedIngredients, setPreferredUnits, setRecipeNote, setRecipeSaved } from "./storage.ts";
+import { checkedIngredients, checkedSteps, preferredUnits, recipeNote, savedRecipes, setCheckedIngredients, setCheckedSteps, setPreferredUnits, setRecipeNote, setRecipeSaved } from "./storage.ts";
 
 const clock = (seconds: number) => {
   const s = Math.max(0, Math.ceil(seconds));
@@ -107,6 +107,7 @@ export function setupRecipe(doc: Document): void {
     note.hidden = serves === base;
     note.textContent = serves === base ? "" : `Scaled from ${base} to ${serves} servings. Cooking times stay about the same, but a fuller pot takes longer to come to the boil${serves > base ? ", and you may need a bigger one" : ""}.`;
     for (const button of doc.querySelectorAll<HTMLElement>("[data-units]")) button.setAttribute("aria-pressed", String(button.dataset.units === units));
+    for (const button of doc.querySelectorAll<HTMLElement>("[data-bowls]")) button.setAttribute("aria-pressed", String(serves === base * Number(button.dataset.bowls)));
   };
   doc.querySelector<HTMLElement>("#r-scale")!.hidden = false;
   doc.addEventListener("click", e => {
@@ -119,6 +120,12 @@ export function setupRecipe(doc: Document): void {
     }
     const unitButton = target.closest<HTMLElement>("[data-units]");
     if (unitButton) { units = unitButton.dataset.units as System; setPreferredUnits(units); renderAmounts(); }
+    const bowls = target.closest<HTMLElement>("[data-bowls]");
+    if (bowls) {
+      serves = base * Number(bowls.dataset.bowls);
+      renderAmounts();
+      trackEvent("recipe_scaled", { factor: Number(bowls.dataset.bowls) });
+    }
   });
   renderAmounts();
 
@@ -129,6 +136,42 @@ export function setupRecipe(doc: Document): void {
     if (!(e.target as Element).matches(".r-ing__check")) return;
     setCheckedIngredients(slug, checks.flatMap((c, i) => c.checked ? [i] : []));
   });
+
+  // ── Steps: tap one (or its number) to tick it off ──
+  const steps = [...doc.querySelectorAll<HTMLElement>(".r-step")];
+  const done = new Set(checkedSteps(slug));
+  const showStep = (step: HTMLElement) => {
+    const n = Number(step.id.replace("step-", ""));
+    step.classList.toggle("is-done", done.has(n));
+    step.querySelector(".r-step__n")?.setAttribute("aria-pressed", String(done.has(n)));
+  };
+  for (const step of steps) {
+    const number = step.querySelector<HTMLElement>(".r-step__n");
+    if (!number) continue;
+    const button = doc.createElement("button");
+    button.type = "button";
+    button.className = "r-step__n";
+    button.textContent = number.textContent;
+    button.setAttribute("aria-label", `Step ${number.textContent}: done`);
+    number.replaceWith(button);
+    showStep(step);
+  }
+  const hint = doc.querySelector<HTMLElement>("#r-method-hint");
+  if (hint) hint.hidden = false;
+  doc.addEventListener("click", e => {
+    const target = e.target as Element;
+    const step = target.closest<HTMLElement>(".r-step");
+    if (!step || step.closest("#r-cook")) return;
+    // Timers, links and selected text keep their own meaning.
+    if (target.closest("a, button.r-timer") || (!target.closest(".r-step__n") && String(doc.getSelection?.() ?? ""))) return;
+    const n = Number(step.id.replace("step-", ""));
+    if (done.has(n)) done.delete(n); else done.add(n);
+    showStep(step);
+    setCheckedSteps(slug, [...done].sort((a, b) => a - b));
+  });
+
+  // ── Swaps: tabs when there's JavaScript, stacked lists when there isn't ──
+  setupTabs(doc);
 
   // ── Timers in the method ──
   const timers = new Timers(doc);
@@ -244,4 +287,39 @@ class CookMode {
       <details class="r-cook__ings"><summary>Ingredients</summary>${ingredients.innerHTML}</details>`;
     this.dialog.querySelector<HTMLElement>("[data-cook=next], [data-cook=close]")?.focus();
   }
+}
+
+/** Gluten-free / plant-based / high-protein swaps as an accessible tab set (arrow keys move between tabs). */
+export function setupTabs(doc: Document): void {
+  const tablist = doc.querySelector<HTMLElement>(".r-swaps__tabs");
+  if (!tablist) return;
+  const tabs = [...tablist.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+  const panels = tabs.map(tab => doc.getElementById(tab.getAttribute("aria-controls")!)!);
+  tablist.hidden = false;
+  panels.forEach((panel, i) => {
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("aria-labelledby", tabs[i]!.id);
+    panel.tabIndex = 0;
+    panel.querySelector("h3")?.classList.add("r-sr");
+  });
+  const select = (index: number, focus = false) => {
+    tabs.forEach((tab, i) => {
+      tab.setAttribute("aria-selected", String(i === index));
+      tab.tabIndex = i === index ? 0 : -1;
+      panels[i]!.hidden = i !== index;
+    });
+    if (focus) tabs[index]!.focus();
+  };
+  select(0);
+  tablist.addEventListener("click", e => {
+    const index = tabs.indexOf((e.target as Element).closest<HTMLButtonElement>("[role=tab]")!);
+    if (index >= 0) { select(index); trackEvent("recipe_swaps", { tab: tabs[index]!.textContent ?? "" }); }
+  });
+  tablist.addEventListener("keydown", e => {
+    const current = tabs.findIndex(tab => tab.getAttribute("aria-selected") === "true");
+    const next = e.key === "ArrowRight" ? current + 1 : e.key === "ArrowLeft" ? current - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : null;
+    if (next === null) return;
+    e.preventDefault();
+    select((next + tabs.length) % tabs.length, true);
+  });
 }

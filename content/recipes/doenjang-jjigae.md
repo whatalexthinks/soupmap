@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 25
 total: 45
+prep: 10
+cook: 35
+richness: 4
+spice: 4
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: korean-soups
 ---
 
@@ -61,6 +67,25 @@ If you know miso soup, the one thing to unlearn is the rule about not boiling. M
 5. Add the courgette, garlic and gochugaru and boil for 4 minutes, until the courgette is bright and starting to turn translucent.
 6. Add the tofu and chillies and simmer for 3 minutes more, until the tofu is hot through and a knife slides easily into the potato. Taste: the broth should be savoury and salty enough to eat with plain rice. Stir in more doenjang, or a pinch of salt, if it needs it.
 7. Scatter over the spring onions and carry the pot to the table while it is still bubbling. Serve with rice and any *banchan* (small side dishes) you have, and let everyone spoon from the pot.
+
+## Restaurant secret
+
+Make the stock with rice-rinsing water, *ssal-tteumul*, as many Korean home cooks do. Rinse the rice for the table once and pour that water away, then save the cloudy second rinse and use it for half the water in step 2. The loose starch it carries thickens the broth very slightly, so the grainy doenjang stays suspended instead of settling as silt at the bottom of the pot, and that extra body rounds off the paste's salty, sharp edges.
+
+## Swaps
+
+### Gluten-free
+- Many doenjang and gochujang brands contain wheat. Choose a doenjang labelled gluten-free and either leave out the gochujang or use one labelled gluten-free; the anchovies, kelp, gochugaru, tofu and vegetables are fine as they are.
+- Check the banchan you serve alongside too, since many are seasoned with soy sauce.
+
+### Plant-based
+- Use the vegetarian stock from Variations (kelp and 4 dried shiitake, simmered for 20 minutes), which is also vegan, and add the oyster or shiitake mushrooms to bring back some savouriness. It's lighter, but still unmistakably doenjang jjigae.
+- Check the doenjang label, as some ready-seasoned stew pastes include anchovy or other seafood, and remember that kimchi and other banchan are often made with fish sauce or salted shrimp.
+
+### High-protein
+- Double the tofu to 600 g (firm holds up best): about 6–10 g more protein a bowl, depending on the tofu, on top of the roughly 10 g it has as written.
+- Follow the meat variation with 300 g thinly sliced beef brisket: about 14 g more a bowl.
+- Add 200 g peeled raw prawns with the tofu and simmer until pink and opaque: about 10 g more a bowl.
 
 ## Tips
 - **Clean the anchovies.** Pull off the heads and split the bodies to remove the dark gut: both make the stock bitter. Toasting them briefly drives off the fishy edge.

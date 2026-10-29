@@ -32,3 +32,12 @@
 /api/*
   Cache-Control: no-store
   X-Robots-Tag: noindex, nofollow
+
+/guides/*
+  Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
+
+/sitemap*.xml
+  Cache-Control: public, max-age=300, s-maxage=3600
+
+/llms-full.txt
+  Cache-Control: public, max-age=300, s-maxage=3600

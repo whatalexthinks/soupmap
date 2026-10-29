@@ -16,7 +16,13 @@ difficulty: project
 serves: 4
 active: 90
 total: 300
+prep: 40
+cook: 250
+richness: 9
+spice: 1
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: anatomy-of-a-bowl
 map: /map/?q=tori+paitan
 mapLabel: Find tori paitan shops on the map
@@ -94,6 +100,24 @@ Where people go wrong is the heat. A polite simmer gives you a thin, greasy soup
 14. Bring a large pot of water, at least 4 l, to a rolling boil and fill the serving bowls with hot water to warm them. Empty the bowls and put 2 tbsp tare and 1 tbsp aroma oil in each.
 15. Drop the noodles into the boiling water and cook as the packet says, usually 1–2 minutes for medium-thin noodles. While they cook, pour about 350 ml of steaming soup into each bowl and stir; taste one and add up to 1/2 tbsp more tare if it needs it.
 16. Drain the noodles, shaking hard to get rid of the water, and fold them into the soup. Top with sliced chashu, menma, spring onion and a piece of nori, and serve at once.
+
+## Restaurant secret
+
+Cook to a concentration, not a clock. How fast the broth reduces depends on your pot and burner, but what holds the emulsion together is how much gelatin and dissolved protein each litre carries: too dilute and the fat drifts back to the surface, too concentrated and it turns pasty. Some ramen shops in Japan measure their broth with a refractometer for exactly this reason. At home, the target of about 1.6 l from this weight of bones, plus the sticky-fingertips test, does the same job.
+
+## Swaps
+
+### Gluten-free
+- Ramen noodles are made from wheat, so you'll need noodles labelled gluten-free, such as rice or rice-and-millet ramen-style noodles. They're softer and lack the springy bite of alkaline wheat noodles, so it's a gluten-free chicken paitan rather than quite the same bowl.
+- The broth, shio tare and aroma oil are free of gluten, but check that the mirin is labelled gluten-free. Menma is usually seasoned with soy sauce, so use plain bamboo shoots or one labelled gluten-free, and if you make the shoyu tare, use tamari labelled gluten-free.
+
+### Plant-based
+- There's no vegan version of this broth: paitan is chicken collagen and fat boiled into an emulsion. The nearest plant-based bowl is a soy-milk ramen. Warm equal parts unsweetened soy milk and kombu-shiitake dashi without letting it boil, season it with the shio tare made without the katsuobushi, and swap the aroma oil for one made by frying the spring onion greens and garlic in neutral oil alone.
+- Top it with sliced fried tofu instead of chashu, and check the noodle label, as some ramen noodles contain egg.
+
+### High-protein
+- Poach a third chicken breast (about 275 g) with the other two in step 10: about 14 g more protein a bowl, on top of the roughly 25 g the chashu already gives.
+- Add an *ajitama* (see Variations) to each bowl for about 6 g more.
 
 ## Tips
 - **Keep it at a rolling boil.** The emulsion only forms with real violence in the pot. Top up with boiling water from the kettle, never cold, which stalls the boil.

@@ -16,7 +16,13 @@ difficulty: easy
 serves: 4
 active: 35
 total: 80
+prep: 10
+cook: 45
+richness: 2
+spice: 3
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: three-great-udon
 map: /map/?q=udon
 mapLabel: Find udon shops on the map
@@ -74,6 +80,24 @@ What people usually get wrong is the tofu. Skip the quick scald that strips its 
 ### Cook the noodles and serve
 9. Cook the udon in the boiling water until hot through and tender: 1–1 1/2 minutes for frozen (straight from the freezer), or as the packet says for fresh, usually 8–12 minutes, until there's no white core when you bite one. Drain well, shaking out as much water as you can.
 10. Empty the bowls and divide the noodles between them. Ladle about 400 ml of broth over each, then lay two tofu triangles on top with a spoonful of their syrup. Add the kamaboko and spring onion and serve at once, with shichimi on the table.
+
+## Restaurant secret
+Many Kansai udon shops build their dashi on a blend of flakes rather than katsuobushi alone, often adding mackerel (*saba-bushi*) or round herring. Mackerel flakes are cut thicker and come from an oilier fish, so they give a rounder, fuller depth, but only after a few minutes' simmer, while fine katsuobushi turns harsh if it's pushed that long. Adding them in stages gets the best from both, and in a broth seasoned this lightly, the dashi has to do the work.
+
+## Swaps
+
+### Gluten-free
+- **Udon is a wheat noodle,** so a gluten-free bowl is no longer really kitsune udon. The nearest options are 100% buckwheat soba labelled gluten-free (kitsune soba, see Variations) or thick rice noodles labelled gluten-free; neither has udon's soft, springy chew.
+- **Replace both soy sauces with tamari labelled gluten-free:** 2 tbsp in the tofu syrup, and 3 tbsp plus an extra 1/2 tsp salt in place of the usukuchi. The broth will be darker, more like a Tokyo bowl.
+- **Leave out the kamaboko** unless it's labelled gluten-free (many fish cakes contain wheat starch), and check the aburaage, mirin and shichimi labels. Ready-seasoned inari tofu is usually made with regular soy sauce, so skip that shortcut.
+
+### Plant-based
+- **Make a kombu-shiitake dashi.** Soak 25 g kombu and 8 dried shiitake (about 25 g) in the 2.4 l cold water in the fridge for at least 5 hours, then warm it slowly, lift out the kombu before it boils and simmer the shiitake gently for 5 minutes before straining. Use it for the tofu and the broth. It's earthier and softer than bonito dashi: a gentler bowl, but a good one.
+- **Leave out the kamaboko,** which is made from fish, and don't use bought noodle-soup base or dashi powder, which usually contain bonito. The udon, aburaage, soy sauces, mirin and shichimi are normally plant-based, but check the labels on packaged noodles and tofu.
+
+### High-protein
+- **Add an egg:** a halved soft-boiled egg on each bowl adds about 6 g protein.
+- **Simmer in some chicken:** slice 300 g boneless chicken thigh thinly and simmer it in the seasoned broth until cooked through with no pink inside, 5–6 minutes, before ladling. About 14 g more protein per bowl.
 
 ## Tips
 - **Don't skip the scald.** The oil on the surface of aburaage keeps the seasoning out. With it gone, the tofu soaks up the syrup like a sponge and releases it into the broth as you eat.

@@ -1,8 +1,10 @@
 import type { Shop } from '../data/schema.ts';
-import { isIndexableShop } from '../data/indexation.ts';
-import { displayName } from '../names.ts';
+import { isIndexableShop, isEditorial } from '../data/indexation.ts';
+import { displayName, hasJapanese } from '../names.ts';
 import { cuisineOf } from '../cuisines.ts';
 import { commerceFor, canonicalProfile } from './config.ts';
+
+export const schemaName = (shop: Shop): string => isEditorial(shop) || !hasJapanese(shop.name) ? displayName(shop, 'en') : shop.nameJa;
 
 /** Never derive stars from Google UI, menu data from a broad category, or an award from payment. */
 export function restaurantSchema(shop: Shop): Record<string, unknown> {
@@ -11,7 +13,7 @@ export function restaurantSchema(shop: Shop): Record<string, unknown> {
   const rating = commerce?.rating;
   return {
     '@type': 'Restaurant', '@id': curated ? `${canonicalProfile(shop)}#restaurant` : `/catalog/?place=${shop.slug}#restaurant`,
-    name: displayName(shop, 'en'), alternateName: shop.nameJa,
+    name: schemaName(shop), alternateName: shop.nameJa,
     ...(curated ? { url: canonicalProfile(shop), description: shop.blurb,
       hasMenu: { '@type': 'Menu', name: 'Soupmap guide to the menu', hasMenuItem: {
         '@type': 'MenuItem', name: shop.signatureBowl,
@@ -30,6 +32,6 @@ export function absoluteSchema(value: unknown, origin: string): unknown {
   if (Array.isArray(value)) return value.map(item => absoluteSchema(item, origin));
   if (!value || typeof value !== 'object') return value;
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key,
-    ['url', '@id'].includes(key) && typeof item === 'string' && item.startsWith('/')
+    ['url', '@id', 'item'].includes(key) && typeof item === 'string' && item.startsWith('/')
       ? new URL(item, origin).href : absoluteSchema(item, origin)]));
 }

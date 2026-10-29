@@ -16,7 +16,13 @@ difficulty: easy
 serves: 4
 active: 45
 total: 70
+prep: 25
+cook: 40
+richness: 3
+spice: 3
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: nabe-and-shime
 ---
 
@@ -81,6 +87,26 @@ The mistake to avoid is putting everything in at once. Add ingredients in order 
 11. When most of the ingredients have been eaten, scoop out any last bits and skim the broth. You want about 800 ml left in the pot, so top up with water or reserved broth if needed, and taste: it should be well seasoned but not salty, because it reduces further as the rice cooks.
 12. Put the rice in a sieve and rinse it under cold water to wash off its surface starch, which keeps the porridge loose rather than gluey (the thicker, unrinsed version is called *ojiya*). Add it to the simmering broth and cook until the grains have swelled and taken on the broth, 3–4 minutes, then season with salt if it needs it.
 13. Pour the beaten egg over the surface in a thin circle, cover and cook over low heat for 1 minute, then turn off the heat and leave covered until the egg has just set, 1–2 minutes. Scatter with the spring onion and ladle into small bowls.
+
+## Restaurant secret
+
+Salt, then scald. Ten minutes under salt draws moisture to the surface of the fish, and with it some of the trimethylamine that makes fish smell fishy. Boiling water poured over the fish and chicken then sets their surfaces, fixing loose blood and proteins that would otherwise leach out as grey scum, and the cold rinse washes the lot away. The name *shimofuri*, "falling frost", comes from the white surface it leaves. It's why the broth still tastes clean and looks clear on the last round.
+
+## Swaps
+
+### Gluten-free
+- Use tamari labelled gluten-free instead of the soy sauce: start with 3 tbsp and add more to taste, as it's often a little stronger. Check the mirin, sake and shichimi labels too.
+- Finish with the zosui rather than the udon shime, since udon is wheat. The chicken tsukune in the Variations contain no gluten ingredients; check the potato starch label.
+
+### Plant-based
+- The kombu broth and its seasoning are already plant-based. Soak 4 dried shiitake with the kombu for a deeper kombu-shiitake dashi, to stand in for the flavour the chicken and seafood would add.
+- Leave out the chicken, fish, prawns and clams. Use two blocks of firm tofu instead of one, and add a block of *atsuage* (thick deep-fried tofu, about 200 g, cut into 8) and 200 g shimeji or maitake mushrooms with the first round. It becomes a gentler tofu-and-vegetable nabe.
+- Make the zosui without egg, or stir in 150 g silken tofu, broken into pieces, in its place.
+
+### High-protein
+- It's already high in protein: roughly 50 g per person over the whole meal, from the chicken, fish, prawns, tofu and egg.
+- Add the chicken tsukune from the Variations: about 14 g more per person.
+- Add a second 400 g block of firm tofu: about 12 g more per person.
 
 ## Tips
 - **Go in order, in small batches.** Hard vegetables and chicken first, delicate seafood and greens last. A crowded pot drops off the simmer, so the first things overcook while the last are still raw.

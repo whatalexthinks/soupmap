@@ -18,7 +18,13 @@ difficulty: easy
 serves: 6
 active: 40
 total: 70
+prep: 15
+cook: 50
+richness: 6
+spice: 3
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Mulligatawny is a soup with two homes. Its name comes from the Tamil *milagu thanni*, "pepper water", a thin, peppery broth from South India. In the kitchens of British colonial India it became something heartier: thickened with lentils, sweetened with apple, spiced like a curry and often made with chicken. That Anglo-Indian version travelled to Britain, where it had become a familiar dish by the early nineteenth century.
@@ -68,6 +74,22 @@ The step that makes or breaks it is toasting the ground spices in the oil. A min
 6. Blend the soup until smooth with a stick blender, or in batches in a jug blender (fill it no more than half full and hold the lid down with a folded tea towel). Stir in the coconut milk and shredded chicken and bring back to a gentle simmer for 5 minutes. Don't let it boil hard, or the coconut milk may separate.
 7. Add 2 tbsp of the lemon juice, then taste and add more salt and lemon until the soup tastes bright and peppery rather than heavy. It should be about as thick as single (light) cream; loosen it with a little hot water if needed.
 8. Spoon some rice into each warm bowl, ladle the soup over, scatter with coriander leaves and serve with lemon wedges.
+
+## Restaurant secret
+The spices go into the oil, not the stock, and that's the difference. Much of the flavour in ground coriander, cumin and black pepper is carried by aromatic compounds that dissolve in fat far better than in water. A minute of gentle heat drives off their raw, dusty edge and moves those aromas into the oil, which then coats every spoonful; turmeric's colour is fat-soluble too, which is why the oil turns golden. Stirred straight into stock, the same spices taste flat and powdery.
+
+## Swaps
+
+### Gluten-free
+- **Already gluten-free as written.** Check that the stock and the garam masala are labelled gluten-free, and pick over the lentils for the odd stray grain of wheat or barley before rinsing. If you serve bread alongside, make it gluten-free bread.
+
+### Plant-based
+- **Follow the Vegan variation:** leave out the chicken, use vegetable stock (check the label: some stock cubes contain milk) and add 50 g more red lentils. With oil and coconut milk, the soup is then vegan; it's softer, more of a spiced lentil soup.
+- **Add chickpeas for bite:** stir a drained 400 g tin of chickpeas in with the coconut milk, in place of the shredded chicken.
+
+### High-protein
+- **Use 800 g chicken thighs** instead of 500 g: about 9 g more protein per bowl. They need the same 25 minutes; check the thickest one is cooked through.
+- **Add chickpeas:** each drained 400 g tin (about 240 g) stirred in with the coconut milk adds roughly 3 g per bowl.
 
 ## Tips
 - Choose a sharp apple, such as a cooking apple or a tart green eating apple. A sweet one makes the soup cloying; a sharp one gives the gentle sweet-sour balance that makes mulligatawny taste like itself.

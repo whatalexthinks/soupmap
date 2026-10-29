@@ -20,7 +20,13 @@ difficulty: easy
 serves: 4
 active: 20
 total: 30
+prep: 10
+cook: 18
+richness: 1
+spice: 5
+comfort: 7
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Rasam* is the thin, sour, peppery soup of South India, made in some form across Tamil Nadu, Kerala, Karnataka (where it's called *saaru*) and Andhra Pradesh (*chaaru*). It's usually mixed into rice as one course of a meal, after *sambar* (a thicker lentil and vegetable stew), but it's just as good sipped hot from a cup. The Anglo-Indian [mulligatawny](/recipes/mulligatawny/) takes its name from the Tamil *milagu thanni*, "pepper water", a close relation.
@@ -70,6 +76,22 @@ The one rule: once the ground spices are in, don't let the rasam boil hard. Heat
 ### Temper and serve
 6. Heat the oil in a small pan over medium-high heat. Add the mustard seeds and, when they start to pop, after about 30 seconds, add the cumin seeds, broken chilli and 10 curry leaves; stand back, as the leaves spit. Stir for a few seconds until the cumin darkens slightly, add the asafoetida, then pour the sizzling tadka straight over the rasam.
 7. Scatter over the coriander leaves, cover the pan and leave it for 1 minute so the aroma stays in the pot. Serve hot, in cups or ladled over plain rice.
+
+## Restaurant secret
+
+Tamil cooks watch for *nurai*, the froth that rises and spreads across rasam just before it boils, and turn off the heat the moment it covers the surface. Much of the aroma of fresh-ground pepper, cumin and coriander lives in volatile oils that steam carries away, the same way essential oils are distilled. At a gentle froth the raw edge of the spices cooks off; at a rolling boil their perfume leaves with the steam, and the rasam tastes flat and dusty.
+
+## Swaps
+
+### Gluten-free
+- Already gluten-free as written, as long as the asafoetida is labelled gluten-free: compounded hing is often cut with wheat flour (see Tips). If you use a bought rasam powder, check its label too, since many blends contain asafoetida.
+
+### Plant-based
+- Already vegan as written. The ghee tadka in the Variations isn't, so keep to oil.
+
+### High-protein
+- Rasam is meant to be thin and sharp, so most of the protein belongs beside it rather than in it. Stirring 200 g cooked, mashed *toor dal* (split pigeon peas) into the pot in step 5 makes a thicker paruppu rasam and adds about 3–4 g per bowl.
+- Serve it over rice alongside a dal or *sambar*, or with chickpea *sundal* (boiled chickpeas tempered with mustard seed and curry leaves) on the side: 100 g cooked chickpeas per person adds about 9 g.
 
 ## Tips
 - **Check your asafoetida.** Most asafoetida powder is "compounded": the resin is ground with flour so it can be measured, and that flour is very often wheat. Buy one labelled gluten-free (cut with rice flour or another gluten-free starch). The rasam is gluten-free only if your asafoetida is. Without it, the soup loses some of its savoury, oniony depth but is still good.
