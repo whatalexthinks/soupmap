@@ -115,6 +115,8 @@
 .r-diets { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
 .r-diets a { padding: 4px 12px; border: 1px solid var(--hair); border-radius: 999px; font: 600 12px var(--sans); text-decoration: none; color: var(--sumi-2); }
 .r-actions, .r-actions-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.r-made-it { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 16px; border: 1px solid var(--shu); border-radius: 14px; background: var(--r-card); font-family: var(--sans); }
+.r-made-it p { flex: 1 1 220px; margin: 0; font-size: 15px; }
 .r-head__art { position: relative; margin: 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 16px; background: var(--stone); }
 .r-head__art .r-art__mark { font-size: clamp(48px, 8vw, 96px); }
 .r-head__art .r-art__mark.is-long { font-size: clamp(30px, 5vw, 56px); }

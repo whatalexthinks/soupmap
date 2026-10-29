@@ -31,6 +31,7 @@ export function homeCityHtml(slug = 'tokyo'): string {
     <h3 id="city-name">${esc(city.name)}<span lang="ja">${esc(city.nameJa)}</span></h3>
     <p class="city-summary__note">${esc(notes[city.slug] ?? 'Find your own way in.')}</p></div>
     <a class="home-text-link" href="/city/${city.slug}/">View city directory <span aria-hidden="true">↗</span></a>
+    <a class="home-text-link" href="${city.slug === 'tokyo' ? '/guides/' : `/guides/city/${city.slug}/`}">${city.slug === 'tokyo' ? 'City guides, ward by ward' : `${esc(city.name)} by style`} <span aria-hidden="true">↗</span></a>
   </div>
   <div class="city-places"><div class="city-places__heading"><span>PLACES TO START</span><span>${String(places.length).padStart(2,'0')}</span></div>
     <ol>${places.map((shop, i) => `<li><a href="${esc(profileUrl(shop))}">

@@ -18,6 +18,8 @@ export interface CatalogPage {
   structuredData: Record<string, unknown>;
   /** Set by the quality gate (src/seo/quality.ts); index,follow when absent. */
   robots?: string;
+  /** Site path of this page's share card; the site-wide card when absent. */
+  image?: string;
 }
 
 /** schema.org links (`url`, `item`) are written site-relative; documents need them absolute. */
@@ -156,9 +158,9 @@ export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: 
     <link rel="canonical" href="${esc(canonical)}"><meta name="robots" content="${esc(page.robots ?? "index,follow")}">
     <meta property="og:type" content="website"><meta property="og:site_name" content="Soupmap">
     <meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}">
-    <meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(siteUrl)}/social/soupmap-world.png">
+    <meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(siteUrl)}${esc(page.image ?? "/social/soupmap-world.png")}">
     <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}">
-    <meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${esc(siteUrl)}/social/soupmap-world.png">
+    <meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${esc(siteUrl)}${esc(page.image ?? "/social/soupmap-world.png")}">
     <link rel="icon" href="/favicon.svg">${(typeof stylesheet === "string" ? [stylesheet] : stylesheet).map(href => `<link rel="stylesheet" href="${esc(href)}">`).join("")}
     <script type="application/ld+json">${json}</script>${script ? `<script type="module" src="${esc(script)}"></script>` : ""}</head><body class="directory-page">
     <a class="skip-link" href="#main">Skip to content</a>

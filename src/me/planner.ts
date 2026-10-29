@@ -126,7 +126,8 @@ function score(shop: Shop, input: TripInput, saved: ReadonlySet<string>): Candid
   const reasons: string[] = [];
   let value = seeded(input.seed, shop.slug) * 1.5;
   if (isEditorial(shop)) { value += 8; reasons.push("Editor's pick"); }
-  if (saved.has(shop.slug)) { value += 6; reasons.push("You saved it"); }
+  // Your own saves outrank our picks: it's your trip.
+  if (saved.has(shop.slug)) { value += 9; reasons.push("You saved it"); }
   const matched = input.cravings.map(id => cravingById.get(id)).filter((c): c is Craving => !!c?.matches(shop));
   value += Math.min(matched.length, 2) * 4;
   if (input.cravings.length && !matched.length) value -= 5;
@@ -176,13 +177,13 @@ export function planTrip(shops: readonly Shop[], input: TripInput, saved: Readon
     && !(input.skipVisited && visited.has(shop.slug)));
   const ranked = pool.map(shop => score(shop, input, saved)).sort((a, b) => b.score - a.score);
   const used = new Set<Candidate>();
-  // Days start from the strongest places; the rest of each day comes from anywhere near that start.
-  const starts = ranked.slice(0, Math.max(days * 8, 24));
+  // Days start from the strongest places, your saves first; the rest of each day comes from near that start.
+  const starts = [...new Set([...ranked.filter(c => saved.has(c.shop.slug)), ...ranked.slice(0, Math.max(days * 8, 24))])];
   const seeds: Shop[] = [];
   const planned: PlannedDay[] = [];
   for (let d = 0; d < days; d++) {
     // Start each day somewhere new: prefer strong shops away from earlier days' starts.
-    const startScore = (c: Candidate) => c.score - (seeds.some(s => distanceMeters(s, c.shop) < 1500) ? 6 : 0);
+    const startScore = (c: Candidate) => c.score + (saved.has(c.shop.slug) ? 20 : 0) - (seeds.some(s => distanceMeters(s, c.shop) < 1500) ? 6 : 0);
     const start = starts.filter(c => !used.has(c)).reduce<Candidate | undefined>((best, c) => !best || startScore(c) > startScore(best) ? c : best, undefined);
     if (!start) break;
     seeds.push(start.shop);

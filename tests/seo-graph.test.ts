@@ -6,16 +6,24 @@ import { join } from "node:path";
 import express from "express";
 import { kanaToRomaji, placeName } from "../scripts/lib/kana.ts";
 import { parseLocalGov, stem } from "../scripts/build-municipalities.ts";
-import { MUNICIPALITIES, municipalityOf } from "../src/data/municipalities.ts";
-import { ORDERED_SHOPS, type Shop } from "../src/data/shops.ts";
+import { MUNICIPALITIES, municipalityByCode, municipalityOf } from "../src/data/municipalities.ts";
+import { CURATED_SHOPS, OPEN_SHOPS, ORDERED_SHOPS, type Shop } from "../src/data/shops.ts";
+import { CITIES } from "../src/data/cities.ts";
+import { isIndexableShop } from "../src/data/indexation.ts";
 import { buildGuides, guidePlace, matchesStyle, GUIDE_STYLES, type Guide } from "../src/guides/model.ts";
-import { guideSite, indexEligible, STYLE_ESSAYS } from "../src/render/guides.ts";
+import { parseGuideIntro, validateGuideIntros } from "../src/guides/intros.ts";
+import { loadGuideIntros } from "../src/guides/load-intros.ts";
+import { guideSite, indexEligible, plannerArea, STYLE_ESSAYS } from "../src/render/guides.ts";
+import { catalogDocument } from "../src/render/catalog.ts";
+import { cardSvg, wrap } from "../src/seo/cards.ts";
+import { guideCardPath, recipeCardPath } from "../src/seo/share.ts";
+import { stylesHtml } from "../src/ui/shop-details.ts";
 import { RECIPE_LINKS, recipeForShop, recipeForStyle } from "../src/recipes/catalog-links.ts";
 import { placesForRecipe, PLACES_SHOWN } from "../src/recipes/places.ts";
 import { affiliateConfig, buyLink } from "../src/recipes/pantry.ts";
 import { checkCost, checkNutrition, loadRecipes } from "../src/recipes/load.ts";
 import { loadJournal } from "../src/journal/load.ts";
-import { recipeDetailPage } from "../src/render/recipes.ts";
+import { recipeDetailPage, recipesHead } from "../src/render/recipes.ts";
 import { profileHtml } from "../src/render/directory.ts";
 import { assessPages, robotsFor, structuredAttributes, type QualityInput } from "../src/seo/quality.ts";
 import { sitemapFiles, type SitemapEntry } from "../src/seo/site.ts";
@@ -266,3 +274,88 @@ test("every recipe's restaurant secret and swaps reach the page", () => {
 
 // Keep a reference to the guide type so editors see what the fixtures are.
 export type { Guide };
+
+// ── Round two: editorial intros, more selections, share cards, planner links ──
+const INTRO = (dek: string, body: string, extra = "") => `---\ndek: ${dek}\nupdated: 2026-10-29\n---\n${body}\n${extra}`;
+const WORDS = "Ramen arrived here after the war and the city made it its own with a local broth. ".repeat(8);
+
+test("guide intros: the format is checked, and every intro sits on a real, indexable guide", () => {
+  const dek = "A clear soy bowl from a mountain town, seasoned in the pot rather than the bowl.";
+  assert.equal(parseGuideIntro("ramen-in-takayama", INTRO(dek, WORDS, "## Know before you go\n- Go early.\n")).tips.length, 1);
+  assert.throws(() => parseGuideIntro("takayama", INTRO(dek, WORDS)), /<style>-in-<city>/);
+  assert.throws(() => parseGuideIntro("ramen-in-x", INTRO("Too short.", WORDS)), /dek must be 60–200/);
+  assert.throws(() => parseGuideIntro("ramen-in-x", INTRO(dek, `The best ramen in town. ${WORDS}`)), /don't rank them/);
+  assert.doesNotThrow(() => parseGuideIntro("ramen-in-x", INTRO(dek, `One of the best-known ramen towns. ${WORDS}`)));
+  assert.throws(() => parseGuideIntro("ramen-in-x", INTRO(dek, WORDS, "## History\n- x\n")), /only section/);
+  assert.throws(() => parseGuideIntro("ramen-in-x", INTRO(dek, "Too few words here.")), /120–260 words/);
+  assert.throws(() => parseGuideIntro("ramen-in-x", INTRO(dek, WORDS, `## Know before you go\n${"- a\n".repeat(5)}`)), /up to 4 bullets/);
+  const broken = parseGuideIntro("ramen-in-x", INTRO(dek, `${WORDS} See [this](/recipes/not-a-recipe/).`));
+  assert.deepEqual(validateGuideIntros([broken], new Set(["ramen-in-y"]), new Set(["/recipes/shoyu-ramen/"])),
+    ["ramen-in-x: no guide at /guides/ramen-in-x/ (renamed, or too few places now)", "ramen-in-x: link to missing page /recipes/not-a-recipe/"]);
+
+  const intros = loadGuideIntros();
+  assert.ok(intros.length >= 50, `${intros.length} intros`);
+  const bySlug = new Map(guides.map(g => [g.path.slice("/guides/".length, -1), g]));
+  for (const intro of intros) {
+    const guide = bySlug.get(intro.slug);
+    assert.ok(guide && indexEligible(guide), `${intro.slug} is an indexable guide`);
+  }
+  const pages = guideSite(guides, { articles: new Map(articles.map(a => [a.slug, a.title])), lastmod: "2026-10-18", intros: new Map(intros.map(i => [i.slug, i])) });
+  const page = pages.find(p => p.path === "/guides/ramen-in-sapporo/")!;
+  const intro = intros.find(i => i.slug === "ramen-in-sapporo")!;
+  assert.ok(page.description.startsWith(intro.dek) && page.description.length <= 300);
+  assert.match(page.content, /class="guide-intro"[\s\S]*By the Soupmap editors · Updated 29 October 2026[\s\S]*Know before you go/);
+  assert.equal((page.structuredData as { abstract?: string }).abstract, intro.dek);
+  assert.equal(page.lastmod, "2026-10-29", "an intro newer than the catalog moves lastmod");
+  const verdicts = assessPages(pages.map(p => p.quality));
+  for (const i of intros) assert.equal(verdicts.get(`/guides/${i.slug}/`)!.indexable, true, i.slug);
+});
+
+test("Soupmap selections: each is a full page, in a real municipality, listed once", () => {
+  assert.ok(CURATED_SHOPS.length >= 35);
+  const promoted = new Set(CURATED_SHOPS.map(s => s.sourceId));
+  assert.equal(OPEN_SHOPS.filter(s => promoted.has(s.sourceId)).length, 0, "no open-data duplicate of a selection");
+  for (const shop of CURATED_SHOPS) {
+    assert.ok(isIndexableShop(shop), shop.slug);
+    assert.equal(shop.verified, false, `${shop.slug}: verified only after a person checks it`);
+    assert.equal(shop.priceYen, null, `${shop.slug}: no guessed prices`);
+    if (!CITIES.some(c => c.name === shop.city)) {
+      const place = municipalityByCode.get(shop.cityCode);
+      const named = place?.parent ? municipalityByCode.get(place.parent) : place;
+      assert.equal(named?.name, shop.city, `${shop.slug}: city matches cityCode ${shop.cityCode}`);
+    }
+    assert.ok(!/not verified|unknown/i.test(`${shop.blurb} ${shop.signatureBowl}`), shop.slug);
+  }
+  // Selections lead the guides they belong to.
+  const yokohama = guides.find(g => g.path === "/guides/iekei-ramen-in-yokohama/")!;
+  assert.equal(yokohama.shops[0]!.slug, "yoshimuraya-yokohama");
+  // Their styles come from our notes, not from guessing at the name.
+  assert.match(stylesHtml(yokohama.shops[0]!), /From our notes on this place/);
+  assert.match(OPEN_SHOPS.map(stylesHtml).find(Boolean)!, /Suggested by the shop's name/);
+});
+
+test("share cards: wrapped text as paths, Japanese set vertically, and pages point at their card", () => {
+  const lines = wrap(["@fontsource-variable/instrument-sans/files/instrument-sans-latin-standard-normal.woff2"], "word ".repeat(80), 23, 300, 3);
+  assert.equal(lines.length, 3);
+  assert.ok(lines[2]!.endsWith("…"));
+  const svg = cardSvg({ kicker: "Recipe · Vietnam", title: "Phở bò", lede: "A clear, spiced beef broth.", footer: "Prep 30 min", mark: "フォー", site: "soupmap.com/recipes" });
+  assert.match(svg, /^<svg[^>]+width="1200" height="630"/);
+  assert.ok((svg.match(/<path transform=/g) ?? []).length > 40, "text is drawn as glyph paths");
+  assert.match(svg, /rotate\(90/, "the long-vowel mark turns in vertical text");
+  const recipe = recipeBySlug.get("miso-ramen")!;
+  const page = { ...recipeDetailPage(recipe, recipes), image: recipeCardPath(recipe.slug) };
+  assert.match(recipesHead(page, "https://s.example", recipes), /og:image" content="https:\/\/s\.example\/social\/recipes\/miso-ramen\.png"/);
+  const guidePage = { path: "/guides/x/", title: "T", description: "D", content: "", structuredData: { "@type": "CollectionPage" }, image: guideCardPath("x") };
+  assert.match(catalogDocument(guidePage, "https://s.example", "/a.css"), /og:image" content="https:\/\/s\.example\/social\/guides\/x\.png"/);
+});
+
+test("'Plan a day here' opens the planner on the guide's city, or a prefecture with enough places", () => {
+  const place = (path: string) => guides.find(g => g.path === path)!.place;
+  const plannable = new Set(["Fukuoka", "Kagawa"]);
+  assert.equal(plannerArea(place("/guides/ramen-in-shinjuku/"), plannable), "city:tokyo");
+  assert.equal(plannerArea(place("/guides/ramen-in-sapporo/"), plannable), "city:sapporo");
+  assert.equal(plannerArea(place("/guides/ramen-in-kurume/"), plannable), "pref:Fukuoka");
+  assert.equal(plannerArea(place("/guides/ramen-in-asahikawa/"), plannable), undefined, "no link when the prefecture isn't plannable");
+  const pages = guideSite(guides, { articles: new Map(), lastmod: "2026-10-18", plannable });
+  assert.match(pages.find(p => p.path === "/guides/udon-in-takamatsu/")!.content, /href="\/me\/\?area=pref%3AKagawa#plan">Plan a day here/);
+});

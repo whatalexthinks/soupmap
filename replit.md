@@ -94,6 +94,8 @@
 
 - `/guides/` is generated at build time from the catalog and `src/data/municipalities.json` (refresh with `npm run data:municipalities`). A quality gate marks thin pages `noindex` and keeps them out of the sitemaps; the build log prints the counts.
 - Search Console: keep `/sitemap.xml` submitted (it now serves the sitemap index) or submit `/sitemap_index.xml`. Both work.
+- Guide intros are Markdown in `content/guides/<style>-in-<city>.md` (rules: `content/guides/README.md`). Facts only, no rankings, prices, hours or invented visits; the build fails on a broken link. First-hand notes from a visit are the best thing to add next.
+- Recipes, guides with intros and indexable style hubs get their own share images (`/social/recipes/…`, `/social/guides/…`), drawn at build time. Nothing to configure.
 - **IndexNow:** add the secret `INDEXNOW_KEY` (8–128 letters, digits or dashes) and apply `migrations/003_indexnow.sql` to the development database. Each publish then submits new or changed URLs to Bing and other IndexNow engines 30 seconds after start. Optional: `INDEXNOW_ADMIN_TOKEN` (24+ characters) to submit by hand with `POST /api/indexnow`; `INDEXNOW_AUTO=off` to pause automatic submission.
 
 ## Lockfile

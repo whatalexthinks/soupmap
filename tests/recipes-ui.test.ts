@@ -176,6 +176,35 @@ test("on a recipe: 2× and 4× batches, steps crossed off, and swap tabs", () =>
   assert.deepEqual(panels.map(p => p.hidden), [false, true, true], "wraps round to the first tab");
 });
 
+test("finishing cook mode invites a rating once; 'Done cooking' part-way doesn't", async () => {
+  const recipe = recipes.find(r => r.slug === "miso-soup")!;
+  const { doc, $ } = open(`/recipes/${recipe.slug}/`);
+  setupRecipe(doc);
+  const cook = $("#r-cook");
+  ($("[data-action=cook]") as HTMLButtonElement).click();
+  await tick();
+  (cook.querySelector("[data-cook=close]") as HTMLButtonElement).click();
+  assert.equal(doc.querySelector(".r-made-it"), null, "leaving early isn't finishing");
+  ($("[data-action=cook]") as HTMLButtonElement).click();
+  await tick();
+  for (let i = 1; i < recipe.stepCount; i++) (cook.querySelector("[data-cook=next]") as HTMLButtonElement).click();
+  const finish = cook.querySelector<HTMLButtonElement>("[data-cook=finish]")!;
+  assert.equal(finish.textContent, "Finish");
+  finish.click();
+  assert.equal(cook.hidden, true);
+  const prompt = $(".r-made-it");
+  assert.ok(prompt && prompt.previousElementSibling?.id === "r-actions", "the prompt sits under the recipe's actions");
+  assert.match(prompt.textContent!, /Made it\?/);
+  assert.equal(prompt.querySelector("a")!.getAttribute("href"), "#reviews");
+  (prompt.querySelector("[data-made-it=dismiss]") as HTMLButtonElement).click();
+  assert.equal(doc.querySelector(".r-made-it"), null);
+  // Once per tab: cooking it again doesn't ask again. (Cook mode reopens where you left off: the last step.)
+  ($("[data-action=cook]") as HTMLButtonElement).click();
+  await tick();
+  (cook.querySelector("[data-cook=finish]") as HTMLButtonElement).click();
+  assert.equal(doc.querySelector(".r-made-it"), null);
+});
+
 function reviewsApi(response: ReviewsResponse, calls: { url: string; method: string; body?: unknown }[] = []): typeof fetch {
   return (async (url: string, init: RequestInit = {}) => {
     calls.push({ url, method: init.method ?? "GET", ...(init.body ? { body: JSON.parse(String(init.body)) } : {}) });

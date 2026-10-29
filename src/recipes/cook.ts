@@ -193,7 +193,7 @@ export function setupRecipe(doc: Document): void {
   });
 
   // ── Actions: cook mode, save, print ──
-  const cookMode = new CookMode(doc, timers, title);
+  const cookMode = new CookMode(doc, timers, title, () => askForRating(doc, slug));
   const actions = doc.querySelector<HTMLElement>("#r-actions")!;
   actions.hidden = false;
   const save = actions.querySelector<HTMLElement>("[data-action=save]")!;
@@ -228,7 +228,7 @@ class CookMode {
   private readonly steps: HTMLElement[];
   private returnFocus: HTMLElement | null = null;
 
-  constructor(private readonly doc: Document, private readonly timers: Timers, private readonly title: string) {
+  constructor(private readonly doc: Document, private readonly timers: Timers, private readonly title: string, private readonly onFinish: () => void = () => {}) {
     this.dialog = doc.querySelector<HTMLElement>("#r-cook")!;
     this.steps = [...doc.querySelectorAll<HTMLElement>(".r-step")];
     this.dialog.addEventListener("click", e => {
@@ -236,6 +236,7 @@ class CookMode {
       if (action === "next") this.go(this.index + 1);
       if (action === "prev") this.go(this.index - 1);
       if (action === "close") this.close();
+      if (action === "finish") { this.close(); this.onFinish(); }
     });
     doc.addEventListener("keydown", e => {
       if (this.dialog.hidden) return;
@@ -283,9 +284,9 @@ class CookMode {
       <progress class="r-cook__progress" max="${this.steps.length}" value="${this.index + 1}">Step ${this.index + 1} of ${this.steps.length}</progress>
       <div class="r-cook__step">${group ? `<p class="j-eyebrow">${esc(group)}</p>` : ""}<p class="r-cook__text">${step.querySelector("p")!.innerHTML}</p></div>
       <div class="r-cook__nav"><button type="button" class="r-button" data-cook="prev"${this.index ? "" : " disabled"}>← Back</button>
-        <button type="button" class="r-button r-button--solid" data-cook="${this.index < this.steps.length - 1 ? "next" : "close"}">${this.index < this.steps.length - 1 ? "Next step →" : "Finish"}</button></div>
+        <button type="button" class="r-button r-button--solid" data-cook="${this.index < this.steps.length - 1 ? "next" : "finish"}">${this.index < this.steps.length - 1 ? "Next step →" : "Finish"}</button></div>
       <details class="r-cook__ings"><summary>Ingredients</summary>${ingredients.innerHTML}</details>`;
-    this.dialog.querySelector<HTMLElement>("[data-cook=next], [data-cook=close]")?.focus();
+    this.dialog.querySelector<HTMLElement>("[data-cook=next], [data-cook=finish]")?.focus();
   }
 }
 
@@ -322,4 +323,25 @@ export function setupTabs(doc: Document): void {
     e.preventDefault();
     select((next + tabs.length) % tabs.length, true);
   });
+}
+
+const promptKey = (slug: string) => `soupmap:recipes:rate-prompt:${slug}`;
+
+/** After cooking it through: a quiet invitation to rate, once per recipe per tab. */
+export function askForRating(doc: Document, slug: string): void {
+  try { if (sessionStorage.getItem(promptKey(slug))) return; sessionStorage.setItem(promptKey(slug), "1"); } catch { /* storage off: show it anyway */ }
+  const actions = doc.querySelector<HTMLElement>("#r-actions");
+  if (!actions || doc.querySelector(".r-made-it")) return;
+  const prompt = doc.createElement("aside");
+  prompt.className = "r-made-it";
+  prompt.setAttribute("role", "status");
+  prompt.innerHTML = `<p><strong>Made it?</strong> Rate it, or leave a tip for the next cook.</p>
+    <a class="r-button r-button--solid" href="#reviews">Rate this recipe</a><button type="button" class="r-link" data-made-it="dismiss" aria-label="Dismiss">Not now</button>`;
+  actions.after(prompt);
+  prompt.addEventListener("click", e => {
+    const target = e.target as Element;
+    if (target.closest("[data-made-it=dismiss]")) prompt.remove();
+    if (target.closest("a[href='#reviews']")) { trackEvent("recipe_rate_prompt"); prompt.remove(); }
+  });
+  trackEvent("recipe_cook_finished");
 }

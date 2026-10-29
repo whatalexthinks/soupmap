@@ -3,6 +3,15 @@
 .guide-crumbs a { color: var(--soot); text-underline-offset: 4px; }
 .guide-hero h1 { max-width: 18ch; }
 .guide-hero .directory-kicker span[lang="ja"] { letter-spacing: .04em; }
+.guide-count { max-width: 60ch; margin: 0; font-size: 14px; color: var(--muted); }
+.guide-intro { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); align-items: start; margin: 0 0 32px; }
+.guide-intro__text p { max-width: 66ch; margin: 0 0 14px; font-size: 16px; line-height: 1.7; }
+.guide-intro__text a { color: var(--soot); text-underline-offset: 4px; }
+.guide-intro__by { font-size: 12px !important; color: var(--muted); }
+.guide-intro__tips { padding: 20px 22px; background: var(--paper-light); border-top: 2px solid var(--clay); }
+.guide-intro__tips h2 { margin: 0 0 10px; font-family: var(--font-display); font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.guide-intro__tips ul { margin: 0; padding-left: 1.1em; font-size: 14px; line-height: 1.6; }
+.guide-intro__tips li { margin: 0 0 8px; }
 .guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin: 0 0 32px; }
 
 .guide-about { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); margin: 0 0 40px; padding: 28px 0; border-top: 2px solid var(--soot); border-bottom: 1px solid var(--rule); }
@@ -56,7 +65,7 @@
 .guide-prefecture { margin: 0; border-bottom: 1px solid var(--rule); }
 
 @media (max-width: 800px) {
-  .guide-about { grid-template-columns: 1fr; }
+  .guide-about, .guide-intro { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
   .guide-recipe { grid-template-columns: 1fr; }

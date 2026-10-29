@@ -128,6 +128,13 @@ export class Dashboard {
   private get data(): UserData { return this.ctx.data; }
 
   private restoreInput(): TripInput {
+    const input = this.storedInput();
+    // A city guide's "Plan a day here" links with ?area=city:sapporo or ?area=pref:Kagawa.
+    const linked = new URLSearchParams(location.search).get("area");
+    return linked && areaOptions(this.ctx.shops).some(a => a.id === linked) ? { ...input, area: linked } : input;
+  }
+
+  private storedInput(): TripInput {
     const places = [...this.data.saved, ...Object.keys(this.data.visits)].flatMap(s => this.ctx.bySlug.get(s) ?? []);
     const fallback: TripInput = { area: `city:${focusCity(places)}`, days: 2, perDay: 3, cravings: [], skipChains: true, skipVisited: true, seed: 1 };
     try {

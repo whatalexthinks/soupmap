@@ -262,12 +262,13 @@ collect bowls. It works fully without an account (everything stays in the browse
 better when signed in, using the existing `/api` lists endpoints. No server changes.
 
 - **Plan a trip**: choose a city or prefecture, days (1–7), bowls a day (1–4) and optional
-  cravings (tsukemen, niboshi, udon…). Saved places and editor's picks come first; each day
-  starts somewhere new and is filled with places within a walk (3 km, else 8 km), in a
+  cravings (tsukemen, niboshi, udon…). Your saved places come first (and start days), then
+  editor's picks; each day starts somewhere new and is filled with places within a walk (3 km, else 8 km), in a
   nearest-neighbour order. Every stop says why it was chosen ("Editor's pick", "Tsukemen,
   from the name", "Independent"). It never claims quality, hours or menus. Plans are
   deterministic per seed, so **Shuffle** rolls a new one, and they open on the map as
-  `/map/?collection=…`. Code: `src/me/planner.ts`.
+  `/map/?collection=…`. `/me/?area=city:sapporo#plan` or `?area=pref:Kagawa` opens the planner
+  on that area (city guides link this way; an unknown area is ignored). Code: `src/me/planner.ts`.
 - **Saved trips** (device), **saved places** (account when signed in, otherwise this browser)
   with **Mark visited**, and **account lists**. Signed in, a saved trip also becomes an
   account list (`POST /api/lists`, then `PUT /api/lists/:id/items`).
@@ -313,6 +314,8 @@ saved recipes, and reader reviews and tips.
   user ids in `RECIPE_MODERATORS` (comma-separated); they see hide/restore buttons on the page
   and the queue at `GET /api/recipes/moderation`. Schema: `migrations/002_recipe_reviews.sql`.
   Without a database the pages say reviews are unavailable; the recipe is unaffected.
+  Finishing cook mode asks once per tab, "Made it? Rate it, or leave a tip for the next
+  cook", linking to the reviews (`askForRating` in `src/recipes/cook.ts`).
 - **Photos**: only real photographs with a verified free licence. List choices in
   `content/recipes/photos.json` (`{"<slug>": {"file": "File:….jpg", "alt": "…"}}`) and run
   `npm run photos:recipes`. The script reads each licence from the Wikimedia Commons API,
@@ -354,6 +357,15 @@ saved recipes, and reader reviews and tips.
   Sanuki udon. Each lists up to 24 places (Soupmap selections first), links the rest in the
   catalog, pins the first 20 on the map, and links the matching recipe. Code:
   `src/guides/` and `src/render/guides.ts`, rendered in the catalog's document shell.
+- **Guide intros** (`content/guides/<style>-in-<city>.md`, rules in
+  [content/guides/README.md](content/guides/README.md)): a one-sentence `dek` (used as the
+  search description), 100–300 words on the local style, where bowls cluster and how ordering
+  works, and up to four "Know before you go" bullets. Facts only, in our own words: no
+  rankings ("best", "must-try"), prices, hours or invented visits. The build fails on a
+  broken link or bad format, and warns on an intro whose guide no longer exists. 59 are
+  written; guides without one keep the generated summary.
+- **Plan a day here**: guides link to the planner for their featured city (Tokyo's wards to
+  Tokyo), or their prefecture when it has 25+ places; city hubs say "Plan a day of bowls".
 - **Municipalities** come from localgovjp (CC0) via `npm run data:municipalities`, which reads
   English names from the official kana (`scripts/lib/kana.ts`), not the catalog's generated
   romanizations; a handful of word-boundary readings are corrected in the script.
@@ -366,7 +378,12 @@ saved recipes, and reader reviews and tips.
   coordinates in Japan for every place; a guide needs 5+ places, 3+ of them independent).
   Hubs need 2+ indexable guides; listings need a unique title and description. Pages that fail
   are still published, with `noindex,follow`, and are left out of the sitemaps. The build log
-  prints the counts (today: about 3,480 indexable, 1,550 noindex).
+  prints the counts (today: about 3,500 indexable, 1,560 noindex).
+- **Share cards** (`src/seo/cards.ts`, `src/seo/share.ts`): every recipe, every guide with an
+  intro and every indexable style hub gets its own 1200×630 Open Graph image at
+  `/social/recipes/<slug>.png` or `/social/guides/<slug>.png`, drawn at build time from the
+  site's own fonts as vector paths (fontkit) and rasterised with resvg: no system fonts, no
+  photos, about 60 ms a card. Other pages keep `/social/soupmap-world.png`.
 - **Sitemaps:** `/sitemap_index.xml` (also served as `/sitemap.xml`, the URL already in Search
   Console) lists `sitemap-pages`, `-journal`, `-recipes`, `-catalog` and `-cities`, each split
   past 50,000 URLs, with `lastmod` where it is known. `robots.txt` points to the index.
@@ -462,9 +479,15 @@ we already list within 75 m). New category matches sort first.
      - `"overture"` + the Overture ID if you took its location from Overture;
      - `"osm"` + `node/123` if copied substantially from OpenStreetMap. That makes our shop
        dataset a **derivative database under ODbL**. The credits page then says so automatically.
+   - `styles` (optional): guide style ids (`iekei`, `jiro`, `sanuki`…) from what you know of
+     the shop; the page says they come from our notes, not from the name.
    - `verified`: `true` only after step 2 and 3.
+   A selection promoted from the open-data catalog (same Overture `sourceId`) replaces that
+   listing everywhere, so the place is never listed twice.
 5. `npm run validate`, then `npm run data:plateau` if it's a new ward, then commit.
-6. If you add a new city, add it to `src/data/cities.ts` first (centre, rough ground height, bbox).
+6. `city` is either a featured city in `src/data/cities.ts` (centre, rough ground height,
+   bbox; add one there first to feature it) or the real municipality its `cityCode` names
+   (the designated city for a ward code), e.g. `Asahikawa`, `Kurume`. The validator checks it.
 
 ---
 

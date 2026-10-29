@@ -19,14 +19,16 @@ test('prerendered city links mark Tokyo current without button-only pressed stat
 });
 
 test('city and broth filters intersect while multiple broths are alternatives', () => {
-  assert.equal(discover(ORDERED_SHOPS, {...base, city:'tokyo'}).length, 3);
+  const tokyo = ORDERED_SHOPS.filter(s => s.city === 'Tokyo').length;
+  assert.ok(tokyo >= 3);
+  assert.equal(discover(ORDERED_SHOPS, {...base, city:'tokyo'}).length, tokyo);
   const shops = discover(ORDERED_SHOPS, {...base, city:'kyoto', broths:new Set(['miso','shoyu'])});
   assert.deepEqual(shops.map(s => s.slug).sort(), ['honke-daiichi-asahi','kyoto-gogyo']);
   assert.equal(discover(ORDERED_SHOPS, {...base,city:'tokyo',broths:new Set(['miso'])}).length, 0);
 });
 test('search supports Japanese, whitespace, names and multi-term bowl queries', () => {
   assert.equal(discover(ORDERED_SHOPS, {...base,query:'  TOKYO   shio '})[0]?.slug,'afuri-ebisu');
-  assert.equal(discover(ORDERED_SHOPS, {...base,query:'東京'}).length,3);
+  assert.equal(discover(ORDERED_SHOPS, {...base,query:'東京'}).length,ORDERED_SHOPS.filter(s => s.city === 'Tokyo').length);
   assert.equal(discover(ORDERED_SHOPS, {...base,query:'銀座'})[0]?.slug,'ginza-kagari');
 });
 test('saved collection filters accurately and sorting does not mutate catalog', () => {
