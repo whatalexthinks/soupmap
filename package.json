@@ -18,6 +18,7 @@
     "data:plateau": "node --import tsx scripts/fetch-plateau-catalog.ts",
     "discover": "node --import tsx scripts/discover-shops.ts",
     "data:romanize": "node --import tsx scripts/romanize-catalog.ts",
+    "data:municipalities": "node --import tsx scripts/build-municipalities.ts",
     "assets:social": "node scripts/generate-social-card.mjs",
     "photos:recipes": "node --import tsx scripts/fetch-recipe-photos.ts",
     "licenses": "node --import tsx scripts/print-licenses.ts",

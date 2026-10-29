@@ -17,7 +17,13 @@ difficulty: easy
 serves: 6
 active: 35
 total: 85
+prep: 20
+cook: 60
+richness: 4
+spice: 1
+comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Minestrone is less a fixed recipe than a method. The name means roughly "big soup", from *minestra*, the everyday Italian word for soup, and a pot made in July looks nothing like one made in January. You start with a *soffritto* (onion, carrot and celery chopped fine and softened slowly in olive oil), add whatever vegetables the season offers, then beans, a little pasta or rice and some greens.
@@ -68,6 +74,23 @@ The usual mistake is boiling everything together for an hour until it's all one 
 6. Turn off the heat and remove the bay leaf and parmesan rind (the softened rind is chewy and good, a cook's treat). Taste and season with pepper and more salt; it will probably need another 1/2–1 tsp.
 7. Let the soup rest for 5–10 minutes. Minestrone tastes better hot than scalding, and in summer it is often eaten just warm.
 8. Ladle into bowls and finish each with a generous thread of olive oil and a spoonful of grated parmesan.
+
+## Restaurant secret
+The parmesan rind is why this soup can start with water rather than stock. During at least a year of ageing, the proteins in Parmigiano Reggiano break down into free glutamate, the compound behind savoury taste. Over half an hour or so of simmering, the rind softens and gives that savouriness up to the broth without melting into strings the way grated cheese would, so the pot tastes deep and rounded rather than of boiled vegetables.
+
+## Swaps
+
+### Gluten-free
+- **Use the risotto rice, or gluten-free pasta.** Arborio is naturally gluten-free. For pasta, choose a small shape labelled gluten-free and cook it separately, adding it to each bowl, since it softens and breaks up faster than wheat pasta in the pot.
+- **Everything else is naturally gluten-free,** parmesan included, but check the labels on the tinned tomatoes and beans if you're cooking for someone with coeliac disease.
+
+### Plant-based
+- **Leave out the rind and the grated parmesan** (it's made with animal rennet, so it isn't vegetarian either) and finish with plenty of good olive oil. Without it the broth is lighter and sweeter; using 1.75 l vegetable stock instead of water brings back some depth. Check the stock label, as some cubes contain milk.
+- **Use eggless dried pasta:** most dried ditalini is just durum wheat and water, but check the label, or use the rice. For the Genoese variation, use a pesto made without cheese.
+
+### High-protein
+- **Double the beans:** add two more 400 g tins (480 g drained) and a little more water, for about 6 g more protein per bowl.
+- **Be generous with the cheese:** an extra 15 g grated parmesan per bowl adds about 5 g protein.
 
 ## Tips
 - **Add vegetables by cooking time, not all at once.** As a rough guide for 1.5 cm pieces: potatoes, squash and other roots 25–30 minutes; courgette, green beans and fennel 10–15 minutes; peas, spinach and chard leaves 3–5 minutes.

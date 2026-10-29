@@ -18,7 +18,13 @@ difficulty: medium
 serves: 4
 active: 75
 total: 215
+prep: 25
+cook: 190
+richness: 3
+spice: 1
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Wonton noodle soup is Cantonese cooking at its most precise: a small bowl where three things each have to be right. The wontons are mostly shrimp, bound with a little fatty pork, so they bite back with a clean snap. The broth is clear and savoury rather than heavy. The noodles are thin, springy egg noodles, cooked for barely a minute. *Wonton* is the Cantonese *wan tan*, written with characters that read "swallowing clouds", a fair description of the silky wrappers drifting in the bowl.
@@ -88,6 +94,26 @@ The mistake most people make is cooking the wontons and noodles in the broth. Bo
 15. Divide the wontons between the bowls and ladle about 450 ml of hot broth into each.
 16. Shake the noodles loose and drop them into the boiling water, stirring with chopsticks. Cook for 30–60 seconds (check the packet), until just tender but still springy, then lift them out, dip them into a bowl of cold water for a few seconds and return them to the boiling water for 10 seconds to reheat.
 17. Drain the noodles very well and pile them on top of the wontons, with the greens alongside. Scatter with spring onion and a pinch of white pepper, and eat at once, before the noodles soften.
+
+## Restaurant secret
+
+The bounce comes from the paste. Salt dissolves some of the proteins in the finely chopped shrimp and the pork, and stirring hard in one direction works them into a sticky web that holds the shrimp pieces together. In the boiling water that web sets into a springy gel, the same principle behind fish balls and sausages, so each wonton snaps when you bite it instead of crumbling. Any water left on the shrimp dilutes that web, which is why drying them so thoroughly matters.
+
+## Swaps
+
+### Gluten-free
+- The wrappers and egg noodles are wheat, so a gluten-free version isn't really wonton noodle soup. The closest is to roll the filling into 2–3 cm balls and poach them in the boiling water as shrimp balls until firm and opaque all the way through, 4–5 minutes, then serve them with thin rice noodles labelled gluten-free.
+- Leave out the Shaoxing wine, which is brewed with wheat, or use dry sherry instead. Check the labels on the dried flounder, dried shrimp and cornstarch, and skip the dry-tossed variation's oyster sauce unless it's labelled gluten-free, as many contain wheat.
+
+### Plant-based
+- This makes a different dumpling soup, since the broth, filling, wrappers and noodles all change. For the broth, simmer 2.2 l vegetable stock labelled vegan with 6 dried shiitake and the ginger for 30 minutes, skipping the dried seafood.
+- For the filling, mix 250 g pressed firm tofu, crumbled, 100 g finely chopped fresh shiitake and 50 g chopped water chestnuts with the seasonings, using 1 tbsp cornstarch in place of the egg yolk. It will be tender rather than springy.
+- Wonton wrappers and wonton noodles often contain egg: use ones labelled egg-free or vegan.
+
+### High-protein
+- As written a bowl has roughly 35 g protein. Make a quarter more filling and wrap 10 wontons per bowl instead of 8: about 5 g more.
+- Add a halved soft-boiled egg to each bowl: about 6 g.
+- Add 60 g sliced poached chicken breast to each bowl: about 18 g more.
 
 ## Tips
 - **Dry the shrimp thoroughly.** The salt rub firms them and rinses off their slippery coating, but any water left behind makes a loose, watery filling that never turns springy.

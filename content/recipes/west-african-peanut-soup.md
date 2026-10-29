@@ -18,7 +18,13 @@ difficulty: medium
 serves: 6
 active: 60
 total: 125
+prep: 20
+cook: 100
+richness: 8
+spice: 7
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 Groundnut soup, as peanut soup is usually called in West Africa, is cooked right across the region, from Senegal and The Gambia to Nigeria, with a different name and a different balance in many places. In Ghana it's *nkatenkwan* (in Twi, one of Ghana's main languages, *nkate* means groundnuts and *nkwan* means soup), and that's the style this recipe follows: chicken in a tomato-red broth with ginger, garlic and scotch bonnet, thickened with ground peanuts rather than cream or flour.
@@ -67,6 +73,24 @@ The two common mistakes are using sweetened peanut butter, which makes the soup 
 
 ### Serve
 9. Put a rice ball in each wide bowl and ladle the soup and chicken around it.
+
+## Restaurant secret
+
+Cook the peanut until it gives up its oil. Ground peanuts are roughly half fat, held in a thick paste with their protein. Over 40 minutes or more of gentle simmering the raw, pasty taste cooks out, and the oil separates and floats, picking up red from the tomato paste on the way, since tomato's colour dissolves in fat. That red slick is the traditional sign the soup is ready: it shows the peanut has truly cooked, not just melted into the broth.
+
+## Swaps
+
+### Gluten-free
+- Gluten-free as written. Check that the chicken stock is labelled gluten-free (many stocks and cubes contain wheat or barley) and that the peanut butter is just peanuts and salt. If you serve it with fufu, check the fufu flour label too.
+
+### Plant-based
+- Without the chicken it's a different, lighter soup, closer to the sweet potato and peanut stews often made outside West Africa than to *nkatenkwan*. Use vegetable stock labelled vegan (and gluten-free if you need it) and start at step 2, cooking the onion in the oil.
+- Add 600 g sweet potato in 3 cm chunks and 400 g cooked chickpeas or black-eyed peas for the last 25 minutes of the peanut simmer, until the sweet potato is tender.
+
+### High-protein
+- It's already generous: roughly 40 g protein per bowl from the chicken and peanuts, before the rice.
+- Add 400 g cooked black-eyed peas with the peanut paste: about 5 g more per bowl.
+- Simmer a peeled hard-boiled egg per person in the soup for the last 10 minutes: about 6 g each.
 
 ## Tips
 - Scotch bonnets are among the hottest chillies sold in most shops. Wear gloves to handle them, and if you're unsure, add the blended chilli a little at a time, tasting as you go: you can always add heat, never take it away. Habanero is the closest substitute; a milder fresh red chilli makes a gentler soup.

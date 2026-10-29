@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 30
 total: 55
+prep: 15
+cook: 40
+richness: 2
+spice: 6
+comfort: 6
 date: 2026-10-20
+updated: 2026-10-27
 journal: tom-yum
 ---
 
@@ -62,6 +68,25 @@ The thing most people get wrong is the lime. Boiled lime juice turns flat and fa
 7. Add the mushrooms and simmer for 2 minutes. Add the prawns and cook until they have just turned pink and opaque all the way through, 1–2 minutes, then turn off the heat straight away.
 8. Stir in the crushed chillies, most of the fish sauce and lime juice, and the sugar if using. Taste: it should hit sour first, then salty, then hot. Add more lime or fish sauce until it does.
 9. Scatter with coriander and serve at once, with rice. The lemongrass, galangal and lime leaves are there for flavour, not for eating, so push them to the side of the bowl.
+
+## Restaurant secret
+
+Squeeze the heads. The soft orange matter inside them, *man goong* (prawn fat) in Thai, carries much of the prawn's sweetness and colour, and that colour comes from a pigment that dissolves in fat, not water. Frying the heads in oil while pressing them with a spoon pulls both into the oil, which carries them into the stock, and pressing the shells hard in the sieve gets the last of it. That's why the stock tastes so deeply of prawn and turns faintly orange.
+
+## Swaps
+
+### Gluten-free
+- Already gluten-free as written. Check the fish sauce label: most are just anchovies, salt and sugar, but a few brands add hydrolysed protein or flavourings that can come from wheat. If you use bought chicken stock for headless prawns (see Tips) or make the creamy variation with *nam prik pao*, check those labels too.
+
+### Plant-based
+- This becomes *tom yum het*, the mushroom version: a soup in its own right, sharp and fragrant, but without the prawns' sweetness. Use 1 l vegetable stock labelled vegan instead of the prawn stock and start at step 6.
+- Instead of the prawns, add 300 g more mushrooms (oyster, king oyster or shimeji) and 200 g firm tofu in 2 cm cubes with the straw mushrooms, and simmer for 3 minutes.
+- Season with 2–3 tbsp light soy sauce instead of fish sauce, or tamari labelled gluten-free if you need it gluten-free, with a pinch of salt if it needs more.
+
+### High-protein
+- As written a bowl has roughly 15 g protein. Add 200 g more peeled raw prawns in step 7, cooked the same way: about 10 g more per bowl.
+- Add 300 g firm tofu, in 2 cm cubes, with the mushrooms: about 9 g more per bowl.
+- Add 300 g firm white fish in 3 cm chunks and simmer for 2 minutes before the prawns go in: about 13 g more per bowl.
 
 ## Tips
 - **Lime goes in last, off the heat.** Squeeze it just before you need it and never let it boil. Its fresh, floral sourness is half the soup, and heat dulls it within minutes.

@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 15
 total: 30
+prep: 8
+cook: 22
+richness: 5
+spice: 2
+comfort: 8
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Sopa de ajo*, garlic soup, also known as *sopa castellana*, is the winter soup of Castile, the high, cold plateau at the centre of Spain. It's made from what every kitchen there had to hand: olive oil, a good handful of garlic, yesterday's bread and *pimentón* (Spanish paprika, here the smoked kind). The bread drinks up the broth and half dissolves, turning it thick and rustic, and an egg poached on top makes it a meal.
@@ -52,6 +58,25 @@ The two things to watch are both about heat. Fry the garlic gently, only to pale
 ### Poach the eggs
 6. Turn the heat down so the soup is barely bubbling. Crack each egg into a cup and slide it gently onto the surface of the soup, spacing them apart. Cover and cook until the whites are completely set and opaque and the yolks are still soft, 4–5 minutes. (For firm yolks, see Tips.)
 7. Ladle the soup into warm bowls with an egg in each, scatter over the parsley if using, add a few drops of olive oil and serve straight away.
+
+## Restaurant secret
+
+Let the bread soak up the garlic oil before any liquid goes in. Pimentón's red colour and much of its flavour dissolve in fat, not water, and so do the aromas of gently fried garlic. Bread that has drunk the oil and then been tossed with the pimentón holds all of it, and as it softens and breaks up in the simmering broth it carries that flavour through the soup. That's why good sopa de ajo is evenly brick-red and rounded, not thin with a greasy slick.
+
+## Swaps
+
+### Gluten-free
+- **Not gluten-free as written:** the bread is wheat. Use a firm gluten-free white loaf, a day or two old, toasting the slices lightly first if it's soft. Gluten-free bread tends to break down faster, so the soup comes out smoother and a little less rustic.
+- Use water, or a vegetable stock labelled gluten-free.
+
+### Plant-based
+- **Vegetarian as written, not vegan:** the eggs are the only animal product, as long as you use water or vegetable stock and a plain loaf made only with flour, water, yeast and salt (some breads contain milk or butter).
+- **For a vegan bowl,** leave out the eggs and stir a drained 400 g tin of chickpeas into the soup with the hot liquid. Without the egg it's no longer the classic, more a garlic and chickpea soup, but the fried garlic and pimentón still carry it.
+
+### High-protein
+- **Two eggs per bowl:** poach 8 eggs instead of 4, in a wide pot so they don't touch: about 6 g more protein per bowl.
+- **Jamón:** fry 100 g diced *jamón serrano* before the garlic (see Variations): about 7 g more per bowl. It's no longer vegetarian.
+- **Chickpeas:** add a drained 400 g tin with the hot liquid: about 4 g more per bowl.
 
 ## Tips
 - **Slice the garlic thinly and evenly.** Even slices cook at the same rate, so none burn while others stay raw. If the garlic does brown, start again: it's cheap, and its bitterness will run through the whole soup.

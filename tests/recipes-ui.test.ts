@@ -132,6 +132,50 @@ test("on a recipe: scale servings, switch units, run a timer, save, keep notes a
   assert.equal(cook.hidden, true);
 });
 
+test("on a recipe: 2× and 4× batches, steps crossed off, and swap tabs", () => {
+  const recipe = recipes.find(r => r.slug === "shoyu-ramen")!;
+  const { doc, $ } = open(`/recipes/${recipe.slug}/`);
+  setupRecipe(doc);
+  const pressed = () => [...doc.querySelectorAll<HTMLElement>("[data-bowls]")].filter(b => b.getAttribute("aria-pressed") === "true").map(b => b.dataset.bowls);
+  assert.deepEqual(pressed(), ["1"]);
+  ($('[data-bowls="4"]') as HTMLButtonElement).click();
+  assert.equal($("#r-serves").textContent, String(recipe.serves * 4));
+  assert.deepEqual(pressed(), ["4"]);
+  // Fine-tuning with the stepper leaves no batch button lit until it lands on one again.
+  ($("[data-action=fewer]") as HTMLButtonElement).click();
+  assert.deepEqual(pressed(), []);
+  ($('[data-bowls="1"]') as HTMLButtonElement).click();
+  assert.equal($("#r-serves").textContent, String(recipe.serves));
+
+  // Step numbers become buttons; tapping a step crosses it off for this tab, tapping again brings it back.
+  assert.equal($("#r-method-hint").hidden, false);
+  const step = $("#step-2");
+  const number = step.querySelector<HTMLButtonElement>("button.r-step__n")!;
+  assert.ok(number, "the step number is a button");
+  number.click();
+  assert.ok(step.classList.contains("is-done"));
+  assert.equal(number.getAttribute("aria-pressed"), "true");
+  assert.deepEqual(JSON.parse(window!.sessionStorage.getItem(`soupmap:recipes:steps:${recipe.slug}`)!), [2]);
+  (step.querySelector("p") as HTMLElement).click();
+  assert.ok(!step.classList.contains("is-done"));
+  // A timer inside a step starts a timer without ticking the step.
+  const timerStep = doc.querySelector("button.r-timer")!.closest<HTMLElement>(".r-step")!;
+  (doc.querySelector("button.r-timer") as HTMLButtonElement).click();
+  assert.ok(!timerStep.classList.contains("is-done"));
+
+  // Swaps: three stacked lists become tabs, one panel at a time, arrow keys move.
+  const tabs = [...doc.querySelectorAll<HTMLButtonElement>(".r-swaps [role=tab]")];
+  const panels = ["gluten-free", "plant-based", "high-protein"].map(id => $(`#swap-${id}`));
+  assert.equal($(".r-swaps__tabs").hidden, false);
+  assert.deepEqual(panels.map(p => p.hidden), [false, true, true]);
+  assert.ok(panels.every(p => p.getAttribute("role") === "tabpanel"));
+  tabs[2]!.click();
+  assert.deepEqual(panels.map(p => p.hidden), [true, true, false]);
+  assert.equal(tabs[2]!.getAttribute("aria-selected"), "true");
+  tabs[2]!.dispatchEvent(new window!.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }) as unknown as Event);
+  assert.deepEqual(panels.map(p => p.hidden), [false, true, true], "wraps round to the first tab");
+});
+
 function reviewsApi(response: ReviewsResponse, calls: { url: string; method: string; body?: unknown }[] = []): typeof fetch {
   return (async (url: string, init: RequestInit = {}) => {
     calls.push({ url, method: init.method ?? "GET", ...(init.body ? { body: JSON.parse(String(init.body)) } : {}) });

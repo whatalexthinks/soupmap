@@ -17,7 +17,13 @@ difficulty: project
 serves: 6
 active: 100
 total: 480
+prep: 30
+cook: 440
+richness: 4
+spice: 3
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: pho
 ---
 
@@ -83,6 +89,25 @@ The mistake people usually make is letting the pot boil. A rolling boil churns f
 15. Working one portion at a time, put the soaked noodles in a sieve or noodle basket and dip them in the boiling water until soft but still springy, 20–30 seconds. Shake well and tip into a warm bowl.
 16. Lay a few slices of brisket and raw sirloin over the noodles in a single layer, so the broth can reach every slice, and scatter with the white onion and spring onions. If you'd rather the beef cooked through, or you're feeding anyone pregnant, very young, elderly or with a weakened immune system, first lower the raw slices into the boiling broth in a ladle until no longer pink, about 30 seconds.
 17. Ladle about 450 ml of boiling broth straight over the raw beef, which will turn from red to pink in seconds. Finish with coriander and black pepper and serve at once, with lime wedges and chillies on the side.
+
+## Restaurant secret
+
+Season at the very end, and add the fish sauce last. Its savoury depth holds up in the pot, but its aroma is volatile: put in at the start of a six-hour simmer, it cooks away and leaves only plain saltiness. Seasoning once the broth is strained and measured, as in step 13, also means you balance salt, rock sugar and fish sauce against the exact volume you'll serve, so the broth lands sweet-savoury and fragrant rather than flat.
+
+## Swaps
+
+### Gluten-free
+- Already gluten-free as written. Check the fish sauce, since a few brands add hydrolysed wheat protein, and choose rice noodles labelled gluten-free, as some are made on lines shared with wheat.
+- At the table, skip hoisin unless it's labelled gluten-free, and leave out the fried dough sticks (*quẩy*) from the Variations, which are wheat.
+
+### Plant-based
+- Make *phở chay*, the vegetarian phở of Vietnam's Buddhist kitchens. In place of the bones and brisket, simmer the charred onion and ginger for 1 1/2 hours in 4 l water with about 1 kg daikon (white radish) and 2 carrots in large chunks, 2 corn cobs and 30 g dried shiitake, adding the toasted spices for the last 45 minutes. It's lighter and sweeter: its own broth, not an imitation of beef.
+- Season with salt and a little tamari labelled gluten-free (or soy sauce, if gluten isn't a concern) instead of fish sauce, and top the noodles with fried tofu and seared oyster or shiitake mushrooms instead of the beef.
+
+### High-protein
+- Add about 80 g more raw sirloin per bowl (roughly 500 g more for six), sliced and served exactly the same way: about 17 g more protein per bowl.
+- For more cooked meat, simmer a second 600 g piece of brisket alongside the first, as for *phở chín* in the Variations: about 100 g raw weight per bowl, roughly 15–18 g protein.
+- Beef meatballs (*bò viên*), halved and warmed in the boiling broth, are a classic southern addition at about 8–10 g protein for four balls, but some contain wheat, so check the label if you need the bowl gluten-free.
 
 ## Tips
 - **Mix your bones.** Marrow bones bring richness and flavour; knuckle bones bring the gelatine that gives the broth body. A piece of oxtail is a good addition if you can get one, and soaking the bones in cold water for an hour before blanching draws out even more blood.

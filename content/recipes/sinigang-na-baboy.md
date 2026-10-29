@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 30
 total: 120
+prep: 20
+cook: 100
+richness: 4
+spice: 3
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Sinigang* is the Philippines' great sour soup, really a whole family of dishes defined by their sharp broth, and *sinigang na baboy* is the pork version (*baboy* means pork). The most common souring agent is tamarind, *sampalok* in Tagalog, and the result is a light, tangy broth full of tender pork and vegetables, eaten with plenty of steamed rice.
@@ -67,6 +73,24 @@ The usual mistake is timidity. Sinigang should be properly sour, more than you m
 6. Add the long beans, eggplant and whole green chillies and simmer until the beans are tender but still bright green and the eggplant is soft, 5–7 minutes.
 7. Taste and adjust: the broth should be distinctly sour and savoury. Add more fish sauce or salt as needed, and if it isn't sour enough, a little tamarind concentrate (see Tips).
 8. Turn off the heat, push the kangkong under the broth and leave it to wilt for 1–2 minutes. Serve straight away with rice, and small dishes of fish sauce with sliced chilli for dipping the pork.
+
+## Restaurant secret
+
+Sour it with green, unripe tamarind and press the pulp hard. Young pods are sharper and far less sweet than ripe brown ones, so they give a clean, bright sourness with none of the jammy sweetness of ripe tamarind or the flat, one-note acidity of many concentrates. Scraping the soft pulp from the underside of the sieve carries the fine flesh into the broth as well, giving it a little body and a fruity tang that a jar can't match.
+
+## Swaps
+
+### Gluten-free
+- **Already gluten-free as written,** as long as your fish sauce is labelled gluten-free (some contain wheat), both in the pot and in the dipping dish. Check the label on tamarind concentrate too, if you use it.
+- **Packet sinigang mixes** (see Variations) vary by brand: use one labelled gluten-free, or stick to fresh tamarind or plain tamarind pulp.
+
+### Plant-based
+- **Not vegan as written:** the pork and fish sauce are its savoury backbone. For a vegetable sinigang, simmer the onion and tomatoes in the 1.5 l water with 3 small taro, peeled and halved, until the taro is tender, about 25 minutes, then carry on from step 5. Add 300 g firm tofu in cubes with the long beans and season with salt, or tamari labelled gluten-free, instead of fish sauce.
+- **It's a different, lighter soup:** bright, sour and good, but without the pork it's a sour vegetable soup rather than sinigang na baboy. Offer salt and sliced chilli for dipping instead of fish sauce.
+
+### High-protein
+- **Prawns as well as pork:** add 250 g peeled raw prawns after the beans and eggplant and simmer until pink and opaque all the way through, 2–3 minutes: about 12 g more protein per bowl.
+- **Tofu:** add 300 g firm tofu in 2 cm cubes with the long beans: about 10 g more per bowl.
 
 ## Tips
 - **If you can't get fresh tamarind,** soak 100 g seedless tamarind pulp (sold in blocks) in 250 ml hot water for 15 minutes, squeeze it with your fingers and sieve, then use the liquid in step 5. Jarred tamarind concentrate varies hugely in strength, so start with 2 tbsp and add more a spoonful at a time. Avoid pods labelled sweet tamarind; they're for snacking.

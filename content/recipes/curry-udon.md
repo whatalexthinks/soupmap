@@ -14,7 +14,13 @@ difficulty: medium
 serves: 4
 active: 35
 total: 60
+prep: 10
+cook: 45
+richness: 7
+spice: 3
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 map: /map/?q=curry+udon
 mapLabel: Find curry udon shops on the map
 ---
@@ -71,6 +77,25 @@ Plenty of home cooks use a box of instant curry roux, and that works (see Variat
 ### Cook the noodles and serve
 9. Bring a large pot of water to the boil and fill the serving bowls with hot water to warm them. Cook the udon straight from frozen until hot through, 1–1 1/2 minutes, then drain very well; water clinging to the noodles thins the curry.
 10. Empty the bowls, divide the noodles between them and ladle about 400 ml of curry and meat over each. Scatter with the spring onion greens and serve at once, with shichimi on the table.
+
+## Restaurant secret
+
+Finish with potato starch as well as the roux, the way many Japanese noodle shops thicken their curry. The butter-and-flour roux brings body and a toasty flavour. Potato starch adds what flour can't: it sets into a clear, glossy, slightly stretchy gel that clings to slippery udon instead of sliding off, and splashes less. Add it last and don't boil it hard or for long afterwards: that gel thins again with prolonged heat and stirring.
+
+## Swaps
+
+### Gluten-free
+- Udon is made from wheat, so there's no gluten-free curry udon as such. Ladle the curry over thick rice noodles, or over 100% buckwheat soba labelled gluten-free (most soba contains wheat), and you have a gluten-free curry noodle soup in the spirit of the *curry nanban* in Variations.
+- Make the curry without flour: use tamari labelled gluten-free instead of soy sauce, toast the curry powder in 30 g of the butter for 30 seconds and stir it into the broth, then thicken with 3–4 tbsp potato starch mixed with twice as much cold water, added gradually until it coats a spoon. Check that the curry powder and mirin are labelled gluten-free, and avoid boxed roux, which usually contains wheat.
+
+### Plant-based
+- Make a kombu-shiitake dashi: soak the kombu with 4 dried shiitake in the water for 30 minutes, heat as in step 1, then leave the shiitake to simmer gently for 10 minutes more and skip the katsuobushi. Use the oil roux from Variations instead of butter.
+- Swap the meat for strips of plain *aburaage* (fried tofu pouches) or thick-sliced mushrooms; the seasoned aburaage sold for kitsune udon is often made with fish-based dashi, so check the label. Most frozen udon is just wheat, water and salt, but check that too. It's still recognisably curry udon, a little lighter and sweeter.
+
+### High-protein
+- Double the meat to 500 g: about 12 g more protein a bowl, on top of the roughly 20 g it has as written.
+- Top each bowl with a soft-boiled egg for about 6 g more (boil it until the yolk is firm for anyone who should avoid runny eggs).
+- Add a sheet of plain aburaage per bowl, cut into strips, for about 5 g more.
 
 ## Tips
 - **Cook the roux properly, but gently.** Undercooked flour tastes pasty, and scorched flour tastes burnt in a way you can't fix. Medium-low heat and constant stirring for 4–5 minutes gets you to the nutty, pale-gold stage.

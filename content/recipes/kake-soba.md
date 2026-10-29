@@ -16,7 +16,13 @@ difficulty: easy
 serves: 4
 active: 40
 total: 540
+prep: 10
+cook: 45
+richness: 2
+spice: 2
+comfort: 7
 date: 2026-10-20
+updated: 2026-10-27
 journal: soba-guide
 map: /map/?q=soba
 mapLabel: Find soba shops on the map
@@ -69,6 +75,25 @@ This is also the bowl many households eat on New Year's Eve as [toshikoshi soba]
 10. Lift the noodles out into a colander with a spider or tongs, leaving the pot boiling on the heat. Rinse them under cold running water, gently rubbing them between your hands, until they feel smooth rather than slimy and the water runs clear, about 1 minute.
 11. Lower the noodles, in a large sieve, back into the boiling water for 20–30 seconds to heat them through, then shake off as much water as you can.
 12. Empty the bowls, divide the noodles between them and pour about 400 ml of hot broth over each. Top with the kamaboko and spring onion and serve at once, with shichimi on the table; soba softens quickly in hot broth.
+
+## Restaurant secret
+
+Soba shops make kaeshi in big batches and leave it to rest for days or weeks before it meets the dashi, a step they call *nekaseru*, "putting it to sleep". Heating the soy only until it steams, never boiling it, blends in the sugar and mirin without driving off its aroma. Then time does the work: the soy's raw, salty edge fades until the three taste like one rounded seasoning, which a freshly made kaeshi can't match however carefully you balance it.
+
+## Swaps
+
+### Gluten-free
+- Make the kaeshi with tamari labelled gluten-free in place of the soy sauce, and taste as you mix the broth in step 7; it's a little less aromatic. Check the mirin: true *hon-mirin* is made from rice, but some mirin-style seasonings have other additives.
+- Use 100% buckwheat (*juwari*) soba labelled gluten-free, since most dried soba contains wheat. It's fragile, so cook it at a gentle boil, stir it as little as possible and rinse it with a light hand.
+- Leave out the kamaboko unless it's labelled gluten-free (it can contain wheat starch), and check the shichimi.
+
+### Plant-based
+- Make a kombu-shiitake dashi in place of the bonito one: soak 20 g kombu and 6 dried shiitake in 2 l cold water for at least 5 hours, warm it slowly, lift out the kombu before it boils, then strain. The kaeshi is already vegan.
+- Leave out the kamaboko (it's fish) and top with the kitsune tofu from Variations, simmered in the kombu-shiitake dashi. The broth is gentler and earthier, without bonito's smoky depth: a good bowl, but not quite a soba-shop one.
+
+### High-protein
+- Around 15 g protein a bowl, mostly from the noodles. For more, poach 100 g thinly sliced chicken thigh per bowl in a small pan of the broth at a gentle simmer until cooked through, 4–5 minutes, and add it to the bowl, as in *kashiwa soba* (chicken soba): about 18 g more.
+- Or add a soft-poached egg per bowl (about 6 g; see Variations for the raw tsukimi egg and its food-safety note), or a sheet of kitsune tofu (about 5 g).
 
 ## Tips
 - **Give the kaeshi time.** One night takes the sharp, raw edge off the soy, and three days to a week in the fridge makes it rounder still. That resting is what separates a soba-shop broth from soy sauce stirred into stock.

@@ -19,7 +19,13 @@ difficulty: medium
 serves: 6
 active: 70
 total: 1200
+prep: 35
+cook: 190
+richness: 8
+spice: 1
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Ribollita* means "reboiled", and the name is the recipe. It's a Tuscan peasant soup of white beans, *cavolo nero* (the long, dark, crinkled kale also sold as Tuscan or lacinato kale) and other vegetables, layered with stale bread, left overnight and brought back to the boil the next day. On the first day you have a good bean and bread soup. After reboiling, the bread melts into the beans and greens and the whole pot turns so thick you could almost eat it with a fork.
@@ -76,6 +82,23 @@ The most common mistake is rushing the *soffritto*, the base of onion, carrot an
 ### Reboil and serve
 9. The next day, put the soup in a heavy pot with a splash of water, 100–200 ml, and set it over medium-low heat. Bring it slowly back to the boil for 15–20 minutes, stirring and breaking up the bread with a wooden spoon, until the soup is bubbling hot all the way through and so thick a spoon nearly stands up in it. Let it bubble gently for 5 minutes more, stirring so it doesn't catch.
 10. Take it off the heat and rest for 5 minutes. Ladle into bowls, pour a thread of olive oil over each, grind over some pepper and serve with the raw onion on the side, if using.
+
+## Restaurant secret
+
+The bean pot is your stock. Simmered gently from dried with sage and garlic, cannellini release starch and savoury flavour into their water, and that liquid, with half the beans puréed into it, is what gives a soup with no meat stock its depth and creamy body. Canned beans and plain water make a thinner, flatter ribollita, which is why the shortcut lives in the Variations and every drop of the bean liquid goes into the pot in step 6.
+
+## Swaps
+
+### Gluten-free
+- The bread is the only gluten in the pot; the beans, vegetables, tomatoes and oil are naturally gluten-free. A sturdy gluten-free loaf, dried hard in the oven as in the Tips, can stand in, but most turn pasty or gummy rather than melting into the soup, so the texture changes. Many also contain egg or milk, so check the label if you want the soup to stay vegan.
+- Or leave the bread out and purée two-thirds of the beans in step 3 instead of half, for body: a very good Tuscan bean and cavolo nero soup, but honestly not ribollita any more.
+
+### Plant-based
+- Already vegan as written, provided the bread is made without milk, butter or honey (see Tips). The parmesan rind in the Variations makes it neither vegan nor vegetarian.
+
+### High-protein
+- Stir a drained 400 g can of cannellini or borlotti beans into the pot with the whole beans in step 6: about 3 g more protein per bowl.
+- Top each bowl with a poached or fried egg (about 6 g), or grate 20 g parmesan or pecorino over at the table (about 5–7 g). Either makes it no longer vegan, and traditional parmesan and pecorino are made with animal rennet, so the cheese isn't vegetarian either.
 
 ## Tips
 - The bread must be properly stale: two or three days old, dry and hard. Fresh bread turns to paste. If yours is fresh, dry the slices in a 120°C (100°C fan) oven for 20–30 minutes until crisp but not coloured.

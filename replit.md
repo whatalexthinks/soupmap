@@ -86,6 +86,15 @@
 - **Moderators:** set the secret `RECIPE_MODERATORS` to a comma-separated list of Clerk user ids. Moderators get Hide/Restore on each review and `GET /api/recipes/moderation`.
 - Reviews are public to read (mounted at `/api/recipes` before the account-only `/api` router); writing needs a signed-in Clerk session. The page's sign-in links add `?redirect_url=/recipes/<slug>/#reviews` so a reader returns to the recipe; keep that working if the auth pages change.
 - **Photos:** real, freely licensed photos only, never stock or generated images. `npm run photos:recipes` checks each licence on Wikimedia Commons and records the credit (see README 3.10). Replit has internet access, so it can run here.
+- **Ratings in search results:** the production server adds schema.org `aggregateRating` to recipe pages from published reader ratings (5-minute cache). Nothing to configure; with no ratings or no database, pages are served as built.
+- **Ingredient "Buy" links (optional):** set `VITE_AMAZON_ASSOCIATES_TAG` (e.g. `soupmap-20`) and/or `VITE_INSTACART_LINK_TEMPLATE` (an https link containing `{query}`) before publishing. Without them, recipes show no shopping links.
+- **Cost per bowl / nutrition:** add sourced entries to `content/recipes/costs.json` or `nutrition.json` (see README 3.10). Never estimate them.
+
+## City guides, sitemaps and IndexNow
+
+- `/guides/` is generated at build time from the catalog and `src/data/municipalities.json` (refresh with `npm run data:municipalities`). A quality gate marks thin pages `noindex` and keeps them out of the sitemaps; the build log prints the counts.
+- Search Console: keep `/sitemap.xml` submitted (it now serves the sitemap index) or submit `/sitemap_index.xml`. Both work.
+- **IndexNow:** add the secret `INDEXNOW_KEY` (8–128 letters, digits or dashes) and apply `migrations/003_indexnow.sql` to the development database. Each publish then submits new or changed URLs to Bing and other IndexNow engines 30 seconds after start. Optional: `INDEXNOW_ADMIN_TOKEN` (24+ characters) to submit by hand with `POST /api/indexnow`; `INDEXNOW_AUTO=off` to pause automatic submission.
 
 ## Lockfile
 

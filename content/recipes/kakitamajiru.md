@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 15
 total: 25
+prep: 5
+cook: 18
+richness: 2
+spice: 1
+comfort: 6
 date: 2026-10-21
+updated: 2026-10-27
 ---
 
 *Kakitamajiru* is the soup Japanese home cooks make when there's dashi, a few eggs and not much else in the house. The name means roughly "stirred-egg soup": beaten egg is poured in a thin stream into hot, seasoned *dashi* (the light stock of *kombu*, dried kelp, and *katsuobushi*, smoked and dried skipjack tuna shaved into flakes), where it sets into pale yellow clouds. It's a *sumashi-jiru*, a clear soup seasoned with salt and soy sauce rather than miso, so the broth stays pale and the egg keeps its colour.
@@ -55,6 +61,25 @@ The usual mistake is pouring egg into thin, plain broth, where it sinks and brea
 6. Stir the starch mixture again, since it settles in seconds, and pour it into the simmering soup in a thin stream, stirring all the time. Keep stirring gently until the soup turns clear again and very slightly glossy, about 1 minute. It should feel only a little silkier than water, not thick.
 7. Keep the soup at a steady simmer over medium heat, with small bubbles across the surface. Pour in the egg in a thin stream, moving in a wide circle, ideally down the side of a chopstick or through the tines of a fork to keep the stream fine. Don't stir. Wait until the egg rises and puffs into soft, opaque clouds, 20–30 seconds, then draw a spoon slowly through the soup once and check that no runny egg is left; if there is, give it a few seconds more.
 8. Turn off the heat, stir in the mitsuba or spring onion so it just wilts, ladle into bowls and serve at once.
+
+## Restaurant secret
+
+The spoonful of katakuriko does more than thicken. In thin broth the egg sinks and breaks into small, tight curds; in lightly thickened broth it's held up near the surface, where it spreads into thin sheets and puffs into clouds as it sets. The dissolved starch also gets between the egg proteins as they firm, much as flour stops a pastry cream from curdling, so the clouds stay tender. Too much, though, and the soup turns thick and sauce-like, which is why the amount is so small.
+
+## Swaps
+
+### Gluten-free
+- Replace the usukuchi soy sauce, which contains wheat, with 1 tsp tamari labelled gluten-free and an extra pinch of salt; tamari is darker, so the broth will be a shade browner. Or season with salt alone.
+- Katakuriko (potato starch), kombu and katsuobushi are gluten-free. Check the mirin, and the label of any dashi packs or instant granules if you use the shortcut, as some contain wheat.
+
+### Plant-based
+- The vegetarian Variation's kombu-shiitake dashi takes care of the stock, but the egg is the dish, so there's no vegan kakitamajiru.
+- For a vegan clear soup in the same style, warm 150 g silken tofu, cut into small cubes, in the seasoned, lightly thickened broth and finish with the mitsuba.
+
+### High-protein
+- About 5 g protein a bowl as written. Use 5 eggs instead of 3 (about 3 g more per bowl), pouring in two passes and letting the simmer recover in between so the clouds stay soft.
+- Or slice 250 g chicken breast thinly, dust it with katakuriko and simmer it in the seasoned dashi until white all the way through, 2–3 minutes, before thickening (about 14 g more per bowl). Use a little less of the starch mixture, as the coating thickens the soup too.
+- Or warm 100 g cubed soft tofu per bowl in the broth before the egg goes in (about 5 g).
 
 ## Tips
 - **Thicken before the egg goes in.** The starch is what holds the egg up in soft clouds. Use too much, though, and you have *ankake* (a thick, glossy, sauce-like broth) rather than a clear soup: 1 tbsp to 800 ml is the light touch you want.

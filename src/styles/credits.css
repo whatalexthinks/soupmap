@@ -5,6 +5,7 @@
 @import "@fontsource-variable/space-grotesk";
 @import "./directory.css";
 @import "./google-place.css";
+@import "./guides.css";
 
 body {
   background: var(--paper);

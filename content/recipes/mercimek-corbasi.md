@@ -18,7 +18,13 @@ difficulty: easy
 serves: 4
 active: 30
 total: 65
+prep: 15
+cook: 45
+richness: 5
+spice: 4
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 ---
 
 *Mercimek çorbası* simply means "lentil soup", and in Turkey it's the one everybody knows. It's on the menu at almost every *lokanta* (a casual restaurant serving home-style cooking), it's made at home on weeknights, and it's eaten at any hour, breakfast included. It's cheap and quick, and far better than its short ingredient list suggests.
@@ -64,6 +70,22 @@ The finish is what people remember: butter heated until it foams, then swirled w
 ### Finish
 6. Melt the butter in a small pan over medium heat until it foams and smells nutty, about 2 minutes. Take the pan off the heat, add the pul biber and mint and swirl for 10–15 seconds, until the butter turns brick red. Don't put it back on the heat: the pepper burns in seconds and turns bitter.
 7. Ladle the soup into bowls, spoon the red butter over the top and serve with lemon wedges for squeezing.
+
+## Restaurant secret
+The red butter is more than a garnish. The colour and much of the flavour in pul biber dissolve in fat, not water, so a few seconds in foaming butter draws them out in a way that flakes scattered on top never could, and the lightly browned milk solids add a nutty note the plain soup lacks. Taking the pan off the heat first matters: the butter stays hot enough to bloom the pepper and mint but is already cooling, so they toast rather than burn.
+
+## Swaps
+
+### Gluten-free
+- **Already gluten-free as written.** Check the labels on the pepper paste and ground spices, and pick over the lentils before rinsing: they can carry the odd stray grain of wheat or barley.
+- **Skip the flour** in the Extra-velvety variation. Cooking the lentils until they've completely collapsed, then pushing the soup through a sieve, gives a similar silkiness.
+
+### Plant-based
+- **Use oil instead of butter,** as in Variations: warm 3 tbsp olive oil, take it off the heat and swirl in the pul biber and mint for 10 seconds. Made with water, the soup is then vegan. You lose the butter's nutty note, and the topping tastes fruitier and a little lighter.
+
+### High-protein
+- **Add 100 g more red lentils** (300 g in all) with about 400 ml more hot water, then loosen to the usual pouring thickness and season again at the end: about 6 g more protein per bowl.
+- **Top each bowl with 50 g thick strained yoghurt** beside the butter: about 5 g protein, and a cool tang against the chilli.
 
 ## Tips
 - Rinse the lentils well. It washes off the surface starch and dust that make the pot foam up and boil over, and gives a cleaner-tasting soup.

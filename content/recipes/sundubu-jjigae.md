@@ -17,7 +17,13 @@ difficulty: easy
 serves: 4
 active: 25
 total: 45
+prep: 10
+cook: 35
+richness: 5
+spice: 6
+comfort: 8
 date: 2026-10-20
+updated: 2026-10-27
 journal: korean-soups
 ---
 
@@ -67,6 +73,25 @@ Then handle the tofu as little as possible. Spoon it into the pot in big pieces 
 ### Finish
 7. Crack the eggs onto the surface, spacing them apart. Simmer for 1–2 minutes, until the whites just start to turn opaque at the edges, then scatter with the spring onion greens and a little black pepper.
 8. Carry the pot to the table still bubbling, so the eggs keep cooking in the heat, and serve with rice.
+
+## Restaurant secret
+
+Make the chilli oil in the pot, in the oil and rendered pork fat, rather than stirring gochugaru into the broth. The flakes' red colour and their heat both dissolve far better in fat than in water, so a minute of gentle stirring pulls them out and toasts the flakes into a glossy, sweet-smelling paste. That red oil then spreads through the broth and clings to the bland tofu, so every spoonful tastes of chilli. Flakes added straight to stock give a duller, dustier stew.
+
+## Swaps
+
+### Gluten-free
+- **Not gluten-free as written:** regular soy sauce contains wheat, and so do many *guk-ganjang*. Use the same amount of tamari labelled gluten-free, and check that the fish sauce is labelled gluten-free too.
+- **Check the gochugaru:** pure chilli flakes are gluten-free, but seasoned blends may not be. If you add kimchi (see Variations), check its label as well. The tofu, anchovies, kelp and rice are naturally gluten-free.
+
+### Plant-based
+- **Not vegan as written** (pork, anchovy stock, fish sauce and eggs). For a vegetable sundubu, make the stock with the kelp and 4 dried shiitake instead of the anchovies, lifting out the kelp after 5 minutes as before. Fry 200 g sliced fresh shiitake or diced courgette (zucchini) instead of the pork, with 1 tbsp more oil, and use a little more guk-ganjang, or tamari labelled gluten-free, instead of the fish sauce.
+- Leave out the eggs. It's lighter and less deeply savoury, but the tofu and chilli oil keep it recognisably sundubu.
+
+### High-protein
+- **An extra egg per bowl:** crack in 8 eggs instead of 4: about 6 g more protein per bowl.
+- **More meat:** use 350 g pork shoulder instead of 200 g belly: about 9 g more per bowl.
+- **Add seafood too:** 150 g peeled raw prawns for the last 2–3 minutes, until pink and opaque all the way through: about 7 g more per bowl.
 
 ## Tips
 - **Low heat for the gochugaru.** It scorches far faster than you'd expect. The paste should smell sweet and toasty; acrid or smoky means it has gone too far.

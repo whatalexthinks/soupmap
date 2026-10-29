@@ -16,7 +16,13 @@ difficulty: medium
 serves: 6
 active: 50
 total: 215
+prep: 20
+cook: 190
+richness: 3
+spice: 1
+comfort: 9
 date: 2026-10-20
+updated: 2026-10-27
 journal: chicken-soup-world
 ---
 
@@ -77,6 +83,24 @@ The other is the noodles. Cooked in the pot, they drink up broth and shed starch
 10. Add the chicken to the soup and let it heat through at a gentle simmer, 3–5 minutes. Turn off the heat and stir in the parsley, dill and the juice of half the lemon (about 1 1/2 tbsp).
 11. Taste and season with salt and pepper. Unsalted homemade stock needs more than you'd think, so start with 2 tsp and add more a pinch at a time until the chicken flavour comes into focus, with a few more drops of lemon if it still tastes flat. Cut the rest of the lemon into wedges.
 12. Divide the noodles between warm bowls, ladle the soup over and serve with the lemon wedges.
+
+## Restaurant secret
+
+Take the meat out once it's cooked and put the frame back. Chicken is at its best as soon as it's cooked through; every extra hour of simmering tightens it and squeezes out its juice. The collagen in the skin and bones is the opposite: it needs hours to melt into the gelatin that gives stock its body. Give each its own timeline, meat out after an hour, skin and bones back in for another hour, and you get both juicy chicken and a stock that coats a spoon.
+
+## Swaps
+
+### Gluten-free
+- Swap the egg noodles for rice noodles or a pasta labelled gluten-free, cooked separately as in step 9. Gluten-free egg-style pasta is closest in bite; rice noodles are softer and more slippery. Everything else in the pot is already free of gluten.
+- If you take the weeknight shortcut, choose a chicken stock labelled gluten-free.
+
+### Plant-based
+- Without the chicken it becomes a vegetable noodle soup rather than chicken noodle soup, but a good one. Use 2.5 l well-flavoured vegetable stock (check the label, as some contain milk), olive oil instead of chicken fat and egg-free dried pasta instead of egg noodles, and add a drained 400 g tin of white beans or chickpeas with the carrots for substance.
+
+### High-protein
+- Use all the chicken in the pot rather than keeping some back: that's roughly 35 g protein a bowl.
+- Poach 2 boneless, skinless chicken breasts (about 400 g) in the stock for the last 20–25 minutes of step 4, until they reach 74 °C (165 °F), and add them with the rest of the meat: about 15 g more a bowl.
+- Add a halved boiled egg to each bowl (about 6 g), or swap the egg noodles for a chickpea or lentil pasta (about 4 g more a bowl; many are also gluten-free, but check the label).
 
 ## Tips
 - **Never let it boil hard.** A bare simmer keeps the stock clear and the meat tender. If the surface starts rolling, turn the heat down or slide the pot half off the burner.

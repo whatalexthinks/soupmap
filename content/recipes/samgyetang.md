@@ -17,7 +17,13 @@ difficulty: easy
 serves: 2
 active: 25
 total: 150
+prep: 20
+cook: 75
+richness: 4
+spice: 1
+comfort: 9
 date: 2026-10-20
+updated: 2026-10-27
 journal: korean-soups
 ---
 
@@ -64,6 +70,22 @@ The thing to get right is the stuffing. Fill each bird only about three-quarters
 
 ### Serve
 8. Lift each bird carefully into a deep bowl and ladle the broth over, with the garlic, jujubes and chestnuts from the pot. Put out salt, pepper and spring onion for each person: pull the meat apart with chopsticks or a spoon, dip it in salt and pepper, and stir the rice into the broth, seasoning it as you go.
+
+## Restaurant secret
+
+Lock the legs over the cavity rather than leaving it open. Sealed in, the glutinous rice cooks in the bird's own juices instead of spilling into the pot and clouding the broth. And because glutinous rice is almost entirely amylopectin, the branched starch that turns sticky when cooked, it sets into a soft, cohesive mass that holds together until you break it open at the table, then loosens into the broth like rice porridge as you stir.
+
+## Swaps
+
+### Gluten-free
+- Already gluten-free as written: glutinous rice contains no gluten despite its name, and the broth is seasoned only with salt and pepper. If you use a ready-made samgyetang herb pack (see Variations), check its label.
+
+### Plant-based
+- Samgyetang is the bird, so there's no true plant-based version. For a bowl in the same spirit, soak 10 g kombu and 4 dried shiitake in 1.2 l cold water for at least 3 hours, heat it slowly and lift out the kombu before it boils, then simmer the soaked rice, garlic, jujubes, chestnuts, ginseng and sliced shiitake in it, stirring often, until the rice is soft and the broth has thickened, about 40 minutes. Add cubes of firm tofu for the last 10 minutes. It's closer to a ginseng rice porridge than to samgyetang, and vegan.
+
+### High-protein
+- Already generous: a whole poussin gives each person roughly 50 g protein.
+- For more, tuck 2 chicken drumsticks (about 250 g in all) into the pot around the birds, with a little extra water to cover, and simmer until they read 74°C next to the bone: about 15 g more per bowl.
 
 ## Tips
 - **Soak the rice.** The centre of the bird is the last place to cook, and unsoaked glutinous rice can stay chalky there even when the meat is done.

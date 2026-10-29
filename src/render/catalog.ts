@@ -5,6 +5,7 @@ import type { Shop } from "../data/schema.ts";
 import { CITIES } from "../data/cities.ts";
 import { isIndexableShop, shopPath } from "../data/indexation.ts";
 import { displayName } from "../names.ts";
+import { CUISINES, cuisineOf } from "../cuisines.ts";
 import { esc } from "../ui/dom.ts";
 
 export const CATALOG_PAGE_SIZE = 24;
@@ -15,6 +16,16 @@ export interface CatalogPage {
   description: string;
   content: string;
   structuredData: Record<string, unknown>;
+  /** Set by the quality gate (src/seo/quality.ts); index,follow when absent. */
+  robots?: string;
+}
+
+/** schema.org links (`url`, `item`) are written site-relative; documents need them absolute. */
+function absolute(value: unknown, siteUrl: string): unknown {
+  if (Array.isArray(value)) return value.map(item => absolute(item, siteUrl));
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+    [key, (key === "url" || key === "item") && typeof item === "string" && item.startsWith("/") ? new URL(item, siteUrl).href : absolute(item, siteUrl)]));
 }
 
 const limitations = `<p>Coverage is incomplete. Reported locations are not independently checked recommendations. Check the shop before visiting; coordinates and current trading status may be inaccurate. Unknown menus, prices, hours and broth styles are not inferred.</p>
@@ -59,7 +70,7 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
       path, title: `${heading} · Soupmap`, description,
       content: `<section class="directory-hero"><div><span class="directory-kicker">The soup directory / Japan, chapter one</span><h1 data-directory-heading>${label === 'Japan' ? 'The next bowl<br>is out there.' : `${esc(label)}.<br>One bowl away.`}</h1><p class="lede">A place for every craving. Browse the guide, check the details, and keep the ones you want to try.</p></div><aside class="directory-hero__aside"><strong data-directory-total>${shops.length.toLocaleString('en-US')}</strong><p>places to explore in <span data-directory-region>${esc(label)}</span>.</p><p>Soupmap selections sit alongside open-data listings. Every record shows its source.</p></aside></section>
         <nav class="directory-cities" aria-label="Featured cities"><a href="/catalog/"${base === '/catalog/' ? ' aria-current="page"' : ''}>All Japan</a>${CITIES.filter(c=>all.some(s=>s.city===c.name)).map(c=>`<a href="/city/${c.slug}/"${base === `/city/${c.slug}/` ? ' aria-current="page"' : ''}>${esc(c.name)}<span lang="ja">${esc(c.nameJa)}</span></a>`).join('')}</nav>
-        <nav class="directory-workflow" aria-label="Your discoveries"><span>Find a place. Keep a plan.</span><a href="/catalog/?collection=saved">Saved places ↗</a><a href="/me/#plan">Plan a trip ↗</a></nav>
+        <nav class="directory-workflow" aria-label="Your discoveries"><span>Find a place. Keep a plan.</span><a href="/guides/">City guides ↗</a><a href="/catalog/?collection=saved">Saved places ↗</a><a href="/me/#plan">Plan a trip ↗</a></nav>
         <div class="directory-workspace" id="directory-browser" data-city="${CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all'}" data-page="${page}">
         ${directoryControls(CITIES.find(c=>base===`/city/${c.slug}/`)?.slug ?? 'all')}
         <div class="directory-feed"><div class="directory-collections" hidden aria-label="Quick collections"><a href="?collection=all" data-directory-collection="all">All places</a><a href="?collection=editorial" data-directory-collection="editorial">Our selections</a><a href="?collection=saved" data-directory-collection="saved">Saved places</a></div><div class="directory-active" id="directory-active" aria-label="Active filters"></div>
@@ -122,7 +133,12 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
       path, title: `${name} — ${shop.neighborhood}, ${shop.city} · Soupmap`, description,
       content: `<nav aria-label="Breadcrumb"><a href="/catalog/">Japan catalog</a>${city ? ` / <a href="/city/${city.slug}/">${esc(city.name)}</a>` : ""}</nav>${profileHtml(shop)}<p class="directory-status" data-directory-status role="status"></p>`,
       // Describe the document, not a verified business, rating, menu or opening-hours claim.
-      structuredData: { "@type": "WebPage", name: `${name} — ${shop.city}`, description,
+      structuredData: { "@type": "WebPage", name: `${name} — ${shop.city}`, description, inLanguage: "en",
+        isPartOf: { "@type": "WebSite", name: "Soupmap" },
+        keywords: [CUISINES.find(c => c.id === cuisineOf(shop))!.label, shop.city, shop.neighborhood].join(", "),
+        breadcrumb: { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Japan catalog", item: "/catalog/" },
+          ...(city ? [{ "@type": "ListItem", position: 2, name: city.name, item: `/city/${city.slug}/` }] : []),
+          { "@type": "ListItem", position: city ? 3 : 2, name, item: path }] },
         about: { "@type": "Place", name, alternateName: shop.nameJa,
           geo: { "@type": "GeoCoordinates", latitude: shop.lat, longitude: shop.lng } } },
     });
@@ -132,16 +148,12 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
 
 export function catalogDocument(page: CatalogPage, siteUrl: string, stylesheet: string | readonly string[], script?: string): string {
   const canonical = `${siteUrl}${page.path}`;
-  const data: Record<string, unknown> = { "@context": "https://schema.org", ...structuredClone(page.structuredData), url: canonical };
-  if (data["@type"] === "CollectionPage") {
-    const list = data.mainEntity as { itemListElement: { url: string }[] };
-    for (const item of list.itemListElement) item.url = new URL(item.url, siteUrl).href;
-  }
+  const data = { "@context": "https://schema.org", ...absolute(page.structuredData, siteUrl) as Record<string, unknown>, url: canonical };
   const json = JSON.stringify(data).replaceAll("<", "\\u003c");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${esc(page.title)}</title><meta name="description" content="${esc(page.description)}">
-    <link rel="canonical" href="${esc(canonical)}"><meta name="robots" content="index,follow">
+    <link rel="canonical" href="${esc(canonical)}"><meta name="robots" content="${esc(page.robots ?? "index,follow")}">
     <meta property="og:type" content="website"><meta property="og:site_name" content="Soupmap">
     <meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}">
     <meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(siteUrl)}/social/soupmap-world.png">

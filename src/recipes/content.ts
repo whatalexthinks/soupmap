@@ -40,7 +40,14 @@ export interface Recipe {
   serves: number;
   active: number;
   total: number;
+  /** Preparation and time on the heat, for the scorecard and schema.org prepTime/cookTime. */
+  prep: number;
+  cook: number;
+  /** Editorial 1–10 ratings shown as meters. */
+  meters: Meters;
   date: string;
+  /** Last substantive change (YYYY-MM-DD), for sitemaps and dateModified. */
+  updated?: string;
   journal?: string;
   map?: string;
   mapLabel?: string;
@@ -48,13 +55,44 @@ export interface Recipe {
   headnote: string;
   ingredients: IngredientGroup[];
   method: StepGroup[];
+  /** "Restaurant secret": the one technique that makes the difference. */
+  secret: string;
+  swaps: Swaps;
   tips: string[];
   storage: string[];
   variations: string[];
   ingredientCount: number;
   stepCount: number;
   photo?: RecipePhoto;
+  /** Sourced cost per bowl (content/recipes/costs.json); never estimated by us. */
+  cost?: RecipeCost;
+  /** Sourced nutrition per serving (content/recipes/nutrition.json). */
+  nutrition?: RecipeNutrition;
 }
+
+/** Per-bowl cost at home against a typical restaurant bowl, with where the prices came from. */
+export interface RecipeCost {
+  currency: "USD";
+  home: number;
+  out: number;
+  source: string;
+  /** YYYY-MM the prices were checked. */
+  checked: string;
+}
+
+/** Per serving, from a named analysis (a dietitian or a nutrition database run), not a guess. */
+export interface RecipeNutrition {
+  calories: number;
+  /** Grams. */
+  protein: number;
+  /** Milligrams. */
+  sodium: number;
+  source: string;
+}
+
+export interface Meters { richness: number; spice: number; comfort: number }
+export interface Swaps { glutenFree: string[]; plantBased: string[]; highProtein: string[] }
+export const SWAP_HEADINGS = { glutenFree: "Gluten-free", plantBased: "Plant-based", highProtein: "High-protein" } as const;
 
 export class RecipeError extends Error {
   constructor(slug: string, message: string) {
@@ -64,8 +102,8 @@ export class RecipeError extends Error {
 
 const JAPANESE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 const ids = (values: readonly { id: string }[]) => new Set(values.map(v => v.id));
-const SECTIONS = ["Ingredients", "Method", "Tips", "Make ahead and storage", "Variations"] as const;
-const REQUIRED = new Set(["Ingredients", "Method", "Tips"]);
+const SECTIONS = ["Ingredients", "Method", "Restaurant secret", "Swaps", "Tips", "Make ahead and storage", "Variations"] as const;
+const REQUIRED = new Set(["Ingredients", "Method", "Restaurant secret", "Swaps", "Tips"]);
 
 const countWords = (text: string) => text.match(/[A-Za-zÀ-ɏ0-9'’]+/g)?.length ?? 0;
 
@@ -102,7 +140,7 @@ export function parseRecipe(slug: string, source: string): Recipe {
   catch (error) { throw error instanceof JournalError ? new RecipeError(slug, error.message.replace(/^content\/journal\/[^:]+: /, "")) : error; }
   const { data, body } = parsed;
   const known = new Set(["title", "dek", "mark", "region", "country", "type", "base", "diet", "season", "difficulty",
-    "serves", "active", "total", "date", "journal", "map", "mapLabel"]);
+    "serves", "active", "total", "prep", "cook", "richness", "spice", "comfort", "date", "updated", "journal", "map", "mapLabel"]);
   for (const key of Object.keys(data)) if (!known.has(key)) throw new RecipeError(slug, `unknown field "${key}"`);
   const text = (key: string, required = true): string | undefined => {
     const value = data[key];
@@ -146,8 +184,14 @@ export function parseRecipe(slug: string, source: string): Recipe {
   const active = integer("active", 1, 24 * 60);
   const total = integer("total", 1, 48 * 60);
   if (active > total) throw new RecipeError(slug, "active time can't be longer than total time");
+  const prep = integer("prep", 1, 24 * 60);
+  const cook = integer("cook", 0, 48 * 60);
+  if (prep + cook > total) throw new RecipeError(slug, `prep (${prep}) + cook (${cook}) can't be longer than total (${total})`);
+  const meters: Meters = { richness: integer("richness", 1, 10), spice: integer("spice", 1, 10), comfort: integer("comfort", 1, 10) };
   const date = text("date")!;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) throw new RecipeError(slug, "date must be YYYY-MM-DD");
+  const updated = text("updated", false);
+  if (updated && (!/^\d{4}-\d{2}-\d{2}$/.test(updated) || Number.isNaN(Date.parse(`${updated}T00:00:00Z`)) || updated < date)) throw new RecipeError(slug, "updated must be YYYY-MM-DD, on or after date");
   const journal = text("journal", false);
   if (journal && !SLUG.test(journal)) throw new RecipeError(slug, `bad journal slug "${journal}"`);
   const rawMap = text("map", false);
@@ -192,9 +236,25 @@ export function parseRecipe(slug: string, source: string): Recipe {
   const storage = bullets("Make ahead and storage");
   const variations = bullets("Variations");
 
+  const secret = sections.get("Restaurant secret")!.map(l => l.trim()).filter(Boolean).join(" ");
+  if (/^[-*\d#]/.test(secret)) throw new RecipeError(slug, `"## Restaurant secret" is one paragraph, not a list`);
+  const secretWords = countWords(secret);
+  if (secretWords < 25 || secretWords > 120) throw new RecipeError(slug, `"## Restaurant secret" should be 30–90 words (has ${secretWords})`);
+  const swaps = (() => {
+    const list = items(slug, "Swaps", sections.get("Swaps")!, /^[-*]\s+/);
+    const groups = (Object.entries(SWAP_HEADINGS) as [keyof Swaps, string][]).map(([key, heading]) => {
+      const values = list.filter(i => i.group === heading).map(i => i.text);
+      if (values.length < 1 || values.length > 3) throw new RecipeError(slug, `"### ${heading}" under Swaps needs 1–3 bullets (has ${values.length})`);
+      return [key, values] as const;
+    });
+    const unknown = list.find(i => !Object.values(SWAP_HEADINGS).includes(i.group as never));
+    if (unknown) throw new RecipeError(slug, `Swaps only takes ### Gluten-free, ### Plant-based and ### High-protein (found "${unknown.group ?? "no heading"}")`);
+    return Object.fromEntries(groups) as unknown as Swaps;
+  })();
+
   const recipe: Recipe = {
     slug, title, dek, mark, region, country, type, base, diet, season, difficulty, time: timeBucket(total),
-    serves, active, total, date, headnote, ingredients, method, tips, storage, variations,
+    serves, active, total, prep, cook, meters, date, ...(updated ? { updated } : {}), headnote, ingredients, method, secret, swaps, tips, storage, variations,
     ingredientCount: ingredientItems.length, stepCount: stepItems.length,
     ...(journal ? { journal } : {}), ...(map ? { map, mapLabel } : {}),
   };
@@ -251,7 +311,7 @@ export function validateRecipes(recipes: readonly Recipe[], journalSlugs: Readon
   const problems: string[] = [];
   for (const recipe of recipes) {
     if (recipe.journal && !journalSlugs.has(recipe.journal)) problems.push(`${recipe.slug}: journal "${recipe.journal}" does not exist`);
-    const prose = [recipe.headnote, ...recipe.tips, ...recipe.storage, ...recipe.variations,
+    const prose = [recipe.headnote, recipe.secret, ...Object.values(recipe.swaps).flat(), ...recipe.tips, ...recipe.storage, ...recipe.variations,
       ...recipe.method.flatMap(g => g.steps.map(s => s.text))].join("\n");
     for (const [, , raw] of prose.matchAll(LINK)) {
       const href = raw!.trim();

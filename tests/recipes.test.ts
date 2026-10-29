@@ -6,6 +6,7 @@ import { parseRecipe, dietConflicts, type Recipe } from "../src/recipes/content.
 import { FACETS, REGIONS, timeBucket } from "../src/recipes/facets.ts";
 import { findDurations, formatAmount, isoDuration, parseIngredient, scaleAmount } from "../src/recipes/quantity.ts";
 import { recipePages, recipeDetailPage, recipesHead, orderRecipes } from "../src/render/recipes.ts";
+import { inline } from "../src/journal/markdown.ts";
 import { allowedLicense, describe, plainText } from "../scripts/fetch-recipe-photos.ts";
 import { getSource } from "../src/sources.ts";
 import photos from "../src/data/recipe-photos.json" with { type: "json" };
@@ -16,9 +17,14 @@ const bySlug = new Map(recipes.map(r => [r.slug, r]));
 
 const SAMPLE = (overrides: Record<string, string> = {}, body = "") => {
   const fields = { title: "Test soup", dek: "A soup for tests.", mark: "汁", region: "japan", country: "Japan", type: "clear",
-    base: "\n  - vegetable", season: "\n  - winter", difficulty: "easy", serves: "2", active: "10", total: "20", date: "2026-10-20", ...overrides };
-  return `---\n${Object.entries(fields).map(([k, v]) => `${k}:${v.startsWith("\n") ? v : ` ${v}`}`).join("\n")}\n---\n\n${"Words that set the scene and explain the soup. ".repeat(12)}\n\n${body || `## Ingredients\n- 1 l water\n- 1 onion, sliced\n- Salt, to taste\n\n## Method\n1. Boil the water for 5 minutes.\n2. Add the onion.\n3. Season.\n\n## Tips\n- One.\n- Two.\n- Three.`}`;
+    base: "\n  - vegetable", season: "\n  - winter", difficulty: "easy", serves: "2", active: "10", total: "20", prep: "5", cook: "15",
+    richness: "2", spice: "1", comfort: "6", date: "2026-10-20", ...overrides };
+  const text = body || `## Ingredients\n- 1 l water\n- 1 onion, sliced\n- Salt, to taste\n\n## Method\n1. Boil the water for 5 minutes.\n2. Add the onion.\n3. Season.\n\n## Tips\n- One.\n- Two.\n- Three.`;
+  // Bodies that leave out the required secret and swaps get the standard ones before Tips.
+  const full = text.includes("## Restaurant secret") || !text.includes("## Tips") ? text : text.replace("## Tips", `${EXTRA}## Tips`);
+  return `---\n${Object.entries(fields).map(([k, v]) => `${k}:${v.startsWith("\n") ? v : ` ${v}`}`).join("\n")}\n---\n\n${"Words that set the scene and explain the soup. ".repeat(12)}\n\n${full}`;
 };
+const EXTRA = `## Restaurant secret\n${"Salt the onion early so it softens and sweetens the water. ".repeat(3)}\n\n## Swaps\n### Gluten-free\n- Already gluten-free.\n\n### Plant-based\n- Already vegan.\n\n### High-protein\n- Add tofu.\n\n`;
 
 test("every recipe parses, validates and covers the browse facets", () => {
   assert.ok(recipes.length >= 36, `expected at least 36 recipes, got ${recipes.length}`);
@@ -73,6 +79,11 @@ test("the parser explains what's wrong with a recipe file", () => {
   fails(SAMPLE({}, "## Method\n1. One.\n2. Two.\n3. Three.\n\n## Ingredients\n- 1 l water\n- 1 onion\n- salt\n\n## Tips\n- a\n- b\n- c"), /out of order/);
   fails(SAMPLE({}, "## Ingredients\n- 1 l water\n- 1 onion\n- salt\n\n## Method\n1. One.\n2. Two.\n3. Three.\n\n## Serving\n- a"), /unknown section/);
   fails(SAMPLE({}, "## Ingredients\n- 1 l water\n- 1 onion\n- salt\n\n## Method\n1. One.\n2. Two.\n3. Three.\n\n## Tips\n- a"), /3–6 bullets/);
+  fails(SAMPLE({ prep: "10", cook: "15" }), /prep \(10\) \+ cook \(15\) can't be longer than total/);
+  fails(SAMPLE({ spice: "11" }), /"spice"/);
+  fails(SAMPLE({}, "## Ingredients\n- 1 l water\n- 1 onion\n- salt\n\n## Method\n1. One.\n2. Two.\n3. Three."), /missing "## Restaurant secret"/);
+  fails(SAMPLE({}, EXTRA.replace("### High-protein\n- Add tofu.\n", "").replace("## Restaurant secret", "## Ingredients\n- 1 l water\n- 1 onion\n- salt\n\n## Method\n1. One.\n2. Two.\n3. Three.\n\n## Restaurant secret") + "## Tips\n- a\n- b\n- c"), /High-protein" under Swaps needs 1–3 bullets/);
+  fails(SAMPLE({}, EXTRA.replace("Salt the onion early", "- Salt the onion early").replace("## Restaurant secret", "## Ingredients\n- 1 l water\n- 1 onion\n- salt\n\n## Method\n1. One.\n2. Two.\n3. Three.\n\n## Restaurant secret") + "## Tips\n- a\n- b\n- c"), /one paragraph, not a list/);
 });
 
 test("diet tags are checked against the ingredient list", () => {
@@ -115,12 +126,31 @@ test("pages: index, browse pages and recipe pages with schema.org Recipe data", 
   // No photo yet: a typographic panel, never an <img>.
   if (!recipe.photo) assert.ok(page.main.includes("r-art") && !page.main.includes("<img"));
   const head = recipesHead(page, "https://soupmap.example", recipes);
-  const data = JSON.parse(head.match(/<script type="application\/ld\+json">(.*?)<\/script>/)![1]!);
+  const data = JSON.parse(head.match(/<script type="application\/ld\+json" data-recipe-schema>(.*?)<\/script>/)![1]!);
   assert.equal(data["@type"], "Recipe");
   assert.equal(data.recipeIngredient.length, recipe.ingredientCount);
-  assert.equal(data.recipeInstructions.flatMap((s: { itemListElement: unknown[] }) => s.itemListElement).length, recipe.stepCount);
+  // A flat list of HowToStep objects, numbered like the page.
+  assert.equal(data.recipeInstructions.length, recipe.stepCount);
+  assert.ok(data.recipeInstructions.every((s: { "@type": string; text: string; url: string }, i: number) =>
+    s["@type"] === "HowToStep" && s.text && s.url.endsWith(`#step-${i + 1}`)));
+  assert.equal(data.prepTime, isoDuration(recipe.prep));
+  assert.equal(data.cookTime, isoDuration(recipe.cook));
   assert.equal(data.totalTime, isoDuration(recipe.total));
+  assert.equal(data.recipeCategory, "Soup");
+  assert.equal(data.recipeCuisine, recipe.country === "Japan" ? "Japanese" : data.recipeCuisine);
+  assert.notEqual(data.recipeCuisine, recipe.country, "cuisine is an adjective, not the country");
+  assert.deepEqual(data.author, { "@type": "Organization", name: "Soupmap Culinary Team", url: "https://soupmap.example/recipes/" });
   assert.equal(data.image, undefined, "no image is claimed without a photo");
+  assert.equal(data.aggregateRating, undefined, "ratings are added at serve time, from real reviews only");
+  assert.equal(data.nutrition, undefined, "no nutrition without a sourced analysis");
+  // The scorecard, meters, secret and swaps are on the page, not just in the data.
+  for (const label of ["Prep", "Cook", "Total", "Effort", "Serves"]) assert.match(page.main, new RegExp(`<dt>${label}</dt>`));
+  assert.equal(page.main.match(/class="r-meter"/g)!.length, 3);
+  assert.match(page.main, new RegExp(`aria-label="Broth richness: ${recipe.meters.richness} out of 10`));
+  assert.ok(page.main.includes('id="secret-title"') && page.main.includes(inline(recipe.secret)));
+  for (const id of ["gluten-free", "plant-based", "high-protein"]) assert.match(page.main, new RegExp(`id="swap-${id}"`));
+  assert.deepEqual([...page.main.matchAll(/data-bowls="(\d)"/g)].map(m => m[1]), ["1", "2", "4"]);
+  assert.ok(!page.main.includes("r-buy"), "no shopping links unless an affiliate programme is configured");
   assert.ok(!head.includes("</script><script") || head.split("application/ld+json").length === 3);
 });
 
@@ -130,7 +160,7 @@ test("a recipe with a photo credits its author and licence", () => {
   const page = recipeDetailPage(recipe, recipes);
   assert.match(page.main, /<img class="r-photo" src="\/images\/recipes\/x\.jpg"/);
   assert.match(page.main, /Photo: A\. Photographer, <a href="https:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/" rel="license noopener"/);
-  const data = JSON.parse(recipesHead(page, "https://s.example", recipes).match(/ld\+json">(.*?)<\/script>/)![1]!);
+  const data = JSON.parse(recipesHead(page, "https://s.example", recipes).match(/data-recipe-schema>(.*?)<\/script>/)![1]!);
   assert.deepEqual(data.image, ["https://s.example/images/recipes/x.jpg"]);
 });
 
