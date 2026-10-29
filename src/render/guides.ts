@@ -305,6 +305,33 @@ function guidesIndex(styles: readonly { style: GuideStyle; guides: readonly Guid
   };
 }
 
+export interface GuideLink { path: string; label: string; count?: number }
+
+/**
+ * For each Soupmap selection, the indexable guides that list it (most specific first), then
+ * its city hub when that is indexable too. Restaurant pages link back with these.
+ */
+export function guidesByShop(guides: readonly Guide[]): Map<string, GuideLink[]> {
+  const eligible = guides.filter(indexEligible);
+  const perPlace = new Map<string, number>();
+  for (const guide of eligible) perPlace.set(guide.place.municipality.code, (perPlace.get(guide.place.municipality.code) ?? 0) + 1);
+  const links = new Map<string, GuideLink[]>();
+  const hubs = new Map<string, GuideLink>();
+  for (const guide of eligible) {
+    for (const shop of guide.shops) {
+      if (!isEditorial(shop)) continue;
+      links.set(shop.slug, [...(links.get(shop.slug) ?? []), { path: guide.path, label: `${guide.style.label} in ${guide.place.municipality.name}`, count: guide.shops.length }]);
+      if ((perPlace.get(guide.place.municipality.code) ?? 0) >= 2) hubs.set(shop.slug, { path: cityHubPath(guide.place), label: `Every guide for ${guide.place.municipality.name}` });
+    }
+  }
+  for (const [slug, list] of links) {
+    list.sort((a, b) => a.count! - b.count!);
+    const hub = hubs.get(slug);
+    if (hub) list.push(hub);
+  }
+  return links;
+}
+
 /** Every guide page, city hub, style hub and the index, ready for catalogDocument(). */
 export function guideSite(guides: readonly Guide[], context: GuideContext): GuideSitePage[] {
   const byPlace = new Map<string, Guide[]>();

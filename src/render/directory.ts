@@ -1,4 +1,5 @@
 import { mapBanner, weatherWidget, shopGrowth, commerceLabels } from '../growth/render.ts';
+import type { GuideLink } from './guides.ts';
 import { isFeatured } from '../growth/config.ts';
 import type { Shop } from '../data/schema.ts';
 import { CITIES } from '../data/cities.ts';
@@ -54,17 +55,24 @@ export function directoryControls(city: string): string {
 export function googlePanelShell(): string {
   return `<section class="google-place-panel" aria-label="Google restaurant details"><div class="google-place-intro"><span class="directory-kicker">Before you go</span><h3>See the place. Know the details.</h3><p>Look up photos, opening hours, ratings and reviews from Google Maps.</p><button type="button" class="directory-button" data-google-load>Load Google details ↗</button></div><p data-google-status role="status"></p><div data-google-content></div><p class="google-place-legal"><a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></section>`;
 }
-export function profileHtml(shop: Shop): string {
+/** Build-time only: the guides that list this place (they need municipality data the browser doesn't load). */
+function guideLinksHtml(name: string, links: readonly GuideLink[]): string {
+  if (!links.length) return '';
+  return `<section class="place-guides" aria-labelledby="place-guides"><span class="directory-kicker">In Soupmap guides</span><h2 id="place-guides">Where to find ${esc(name)} in our guides</h2><ul>${links.map(link =>
+    `<li><a href="${esc(link.path)}">${esc(link.label)}</a>${link.count ? ` <small>${link.count.toLocaleString('en-US')} places</small>` : ''}</li>`).join('')}</ul></section>`;
+}
+export function profileHtml(shop: Shop, guides: readonly GuideLink[] = []): string {
   const editorial = isEditorial(shop);
   const name = displayName(shop, 'en');
+  // What a visitor came for comes first; the map, weather and growth modules follow it.
   return `<article class="place-profile" data-place-profile="${esc(shop.slug)}">
-    <header class="place-profile__header"><span class="directory-kicker">${esc(shop.city)} / ${editorial ? 'Soupmap selection' : 'Open-data listing'}</span><h1 tabindex="-1">${esc(name)}</h1><p lang="ja">${esc(shop.nameJa)}</p><p>${esc(shop.neighborhood)} · ${esc(shop.city)}</p></header>
-    ${mapBanner(shop)}${weatherWidget(shop)}<div class="place-profile__actions"><button class="directory-button" data-directory-save="${esc(shop.slug)}" aria-pressed="false" hidden>Save place +</button><a class="directory-button directory-button--quiet" href="https://www.google.com/maps/dir/?api=1&amp;destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener">Directions ↗</a><a class="directory-text-link" href="/map/#${esc(shop.slug)}">View on map ↗</a><a class="directory-text-link" href="/me/#places">Your saved places ↗</a></div><p data-profile-status role="status"></p>
+    <header class="place-profile__header"><span class="directory-kicker">${esc(shop.city)} / ${editorial ? 'Soupmap selection' : 'Open-data listing'}</span><h1 tabindex="-1">${esc(name)}</h1><p lang="ja">${esc(shop.nameJa)}</p><p>${esc(shop.neighborhood)} · ${esc(shop.city)}</p>${commerceLabels(shop)}</header>
+    <div class="place-profile__actions"><button class="directory-button" data-directory-save="${esc(shop.slug)}" aria-pressed="false" hidden>Save place +</button><a class="directory-button directory-button--quiet" href="https://www.google.com/maps/dir/?api=1&amp;destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener">Directions ↗</a><a class="directory-text-link" href="/map/#${esc(shop.slug)}">View on map ↗</a><a class="directory-text-link" href="/me/#places">Your saved places ↗</a></div><p data-profile-status role="status"></p>
     <div class="place-profile__facts"><div><span>Style</span><strong>${esc(CUISINES.find(c=>c.id===cuisineOf(shop))!.label)}</strong><small>${shop.broth !== 'other' ? esc(BROTHS[shop.broth].label)+(shop.brothSource==='name'?' · from the name':'') : 'Broth not recorded'}</small></div><div><span>Guide price</span><strong>${shop.priceYen ? `¥${shop.priceYen[0]}–¥${shop.priceYen[1]}` : 'Not recorded'}</strong><small>Confirm current menu prices</small></div><div><span>Before visiting</span><strong>Check opening hours</strong><small>${shop.hours ? esc(shop.hours)+' · guide hours' : 'Look up live details below'}</small></div></div>
     <div class="place-profile__columns"><div class="place-profile__notes"><section><span class="directory-kicker">What to know</span><h2>${editorial ? esc(shop.signatureBowl) : 'A new place for your list?'}</h2><p>${editorial ? esc(shop.blurb) : 'This location comes from the open places catalog. We haven’t written a guide to its menu yet. Check the restaurant details before heading over.'}</p>${stylesHtml(shop)}
 </section>
     <section data-profile-contact><h2>Contact &amp; location</h2>${contactHtml(shop)}</section>
     <details class="directory-source"><summary>Sources &amp; verification</summary><p>${shop.verified ? 'Verified on the ground.' : 'Not verified. Unverified location; not independently checked on the ground.'}</p><p>${recordSource(shop)}</p><p>Reported coordinates: ${shop.lat}, ${shop.lng}</p><p>Soupmap notes are editorial content, not copied reviews. Prices and menu notes may change. Generated romanizations are approximate; the Japanese name is preserved.</p><a href="/credits/">All data credits</a></details></div>
     <aside class="place-profile__live">${googlePanelShell()}<a class="directory-text-link" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>${recipeCardHtml(shop)}</aside></div>
-  ${shopGrowth(shop)}</article>`;
+  ${guideLinksHtml(name, guides)}${mapBanner(shop)}${weatherWidget(shop)}${shopGrowth(shop)}</article>`;
 }

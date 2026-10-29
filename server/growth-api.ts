@@ -34,6 +34,8 @@ export function growthPublicApi(store:GrowthStore, weather = new WeatherService(
   router.get('/weather',async(req,res)=>{
     const parsed=z.object({lat:z.coerce.number().finite().min(-90).max(90),lng:z.coerce.number().finite().min(-180).max(180)}).safeParse(req.query);
     if(!parsed.success){res.status(400).json({error:'Choose a valid location.'});return;}
+    // No key, no weather: "nothing to show" (pages drop the widget), not an outage to retry.
+    if(!weather.configured){res.setHeader('Cache-Control','public, max-age=3600');res.status(204).end();return;}
     try{const value=await weather.current(parsed.data.lat,parsed.data.lng);res.setHeader('Cache-Control','public, max-age=300, s-maxage=900');res.json(value);}
     catch{res.status(503).json({error:'Current weather is unavailable. Please try again later.'});}
   });

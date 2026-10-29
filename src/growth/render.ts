@@ -4,6 +4,7 @@ import { displayName } from '../names.ts';
 import { AFFILIATES, commerceFor, isFeatured, trackedUrl } from './config.ts';
 import { cuisineOf } from '../cuisines.ts';
 import { cityByName } from '../data/cities.ts';
+import { recipeForShop } from '../recipes/catalog-links.ts';
 
 export function passportWidget(city = 'Tokyo', slug = ''): string {
   return `<section class="growth-passport" data-passport-city="${esc(city)}" data-passport-shop="${esc(slug)}"><div><span class="directory-kicker">Winter soup passport</span><h2>Five bowls. A new side of ${esc(city)}.</h2><p data-passport-count>0/5 bowls tried in ${esc(city)}</p><progress max="5" value="0" aria-label="Bowls tried"></progress></div><div><button class="directory-button" type="button" data-passport-start>${slug ? 'Check in / Mark as tried' : 'Start your soup passport'} →</button><p class="growth-fine" data-passport-status role="status">Sign in to keep your stamps across devices. Visits are self-reported.</p></div></section>`;
@@ -11,7 +12,7 @@ export function passportWidget(city = 'Tokyo', slug = ''): string {
 export function mapBanner(shop?: Shop, city = 'Japan'): string {
   const hub = cityByName.get(city);
   const href = shop ? `/map/#${shop.slug}` : hub ? `/map/?city=${hub.slug}` : '/map/';
-  return `<aside class="growth-map-banner"><svg viewBox="0 0 120 72" width="120" height="72" aria-hidden="true"><path d="M0 18H120M0 54H120M28 0V72M90 0V72M0 72L120 0" fill="none" stroke="currentColor" stroke-width="1" opacity=".2"/><path d="M60 12a15 15 0 0 1 15 15c0 12-15 29-15 29S45 39 45 27a15 15 0 0 1 15-15" fill="currentColor"/><circle cx="60" cy="27" r="5" fill="#f8f0e2"/></svg><div><span class="directory-kicker">Your next bowl, on the map</span><strong>${esc(shop ? displayName(shop, 'en') : `Explore ${city} by the bowl`)}</strong>${shop ? `<small>${shop.lat.toFixed(4)}° N · ${shop.lng.toFixed(4)}° E · Location preview</small>` : ''}</div><a class="directory-button" href="${esc(href)}">Explore on Interactive SoupMap →</a></aside>`;
+  return `<aside class="growth-map-banner"><svg viewBox="0 0 120 72" width="120" height="72" aria-hidden="true"><path d="M0 18H120M0 54H120M28 0V72M90 0V72M0 72L120 0" fill="none" stroke="currentColor" stroke-width="1" opacity=".2"/><path d="M60 12a15 15 0 0 1 15 15c0 12-15 29-15 29S45 39 45 27a15 15 0 0 1 15-15" fill="currentColor"/><circle cx="60" cy="27" r="5" fill="#f8f0e2"/></svg><div><span class="directory-kicker">Your next bowl, on the map</span><strong>${esc(shop ? displayName(shop, 'en') : `Explore ${city} by the bowl`)}</strong>${shop ? `<small>${shop.lat.toFixed(4)}° N · ${shop.lng.toFixed(4)}° E · Location preview</small>` : ''}</div><a class="directory-button" href="${esc(href)}">Open the interactive map →</a></aside>`;
 }
 export function weatherWidget(shop: Pick<Shop, 'lat' | 'lng' | 'city'>): string {
   return `<section class="growth-weather" data-weather-lat="${shop.lat}" data-weather-lng="${shop.lng}" data-weather-city="${esc(shop.city)}"><span aria-hidden="true">◌</span><div><strong data-weather-copy>Current soup forecast in ${esc(shop.city)}</strong><p data-weather-detail>Checking the conditions for your next bowl.</p><small>Weather: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · Soup score is our playful comfort index.</small></div><button type="button" data-weather-retry hidden>Retry</button></section>`;
@@ -29,17 +30,20 @@ export function outboundActions(shop: Shop): string {
 }
 export function ownerCallout(shop: Shop): string {
   const c = commerceFor(shop.slug);
-  return `<section class="growth-owner"><span class="directory-kicker">For the people behind the bowl</span><h2>${c?.verifiedOwner ? 'A restaurant with a claimed profile.' : 'Is this your restaurant?'}</h2><p>Claim your free Soupmap profile, keep your details current, and help your next regular find you.</p><a class="directory-button directory-button--quiet" href="/claim/?shop=${encodeURIComponent(shop.slug)}">Claim your verified SoupMap profile →</a><small>Ownership is checked before a verified badge is granted. Featured placements are labeled sponsored.</small></section>`;
+  return `<section class="growth-owner"><span class="directory-kicker">For the people behind the bowl</span><h2>${c?.verifiedOwner ? 'A restaurant with a claimed profile.' : 'Is this your restaurant?'}</h2><p>Claim your free Soupmap profile, keep your details current, and help your next regular find you.</p><a class="directory-button directory-button--quiet" href="/claim/?shop=${encodeURIComponent(shop.slug)}">Claim your Soupmap profile →</a><small>Ownership is checked before a verified badge is granted. Featured placements are labeled sponsored.</small></section>`;
 }
 export function commerceLabels(shop: Shop): string {
   const c = commerceFor(shop.slug);
   const rating = c?.rating;
   return `${c?.verifiedOwner ? '<span class="growth-verified">✓ Owner verified</span>' : ''}${isFeatured(shop.slug) ? '<span class="growth-gold">Featured · Sponsored</span>' : ''}${rating ? `<p class="growth-rating">${rating.value}/5 from ${rating.count} ratings · <a href="${esc(rating.source)}">Rating source</a> · checked ${esc(rating.checkedAt)}</p>` : ''}`;
 }
-export function affiliateModule(cuisine = 'all'): string {
+/** With no products configured it points to the recipes, unless the page already offers a specific one. */
+export function affiliateModule(cuisine = 'all', fallback = true): string {
   const offers = AFFILIATES.filter(a => cuisine === 'all' || a.cuisines.includes(cuisine));
+  if (!offers.length && !fallback) return '';
   return `<section class="growth-home"><div><span class="directory-kicker">A bowl closer to home</span><h2>Craving this at home?</h2><p>Start with a good broth. Finish it your way.</p></div>${offers.length ? `<div class="growth-products">${offers.flatMap(a => {const url = trackedUrl(a.url); return url ? [`<a href="${esc(url)}" target="_blank" rel="sponsored noopener"><strong>${esc(a.title)}</strong><span>${esc(a.description)}</span>Shop broth &amp; kits ↗</a>`] : [];}).join('')}</div><small>Affiliate links. Soupmap may earn a commission.</small>` : '<a class="directory-button directory-button--quiet" href="/recipes/">Find a soup to make tonight →</a>'}</section>`;
 }
 export function shopGrowth(shop: Shop): string {
-  return `${commerceLabels(shop)}${outboundActions(shop)}${leadCapture(shop)}${passportWidget(shop.city, shop.slug)}${affiliateModule(cuisineOf(shop))}${ownerCallout(shop)}`;
+  // Owner and sponsored labels sit in the profile header, beside the name they describe.
+  return `${outboundActions(shop)}${leadCapture(shop)}${passportWidget(shop.city, shop.slug)}${affiliateModule(cuisineOf(shop), !recipeForShop(shop))}${ownerCallout(shop)}`;
 }

@@ -11,6 +11,7 @@ import { createServer as createHttpServer } from "node:http";
 import { resolve } from "node:path";
 import sirv from "sirv";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware.ts";
+import { optionalAuth } from "./middlewares/optionalAuth.ts";
 import { personalApi } from "./api.ts";
 import { ListStore } from "./lists.ts";
 import { recipesApi } from "./recipes-api.ts";
@@ -39,12 +40,15 @@ const submissions = new PgSubmissionLog();
 app.use("/api/indexnow", indexNowApi(indexNow, submissions, process.env.INDEXNOW_ADMIN_TOKEN));
 if (indexNow) app.use(keyFile(indexNow));
 // Public map/content do not depend on the identity provider being reachable.
-app.use("/api", clerkMiddleware((req) => ({
+const clerk = clerkMiddleware((req) => ({
   publishableKey: publishableKeyFromHost(
     getClerkProxyHost(req) ?? "",
     process.env.CLERK_PUBLISHABLE_KEY,
   ),
-})));
+}));
+// If Clerk can't run (no key, misconfiguration), requests continue signed out: public reads such
+// as recipe ratings still work, and account routes still refuse without an identity.
+app.use("/api", optionalAuth(clerk, error => console.error("Accounts unavailable:", error instanceof Error ? error.message.split("\n")[0] : error)));
 app.use('/api/passport', growthAccountApi(growthStore));
 // Recipe reviews are public to read, so they mount before the account-only API.
 const recipeSlugs = new Set(readdirSync(resolve("content/recipes")).filter(name => name.endsWith(".md") && name !== "README.md").map(name => name.slice(0, -3)));

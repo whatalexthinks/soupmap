@@ -4,6 +4,7 @@ import { isFeatured } from '../growth/config.ts';
 import { siteHeader } from "./shell.ts";
 /** Static documents: no map, client filters, or JavaScript needed to read them. */
 import { directoryCard, directoryControls, profileHtml } from "./directory.ts";
+import type { GuideLink } from "./guides.ts";
 import type { Shop } from "../data/schema.ts";
 import { CITIES } from "../data/cities.ts";
 import { isIndexableShop, shopPath } from "../data/indexation.ts";
@@ -61,7 +62,8 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
     const start = index * CATALOG_PAGE_SIZE;
     const slice = shops.slice(start, start + CATALOG_PAGE_SIZE);
     const local = CITIES.find(c => c.name === label);
-    const heroGrowth = `${mapBanner(undefined, label)}${slice[0] ? weatherWidget({...slice[0], city: local?.name ?? slice[0].city}) : ""}`;
+    // A forecast needs a place: city pages use the city centre; all of Japan has no single sky.
+    const heroGrowth = `${mapBanner(undefined, label)}${local ? weatherWidget({ lat: local.lat, lng: local.lng, city: local.name }) : ""}`;
     const growth = `${leadCapture(undefined, label)}${passportWidget(local?.name ?? "Tokyo")}${affiliateModule()}`;
     const path = listingPath(base, page);
     const heading = `${label} soup shop catalog${page > 1 ? ` — Page ${page}` : ""}`;
@@ -118,7 +120,19 @@ function listingPages(shops: readonly Shop[], base: string, label: string, all: 
   return pages;
 }
 
-export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
+/** "Yoshimuraya — Iekei ramen in Okano, Yokohama": the bowl people search for, and where. */
+export function restaurantTitle(shop: Shop, name: string): string {
+  const bowl = shop.signatureBowl.replace(/\s*\([^)]*\)/g, "");
+  const options = [`${name} — ${bowl} in ${shop.neighborhood}, ${shop.city}`, `${name} — ${bowl} in ${shop.city}`, `${name}, ${shop.city}`];
+  return `${options.find(title => title.length <= 60) ?? options.at(-1)} · Soupmap`;
+}
+
+/** Search snippets lead with our own notes; the verification status stays on the page itself. */
+export function restaurantDescription(shop: Shop, name: string): string {
+  return `${name}${shop.nameJa !== name ? ` (${shop.nameJa})` : ""} in ${shop.neighborhood}, ${shop.city}. ${shop.blurb.trim()}`;
+}
+
+export function catalogPages(shops: readonly Shop[], guides: ReadonlyMap<string, readonly GuideLink[]> = new Map()): CatalogPage[] {
   const pages = listingPages(shops, "/catalog/", "Japan", shops);
   for (const city of CITIES) {
     const records = shops.filter(s => s.city === city.name).sort((a,b) => Number(isFeatured(b.slug)) - Number(isFeatured(a.slug)));
@@ -127,12 +141,11 @@ export function catalogPages(shops: readonly Shop[]): CatalogPage[] {
   for (const shop of shops.filter(isIndexableShop)) {
     const name = displayName(shop, "en");
     const path = shopPath(shop);
-    const status = shop.verified ? "Verified on the ground." : "Unverified location; not independently checked on the ground.";
-    const description = `${name} in ${shop.neighborhood}, ${shop.city}: ${shop.signatureBowl}. ${status} Shop notes, reported location and source attribution.`;
+    const description = restaurantDescription(shop, name);
     const city = CITIES.find(c => c.name === shop.city);
     pages.push({
-      path, title: `${name} — ${shop.neighborhood}, ${shop.city} · Soupmap`, description,
-      content: `<nav aria-label="Breadcrumb"><a href="/catalog/">Japan catalog</a>${city ? ` / <a href="/city/${city.slug}/">${esc(city.name)}</a>` : ""}</nav>${profileHtml(shop)}<p class="directory-status" data-directory-status role="status"></p>`,
+      path, title: restaurantTitle(shop, name), description,
+      content: `<nav aria-label="Breadcrumb"><a href="/catalog/">Japan catalog</a>${city ? ` / <a href="/city/${city.slug}/">${esc(city.name)}</a>` : ""}</nav>${profileHtml(shop, guides.get(shop.slug))}<p class="directory-status" data-directory-status role="status"></p>`,
       structuredData: { "@type": "WebPage", name: `${name} — ${shop.city}`, description, inLanguage: "en",
         isPartOf: { "@type": "WebSite", name: "Soupmap" },
         keywords: [CUISINES.find(c => c.id === cuisineOf(shop))!.label, shop.city, shop.neighborhood].join(", "),
