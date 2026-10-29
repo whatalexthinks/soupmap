@@ -39,6 +39,12 @@
 .guide-recipe .directory-button:hover { background: var(--clay); border-color: var(--clay); color: var(--paper-light); }
 .guide-recipe__mark, .place-recipe__mark { writing-mode: vertical-rl; font-size: 28px; line-height: 1; letter-spacing: .08em; color: color-mix(in srgb, var(--paper-light) 80%, transparent); }
 .place-recipe { margin: 20px 0 0; padding: 18px 20px; }
+.place-guides { margin: 8px 0 36px; padding-top: 22px; border-top: 2px solid var(--soot); }
+.place-guides h2 { margin: 6px 0 12px; font-family: var(--font-display); font-size: 24px; font-weight: 500; letter-spacing: -.03em; }
+.place-guides ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 20px; margin: 0; padding: 0; list-style: none; }
+.place-guides li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+.place-guides a { color: var(--soot); font-size: 15px; text-underline-offset: 4px; }
+.place-guides small { flex: none; color: var(--muted); font-size: 12px; }
 .place-recipe__mark { font-size: 20px; }
 .place-recipe h2 { font-size: 20px; }
 .place-recipe a { color: var(--paper-light); padding: 4px 0; }

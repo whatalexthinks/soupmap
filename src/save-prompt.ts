@@ -119,7 +119,8 @@ function createDialog(): HTMLDialogElement {
  * Browsing stays open; this prompt never collects an email address itself.
  */
 export function promptToSave(kind: SaveKind = "place"): void {
-  if (!activeDialog) activeDialog = createDialog();
+  // A page that replaced its document (or a test's fresh window) needs a new dialog.
+  if (!activeDialog?.isConnected) activeDialog = createDialog();
   if (activeDialog.open) return;
 
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;

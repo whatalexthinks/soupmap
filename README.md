@@ -372,6 +372,11 @@ saved recipes, and reader reviews and tips.
 - **Recipe ⇄ catalog links**: `src/recipes/catalog-links.ts` maps the twelve Japanese recipes to
   guide styles. Shop profiles (static pages and the catalog dialog) show "Make … at home", guide
   pages show the recipe card, and recipe pages show places and guides.
+- **Restaurant pages link back**: each Soupmap selection's page (`/catalog/<slug>/`) lists the
+  indexable guides that include it, most specific first, then its city hub (`guidesByShop` in
+  `src/render/guides.ts`). Titles name the signature bowl and place ("Yoshimuraya — Iekei ramen
+  in Okano, Yokohama"); descriptions lead with our notes, and the verification status stays on
+  the page.
 - **Quality gate** (`src/seo/quality.ts`), run over every generated page at build time:
   entity pages (recipes, shop pages, guides) need a unique, non-boilerplate description, at
   least 8 filled schema.org properties, and complete content (3+ ingredients and steps; valid

@@ -6,6 +6,8 @@ export class WeatherService {
   private cache = new Map<string,{expires:number;value:SoupWeather}>();
   private pending = new Map<string,Promise<SoupWeather>>();
   constructor(private fetcher: typeof fetch = fetch, private now = Date.now) {}
+  /** Open-Meteo's free tier is non-commercial: production shows weather only with a commercial key. */
+  get configured():boolean { return process.env.NODE_ENV!=='production'||!!process.env.OPEN_METEO_API_KEY; }
   async current(lat:number,lng:number):Promise<SoupWeather> {
     const key=`${lat.toFixed(1)},${lng.toFixed(1)}`;
     const cached=this.cache.get(key);
@@ -17,7 +19,7 @@ export class WeatherService {
   }
   private async load(key:string):Promise<SoupWeather> {
     const apiKey=process.env.OPEN_METEO_API_KEY;
-    if(process.env.NODE_ENV==='production'&&!apiKey)throw new Error('Commercial weather key required');
+    if(!this.configured)throw new Error('Commercial weather key required');
     const [lat,lng]=key.split(',');
     const url=new URL(`https://${apiKey?'customer-api':'api'}.open-meteo.com/v1/forecast`);
     url.searchParams.set('latitude',lat!);url.searchParams.set('longitude',lng!);

@@ -1,10 +1,12 @@
 import { esc } from '../ui/dom.ts';
+import { maybeSignedIn } from '../session-hint.ts';
 interface Passport {visits:string[];cities:Record<string,number>}
 let passport:Passport|null=null;
 let passportLoading:Promise<Passport>|null=null;
 async function request<T>(path:string,method='GET',body?:unknown):Promise<T> {
   const response=await fetch(`/api/${path}`,{method,credentials:'same-origin',signal:AbortSignal.timeout(15000),
     ...(body===undefined?{}:{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})});
+  if(response.status===204)return null as T;
   const data=await response.json();
   if(!response.ok)throw Object.assign(new Error(data.error??'Please try again.'),{status:response.status});
   return data as T;
@@ -49,7 +51,9 @@ async function loadWeather(widget:HTMLElement) {
   const retry=widget.querySelector<HTMLButtonElement>('[data-weather-retry]')!;
   retry.hidden=true;
   try{
-    const weather=await request<{temperatureC:number;precipitation:number;code:number;time:string;score:number}>(`growth/weather?lat=${widget.dataset.weatherLat}&lng=${widget.dataset.weatherLng}`);
+    const weather=await request<{temperatureC:number;precipitation:number;code:number;time:string;score:number}|null>(`growth/weather?lat=${widget.dataset.weatherLat}&lng=${widget.dataset.weatherLng}`);
+    // This site has no weather service configured: leave no empty box behind.
+    if(!weather){widget.remove();return;}
     const temp=Math.round(weather.temperatureC*9/5+32);
     const conditions=weather.code>=71&&weather.code<=77?'Snowy':weather.precipitation>0?'Rainy':weather.code<=1?'Clear':'Cloudy';
     copy.textContent=`${temp}°F / ${Math.round(weather.temperatureC)}°C & ${conditions} in ${widget.dataset.weatherCity}`;
@@ -86,9 +90,10 @@ export function startGrowth() {
     void submit(form);
   });
   window.addEventListener('soupmap:profile-open',()=>mountGrowth());
-  // Authentication and its database-backed passport only load after a human interaction.
+  // Authentication and its database-backed passport only load after a human interaction, and
+  // only for a browser that may be signed in: guests would just get "sign in" back.
   const hydrate=()=>{void loadPassport().catch(()=>{});};
-  if(document.querySelector('[data-passport-city]')){document.addEventListener('pointerdown',hydrate,{once:true});document.addEventListener('keydown',hydrate,{once:true});}
+  if(document.querySelector('[data-passport-city]')&&maybeSignedIn()){document.addEventListener('pointerdown',hydrate,{once:true});document.addEventListener('keydown',hydrate,{once:true});}
   if(location.pathname.startsWith('/claim'))void setupClaim();
 }
 async function submit(form:HTMLFormElement) {

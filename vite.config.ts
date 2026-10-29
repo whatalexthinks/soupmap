@@ -15,7 +15,7 @@ import { loadRecipes } from "./src/recipes/load.ts";
 import { cuisineOf, recipePages, recipeQuality, recipesBody, recipesDocument, recipesHead } from "./src/render/recipes.ts";
 import { homeCitiesHtml, homeCityHtml } from "./src/render/home.ts";
 import { buildGuides, cityHubPath, styleHubPath } from "./src/guides/model.ts";
-import { guideSite, indexEligible } from "./src/render/guides.ts";
+import { guideSite, guidesByShop, indexEligible } from "./src/render/guides.ts";
 import { areaOptions } from "./src/me/planner.ts";
 import { loadGuideIntros } from "./src/guides/load-intros.ts";
 import { validateGuideIntros } from "./src/guides/intros.ts";
@@ -57,14 +57,15 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
   const siteUrl = (env.VITE_SITE_URL || "https://soupmap.com").replace(/\/+$/, "");
   const analyticsToken = (env.VITE_CF_ANALYTICS_TOKEN || "").trim();
   validateCommerce();
-  const documents = catalogPages(ORDERED_SHOPS);
+  // Guides first: restaurant pages link back to the guides that list them.
+  const guides = buildGuides(ORDERED_SHOPS);
+  const documents = catalogPages(ORDERED_SHOPS, guidesByShop(guides));
   const articles = loadJournal();
   const journal = journalPages(articles);
   const journalIndex = journal.find(page => page.path === "/journal/")!;
   const recipes = loadRecipes(new Set(articles.map(a => a.slug)));
   // City × style guides, and the recipe pages that point at them.
   const catalogDate = OPEN_CATALOG.generatedAt.slice(0, 10);
-  const guides = buildGuides(ORDERED_SHOPS);
   const intros = loadGuideIntros();
   // "Plan a day here" may only link to prefectures the planner itself offers.
   const plannable = new Set(areaOptions(ORDERED_SHOPS).flatMap(a => a.id.startsWith("pref:") ? [a.id.slice("pref:".length)] : []));

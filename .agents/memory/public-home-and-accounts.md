@@ -25,3 +25,5 @@ New personal saves require an account. Prompt at save actions with contextual be
 **Why:** The user explicitly changed the saving policy to account/email signup everywhere appropriate, with persuasive sales messaging.
 
 **How to apply:** Keep public browsing, planning and cooking open. Explain cross-device/private saving, offer sign-in and a clear dismissal, and never treat a failed account request as permission to write locally.
+
+**Testing saves (2026-10-29):** DOM tests that save use `tests/fake-account.ts` (a stand-in for /api/me, /api/saved and /api/personal; signed out answers 401) and `settle()` for the async save path. Assert account state, not device storage, and compare DOM nodes with `assert.ok(a === b)`: a failed deep-equal on happy-dom elements exhausts memory instead of reporting.
