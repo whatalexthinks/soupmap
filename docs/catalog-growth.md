@@ -65,7 +65,7 @@ The integration preserves main’s city guides, recipe links and live reader-rat
 
 The outstanding visual QA was done in Chromium at 1366 px and 390 px across every page type. Fixes:
 
-- **Save on static pages.** Save buttons show on load with this device's saves. The first click loads the directory (and the account, for a browser with a session), then applies what the visitor saw: a signed-in visitor's first save waits for their account rather than landing on the device.
+- **Save on static pages.** Save is the sign-up moment, so its buttons show on load as "Save +". Saving needs an account: the first click loads the directory and asks the server who this is (`requireSaveAccount`). Guests get the sign-up prompt; a signed-in visitor's real list is loaded before the save is applied, so a place they already kept is never toggled off.
 - **Restaurant page order.** Name, actions, facts, notes and contact come first. The map banner, weather and growth modules follow, after a new "In Soupmap guides" section that links each selection to the indexable guides listing it (built at build time; the catalog pop-up has no guide data). Owner-verified and sponsored labels sit in the header, beside the name they describe.
 - **One home-cooking box.** The generic recipes/affiliate box appears only when products are configured or the shop has no specific recipe card.
 - **Brand spelling.** "Soupmap" throughout.

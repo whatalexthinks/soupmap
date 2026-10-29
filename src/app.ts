@@ -16,7 +16,7 @@ import { t } from "./i18n.ts";
 import type { MapEngineImpl } from "./map/engine.ts";
 import type { BuildingEvent, BuildingInfo, PlateauTilesetRef } from "./map/plateau.ts";
 import { StreetView } from "./map/streetview.ts";
-import { accountSaved, changeAccountSaved } from "./personal-saves.ts";
+import { accountSaved, changeAccountSaved, requireSaveAccount } from "./personal-saves.ts";
 import { type CuisineId } from "./cuisines.ts";
 import { displayName, restoreNameLanguage, getNameLanguage, setNameLanguage, type NameLanguage } from "./names.ts";
 import { router } from "./router.ts";
@@ -411,19 +411,9 @@ export class App {
       }).catch(error => toast(error instanceof Error ? error.message : "Your change could not be saved.", 5000));
       return;
     }
-    if (this.saved.has(slug)) this.saved.delete(slug); else this.saved.add(slug);
-    let persistent = true;
-    try { localStorage.setItem(SAVED_KEY, JSON.stringify([...this.saved])); }
-    catch { persistent = false; }
-    this.refresh();
-    if (this.selected === slug) this.card.setSaved(this.saved.has(slug));
-    trackEvent("save_changed", {
-      saved: this.saved.has(slug), persistent, shared_list: this.sharedActive,
-      city:shop.city, broth:shop.broth,
-    });
-    const saveButton = [...document.querySelectorAll<HTMLButtonElement>('[data-save]')].find(b => b.dataset.save === slug);
-    if (!document.body.classList.contains('has-card')) saveButton?.focus({ preventScroll: true });
-    toast(persistent ? (this.saved.has(slug) ? 'Added to your saved places' : 'Removed from saved places') : 'Saved for this session. Browser storage is unavailable.');
+    void requireSaveAccount("place").then(ready => {
+      if (ready) this.toggleSaved(slug);
+    }).catch(() => toast("Your account could not be reached. Please retry; nothing was saved to this device.", 5000));
   }
 
   private resetFilters(): void {
@@ -479,10 +469,9 @@ export class App {
         .catch(()=>toast('Some places could not be saved. Please retry; existing saves are kept.',5000));
       return;
     }
-    slugs.forEach(slug=>{if(shopBySlug.has(slug))this.saved.add(slug);});
-    let persistent=true;try{localStorage.setItem(SAVED_KEY,JSON.stringify([...this.saved]));}catch{persistent=false;}
-    this.refresh();this.card.setSaved(!!this.selected&&this.saved.has(this.selected));
-    toast(persistent?'Collection added to your saved places.':'Collection saved for this session only.');
+    void requireSaveAccount("collection").then(ready => {
+      if (ready) this.saveCollection(slugs);
+    }).catch(() => toast("Your account could not be reached. Please retry.", 5000));
   }
 
   private async shareCollection():Promise<void> {

@@ -66,7 +66,8 @@ Fields:
 
 `## Heading`, `### Subheading`, paragraphs, `- bullet` and `1. numbered` lists, `> pull quote`
 (one paragraph), `**bold**`, `*italic*`, and links `[text](url)`. Internal links use
-`/journal/<slug>/`, the map (`/map/?q=…`, `/city/<slug>/`) or `/catalog/`. No HTML, images,
+`/journal/<slug>/`, the map (`/map/?q=…`, `/city/<slug>/`), `/catalog/`, `/me/` or a real generated
+`/shop/<slug>/` profile. Shop links are checked against the indexation gate at build time. No HTML, images,
 tables or footnotes. Japanese text can be written inline (味噌, とんこつ); it is tagged for the
 right font automatically. Give the romanized word first and the Japanese in parentheses on
 first use: *kaedama* (替え玉).
@@ -93,8 +94,9 @@ These pages must be **true**. Readers and search engines will trust them.
 - Origin stories are often legends: say "is often credited with", "the story goes",
   "according to local lore". Never present a legend as fact.
 - No prices, opening hours, or claims that a specific shop is open today.
-- Name individual restaurants only for well-documented history (e.g. Rairaiken in Asakusa,
-  Yoshimuraya in Yokohama, Taishoken, Shikairo in Nagasaki, Nissin) — never as a
-  recommendation, and never with invented details.
+- Name individual restaurants for well-documented history or source-linked planning examples.
+  Planning examples must point to a real catalog profile and identifiable operator or reliable
+  tourism information. Never imply a firsthand recommendation, transfer details between branches,
+  or invent a visit, current availability, queue, hours or dietary certification.
 - Avoid precise statistics (counts, rankings, "most in Japan") unless you are certain.
 - Don't copy text from anywhere. Write everything in your own words.

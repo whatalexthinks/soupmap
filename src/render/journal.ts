@@ -12,7 +12,7 @@ export const JOURNAL_SUBTITLE = "Notes from the steam";
 export const JOURNAL_SUBTITLE_JA = "湯気の記";
 const DESCRIPTION = "Essays and field notes on ramen, noodles and the soups of the world: how they're made, where they come from, and how to eat them well.";
 /** Shown first on the index when present. */
-const FEATURED = ["regional-ramen-map", "four-ramen-flavours", "slurping-etiquette", "dashi", "pho", "ramen-history"];
+const FEATURED = ["tokyo-soup-guide", "tokyo-soup-day-plan", "tokyo-ramen-dietary-questions", "regional-ramen-map", "four-ramen-flavours", "slurping-etiquette", "dashi", "pho", "ramen-history"];
 
 export interface JournalPage {
   path: string;
@@ -176,7 +176,7 @@ function structuredData(page: JournalPage, siteUrl: string, articles: readonly A
     return [{
       "@context": "https://schema.org", "@type": "BlogPosting", headline: page.article.title, description: page.article.dek,
       datePublished: page.article.date, dateModified: page.article.date, inLanguage: "en", articleSection: category.name,
-      wordCount: page.article.words, url, mainEntityOfPage: url, image: `${siteUrl}/social/soupmap-world.png`,
+      wordCount: page.article.words, url, mainEntityOfPage: url, image: `${siteUrl}/social/soupmap-share.png`,
       author: organization(siteUrl), publisher: organization(siteUrl),
       isPartOf: { "@type": "Blog", name: JOURNAL_NAME, url: `${siteUrl}/journal/` },
     }, breadcrumbs(crumbs, siteUrl)];
@@ -205,7 +205,7 @@ function breadcrumbs(items: { name: string; path: string }[], siteUrl: string): 
 /** <head> contents after the stylesheet: metadata, social cards, feed and structured data. */
 export function journalHead(page: JournalPage, siteUrl: string, articles: readonly Article[]): string {
   const url = `${siteUrl}${page.path}`;
-  const image = `${siteUrl}/social/soupmap-world.png`;
+  const image = `${siteUrl}/social/soupmap-share.png`;
   const json = structuredData(page, siteUrl, articles).map(data =>
     `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`).join("");
   return `<meta charset="utf-8" />

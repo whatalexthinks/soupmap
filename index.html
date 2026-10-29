@@ -14,18 +14,21 @@
     <meta property="og:title" content="Soupmap — Find your next bowl. Anywhere." />
     <meta property="og:description" content="A worldwide soup atlas for curious travelers. Explore our Japan pilot, discover local stories, and save your next bowl." />
     <meta property="og:url" content="%SITE_URL%/" />
-    <meta property="og:image" content="%SITE_URL%/social/soupmap-world.png" />
-    <meta property="og:image:secure_url" content="%SITE_URL%/social/soupmap-world.png" />
+    <meta property="og:image" content="%SITE_URL%/social/soupmap-share.png" />
+    <meta property="og:image:secure_url" content="%SITE_URL%/social/soupmap-share.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Soupmap — Find your next bowl. Anywhere. A soup bowl sits within a fine-lined globe on a warm cream background with vermilion accents." />
+    <meta property="og:image:alt" content="Soupmap — Find your next bowl. Anywhere. Our bowl logo and an actual screenshot of the Tokyo map." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Soupmap — Find your next bowl. Anywhere." />
     <meta name="twitter:description" content="A worldwide soup atlas for curious travelers. Explore our Japan pilot, discover local stories, and save your next bowl." />
-    <meta name="twitter:image" content="%SITE_URL%/social/soupmap-world.png" />
-    <meta name="twitter:image:alt" content="Soupmap — Find your next bowl. Anywhere. A soup bowl sits within a fine-lined globe on a warm cream background with vermilion accents." />
+    <meta name="twitter:image" content="%SITE_URL%/social/soupmap-share.png" />
+    <meta name="twitter:image:alt" content="Soupmap — Find your next bowl. Anywhere. Our bowl logo and an actual screenshot of the Tokyo map." />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <script type="module" src="/src/home.ts"></script>
   </head>
   <body>
@@ -37,27 +40,31 @@
         <section class="home-hero" aria-labelledby="hero-title">
           <div class="home-hero__copy">
             <p class="home-label"><span class="home-label__dot" aria-hidden="true"></span> WORLDWIDE ATLAS / STARTING IN JAPAN</p>
-            <h1 id="hero-title">Good soup.<br /><span>Great detours.</span></h1>
-            <p class="home-hero__dek">For the bowl you cross town for. And the places you find along the way.</p>
-            <form class="home-find" action="/catalog/" method="get" role="search">
-              <label for="home-query">Where are you hungry?</label>
-              <div><input id="home-query" name="q" type="search" placeholder="A city, a shop, a craving…" maxlength="100" /><button type="submit" aria-label="Search places">Find a bowl <span aria-hidden="true">↗</span></button></div>
-            </form>
+            <h1 id="hero-title" aria-label="Find your next soup obsession."><span class="home-hero__lead">Find your next</span><span class="home-hero__word" aria-hidden="true"><span class="is-current">soup</span><span>ramen</span><span>udon</span></span><span class="home-hero__finish">obsession.</span></h1>
+            <p class="home-hero__dek">Meet the bowls worth going out of your way for. Explore the map, save your must-tries, and let lunch take you somewhere new.</p>
             <div class="home-hero__actions">
-              <a class="home-button home-button--solid" href="/catalog/">Discover places <span aria-hidden="true">↗</span></a>
-              <a class="home-button" href="/map/">Explore the map <span aria-hidden="true">↗</span></a>
+              <a class="home-button home-button--solid" href="/map/">Find my next bowl <span aria-hidden="true">↗</span></a>
+              <a class="home-button" href="/catalog/">Browse soup shops <span aria-hidden="true">↗</span></a>
             </div>
-            <p class="home-hero__access">Browse, save, and plan. No account required.</p>
+            <p class="home-hero__access">Browse freely. Create an account to keep your must-tries.</p>
             <div class="home-hero__index">
               <div><strong>Explore freely</strong><span>SHOPS + LOCAL CONTEXT</span></div>
-              <div><strong>Keep your own list</strong><span>START ON THIS DEVICE</span></div>
+               <div><strong>Keep your own list</strong><span>SAVED TO YOUR ACCOUNT</span></div>
             </div>
           </div>
-          <aside class="home-edition" aria-label="Japan field guide"><div class="home-edition__top"><span>THE FIRST CHAPTER</span><span>日本</span></div><p class="home-edition__mark" lang="ja" aria-hidden="true">日本</p><div class="home-edition__title"><h2>Japan,<br>bowl by bowl.</h2><span>VOL.<br><strong>01</strong></span></div><p>Seven city guides. Thousands of places. A few good starting points.</p><a href="/catalog/?collection=editorial">Start with our selections <span aria-hidden="true">↗</span></a></aside>
+          <a class="home-map-teaser" href="/map/" aria-label="Open the Soupmap map. Preview image is a screenshot of the actual app.">
+            <img src="/images/editorial/soupmap-tokyo-closeup-320.webp" srcset="/images/editorial/soupmap-tokyo-closeup-320.webp 320w, /images/editorial/soupmap-tokyo-closeup-518.webp 518w" sizes="(max-width: 700px) 94px, (max-width: 1000px) 38vw, 31vw" width="518" height="518" fetchpriority="high" alt="A close-up screenshot of the actual Soupmap map in Tokyo." />
+            <span class="home-map-teaser__copy"><span class="home-map-teaser__label">THE MAP / ACTUAL APP</span><strong>Tokyo, on the map.</strong><span>Open the real Soupmap map <b aria-hidden="true">↗</b></span></span>
+          </a>
+          <form class="home-find" action="/catalog/" method="get" role="search">
+            <label for="home-query">Where are you hungry?</label>
+            <div><input id="home-query" name="q" type="search" placeholder="A city, a shop, a craving…" maxlength="100" /><button type="submit" aria-label="Search places">Find a bowl <span aria-hidden="true">↗</span></button></div>
+          </form>
           <div class="home-hero__rule"><span>SOUP SHOPS / STREETS / LOCAL STORIES</span><span>JAPAN PILOT · IN PROGRESS</span></div>
         </section>
 
         <nav class="home-paths" aria-label="Ways to explore"><a href="/catalog/"><span>01 / DISCOVER</span><strong>Find somewhere new.</strong><p>Search by city, style, or name.</p><b aria-hidden="true">↗</b></a><a href="/me/#places"><span>02 / KEEP</span><strong>Your next-bowl list.</strong><p>Save places for another day.</p><b aria-hidden="true">↗</b></a><a href="/me/#plan"><span>03 / GO</span><strong>Make a day of it.</strong><p>Turn discoveries into a trip.</p><b aria-hidden="true">↗</b></a></nav>
+        <p class="home-access">First time in Tokyo? <a href="/journal/tokyo-soup-guide/">Choose your first soup stop</a>, <a href="/journal/tokyo-soup-day-plan/">plan a flexible soup day</a>, or <a href="/journal/tokyo-ramen-dietary-questions/">check dietary questions before ordering</a>.</p>
         <section class="home-featured home-explore" id="field-notes" aria-labelledby="featured-title">
           <header class="home-featured__header">
             <div>
@@ -81,7 +88,7 @@
             <div class="home-preview__heading"><span>THE MAP / ACTUAL APP</span><span>SCREENSHOT PREVIEW</span></div>
             <a class="home-preview__link" href="/map/" aria-label="Open the public Soupmap map. Image shows a screenshot of the actual app, not a live map.">
               <div class="home-phone">
-                <img src="/images/editorial/soupmap-phone-688.webp" srcset="/images/editorial/soupmap-phone-400.webp 400w, /images/editorial/soupmap-phone-688.webp 688w" sizes="(max-width: 767px) 210px, 262px" width="688" height="1448" loading="lazy" alt="Actual Soupmap mobile app screenshot, shown in full with its map, shop interface and original attribution." />
+                <img src="/images/editorial/soupmap-phone-tokyo-518.webp" srcset="/images/editorial/soupmap-phone-tokyo-400.webp 400w, /images/editorial/soupmap-phone-tokyo-518.webp 518w" sizes="(max-width: 767px) 200px, 240px" width="518" height="1080" loading="lazy" decoding="async" alt="Actual Soupmap mobile app screenshot, shown edge to edge with its map, shop interface and original attribution." />
                 <span class="home-phone__indicator" aria-hidden="true"></span>
               </div>
             </a>
@@ -90,7 +97,7 @@
           <div class="home-how__steps">
             <div class="home-step"><span class="home-step__number">01</span><h3>Find a shop</h3><p>Search the directory or explore the map. Start with a city, a neighborhood, or a soup that sounds good.</p></div>
             <div class="home-step"><span class="home-step__number">02</span><h3>Look around it</h3><p>Read the shop notes and local context. Get a sense of the street beyond the bowl.</p></div>
-            <div class="home-step"><span class="home-step__number">03</span><h3>Keep your picks</h3><p>Save places as you browse. Find them in Your Soupmap, build a trip, and mark the bowls you have tried.</p></div>
+            <div class="home-step"><span class="home-step__number">03</span><h3>Keep your picks</h3><p>Sign in to save places to Your Soupmap, build a trip, and mark the bowls you have tried.</p></div>
           </div>
         </section>
 
@@ -102,7 +109,7 @@
           <div class="home-save__copy">
             <p class="home-label">03 / YOUR OWN SOUP ATLAS</p>
             <h2 class="home-section-title" id="signup-title">Worth finding.<br />Worth keeping.</h2>
-            <p>Your saved places, little detours, and bowls along the way. Start on this device. Create an account when you want to sync your places.</p>
+            <p>Your saved places, little detours, and bowls along the way. Create an account to keep your Soupmap together wherever you sign in.</p>
             <div class="home-save__actions">
               <a class="home-button home-button--solid" href="/me/">Open Your Soupmap <span aria-hidden="true">↗</span></a>
               <a class="home-text-link" href="/sign-in">Sign in <span aria-hidden="true">→</span></a>
@@ -115,10 +122,6 @@
         <!--soupmap:brand-->
         <p>A world of soups.<br />Starting in Japan.</p>
         <nav aria-label="Footer navigation"><a href="/map/">Explore</a><a href="/journal/">Journal</a><a href="/recipes/">Recipes</a><a href="/sign-up">Join</a><a href="/sign-in">Sign in</a><a href="/account">Account</a></nav>
-        <div class="home-footer__note">
-          <p>The phone shows a genuine Soupmap screenshot, not a live map. The ramen image is an AI-generated mood illustration, not a verified shop photo. Shop notes are editorial; confirm current listing details locally before visiting.</p>
-          <span class="home-footer__edition">WORLD SOUP ATLAS / JAPAN PILOT</span>
-        </div>
       </footer>
     </div>
   </body>

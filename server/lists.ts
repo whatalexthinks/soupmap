@@ -5,6 +5,32 @@ export type PersonalList = { id: string; name: string; kind: "saved" | "custom";
 export class ListStore {
   constructor(private readonly db = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 })) {}
 
+  async entries(owner: string, kind: string): Promise<{key:string;value:unknown}[]> {
+    const result = await this.db.query(
+      "SELECT entry_key AS key,value FROM personal_entries WHERE owner_id=$1 AND kind=$2 ORDER BY updated_at DESC", [owner,kind]);
+    return result.rows;
+  }
+  async putEntry(owner: string, kind: string, key: string, value: unknown): Promise<void> {
+    const client = await this.db.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [owner]);
+      const limit = kind === "trip" ? 30 : kind === "draft" ? 1 : 1000;
+      const result = await client.query(`INSERT INTO personal_entries(owner_id,kind,entry_key,value)
+        SELECT $1,$2,$3,$4::jsonb WHERE
+          EXISTS(SELECT 1 FROM personal_entries WHERE owner_id=$1 AND kind=$2 AND entry_key=$3)
+          OR (SELECT count(*) FROM personal_entries WHERE owner_id=$1 AND kind=$2) < $5
+        ON CONFLICT(owner_id,kind,entry_key) DO UPDATE SET value=excluded.value,updated_at=now()
+        RETURNING entry_key`, [owner,kind,key,JSON.stringify(value),limit]);
+      if (!result.rowCount) throw new Error("Your account has reached the save limit for this collection.");
+      await client.query("COMMIT");
+    } catch (error) { await client.query("ROLLBACK"); throw error; }
+    finally { client.release(); }
+  }
+  async deleteEntry(owner: string, kind: string, key: string): Promise<void> {
+    await this.db.query("DELETE FROM personal_entries WHERE owner_id=$1 AND kind=$2 AND entry_key=$3", [owner,kind,key]);
+  }
+
   async savedList(owner: string): Promise<string> {
     await this.db.query(`INSERT INTO personal_lists(id,owner_id,name,kind)
       VALUES($1,$2,'Saved places','saved')

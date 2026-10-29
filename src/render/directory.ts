@@ -11,6 +11,18 @@ import { getSource } from '../sources.ts';
 import { esc } from '../ui/dom.ts';
 import { contactHtml, stylesHtml } from '../ui/shop-details.ts';
 import { recipeForShop } from '../recipes/catalog-links.ts';
+import { EDITORIAL_NOTES } from '../data/editorial-notes.ts';
+
+function sourceNotes(shop: Shop): string {
+  const note = EDITORIAL_NOTES[shop.slug];
+  if (!note) return '';
+  return `<section class="place-profile__research"><h2>Before you make the detour</h2>
+    ${note.warning ? `<p><strong>${esc(note.warning)}</strong></p>` : ''}
+    <p>${esc(note.summary)}</p><p>${esc(note.practical)}</p>
+    <p><small>Sources checked <time datetime="${note.checked}">${note.checked}</time>. Source research, not an on-site visit. Confirm current details before travelling.</small></p>
+    <h3>Sources for these notes</h3><ul>${note.sources.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)} ↗</a></li>`).join('')}</ul>
+    <h3>Plan the bowl, not just the pin</h3><ul>${note.guides.map(g => `<li><a href="/journal/${g.slug}/">${esc(g.label)}</a></li>`).join('')}</ul></section>`;
+}
 
 /** "Make miso ramen at home": the recipe this shop's style points to. */
 export function recipeCardHtml(shop: Shop): string {
@@ -37,6 +49,7 @@ export function directoryCard(shop: Shop, saved = false, distance?: number): str
     <p class="directory-card__area">${esc(area)}${distance !== undefined ? ` · ${(distance / 1000).toFixed(1)} km away` : ''}</p></div></div>
     <div class="directory-tags"><span>${esc(cuisine)}</span>${shop.broth !== 'other' && cuisine.toLowerCase() !== shop.broth ? `<span>${esc(BROTHS[shop.broth].label)}${shop.brothSource === 'name' ? ' · name suggests' : ''}</span>` : ''}${shop.chain ? '<span>Chain</span>' : ''}</div>
     <p class="directory-card__note">${editorial ? esc(shop.blurb) : 'Menu notes not yet added.'}</p>
+    ${EDITORIAL_NOTES[shop.slug]?.warning ? `<p class="directory-card__note"><strong>${esc(EDITORIAL_NOTES[shop.slug]!.warning!)}</strong></p>` : ''}
     <div class="directory-card__bottom"><a href="${esc(profileUrl(shop))}" data-profile="${esc(shop.slug)}">Explore this place <span aria-hidden="true">↗</span></a>${shop.priceYen ? `<span>¥${shop.priceYen[0].toLocaleString()}–${shop.priceYen[1].toLocaleString()} <small>guide price</small></span>` : '<span class="directory-muted">Check live details</span>'}</div>
     <details class="directory-source"><summary>${shop.verified ? 'Verified location' : 'Location unverified'} · Source</summary><p>${shop.verified ? 'Verified on the ground.' : 'Unverified location.'} ${recordSource(shop)}</p></details>
   </li>`;
@@ -67,10 +80,12 @@ export function profileHtml(shop: Shop, guides: readonly GuideLink[] = []): stri
   // What a visitor came for comes first; the map, weather and growth modules follow it.
   return `<article class="place-profile" data-place-profile="${esc(shop.slug)}">
     <header class="place-profile__header"><span class="directory-kicker">${esc(shop.city)} / ${editorial ? 'Soupmap selection' : 'Open-data listing'}</span><h1 tabindex="-1">${esc(name)}</h1><p lang="ja">${esc(shop.nameJa)}</p><p>${esc(shop.neighborhood)} · ${esc(shop.city)}</p>${commerceLabels(shop)}</header>
+    ${EDITORIAL_NOTES[shop.slug]?.warning ? `<p><strong>${esc(EDITORIAL_NOTES[shop.slug]!.warning!)}</strong></p>` : ''}
     <div class="place-profile__actions"><button class="directory-button" data-directory-save="${esc(shop.slug)}" aria-pressed="false" hidden>Save place +</button><a class="directory-button directory-button--quiet" href="https://www.google.com/maps/dir/?api=1&amp;destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener">Directions ↗</a><a class="directory-text-link" href="/map/#${esc(shop.slug)}">View on map ↗</a><a class="directory-text-link" href="/me/#places">Your saved places ↗</a></div><p data-profile-status role="status"></p>
     <div class="place-profile__facts"><div><span>Style</span><strong>${esc(CUISINES.find(c=>c.id===cuisineOf(shop))!.label)}</strong><small>${shop.broth !== 'other' ? esc(BROTHS[shop.broth].label)+(shop.brothSource==='name'?' · from the name':'') : 'Broth not recorded'}</small></div><div><span>Guide price</span><strong>${shop.priceYen ? `¥${shop.priceYen[0]}–¥${shop.priceYen[1]}` : 'Not recorded'}</strong><small>Confirm current menu prices</small></div><div><span>Before visiting</span><strong>Check opening hours</strong><small>${shop.hours ? esc(shop.hours)+' · guide hours' : 'Look up live details below'}</small></div></div>
     <div class="place-profile__columns"><div class="place-profile__notes"><section><span class="directory-kicker">What to know</span><h2>${editorial ? esc(shop.signatureBowl) : 'A new place for your list?'}</h2><p>${editorial ? esc(shop.blurb) : 'This location comes from the open places catalog. We haven’t written a guide to its menu yet. Check the restaurant details before heading over.'}</p>${stylesHtml(shop)}
 </section>
+    ${sourceNotes(shop)}
     <section data-profile-contact><h2>Contact &amp; location</h2>${contactHtml(shop)}</section>
     <details class="directory-source"><summary>Sources &amp; verification</summary><p>${shop.verified ? 'Verified on the ground.' : 'Not verified. Unverified location; not independently checked on the ground.'}</p><p>${recordSource(shop)}</p><p>Reported coordinates: ${shop.lat}, ${shop.lng}</p><p>Soupmap notes are editorial content, not copied reviews. Prices and menu notes may change. Generated romanizations are approximate; the Japanese name is preserved.</p><a href="/credits/">All data credits</a></details></div>
     <aside class="place-profile__live">${googlePanelShell()}<a class="directory-text-link" href="${esc(shop.googleMapsUrl)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>${recipeCardHtml(shop)}</aside></div>

@@ -50,7 +50,7 @@ function Provider({children}:{children:ReactNode}) {
     signInFallbackRedirectUrl="/account" signUpFallbackRedirectUrl="/account"
     localization={{
       signIn:{start:{title:"Welcome back to Soupmap",subtitle:"Your next bowl is waiting."}},
-      signUp:{start:{title:"Make room for your next bowl",subtitle:"Create an account to keep your discoveries together."}},
+       signUp:{start:{title:"Make room for your next bowl",subtitle:"Save your places, trips and discoveries to your Soupmap account."}},
     }}
     routerPush={to=>setLocation(stripBase(to))}
     routerReplace={to=>setLocation(stripBase(to),{replace:true})}>
@@ -144,7 +144,7 @@ function Portal() {
   if (!isLoaded) return <p className="account-loading" role="status">Loading your account…</p>;
   if (!user) return <section className="account-intro">
     <p className="account-eyebrow">YOUR NEXT BOWL STARTS HERE</p><h1>Good discoveries deserve a place to stay.</h1>
-    <p>Create an email account to keep personal lists across devices. Or explore first—no account needed.</p>
+    <p>Create an account to save personal lists and find them across devices. Browsing the map is always open.</p>
     <div className="account-actions"><a className="account-primary" href="/sign-up">Create your account</a>
     <a href="/sign-in">Already a member? Sign in</a><a href="/map/">Explore the map ↗</a></div>
   </section>;
@@ -229,7 +229,7 @@ function AccountRoutes() {
   return <Switch>
     <Route path="/account/settings/*?"><AccountSettings/></Route>
     <Route path="/sign-in/*?"><section className="auth-shell"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`}/><a href="/map/">Just looking? Explore without an account ↗</a></section></Route>
-    <Route path="/sign-up/*?"><section className="auth-shell"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`}/><p>No marketing subscription. Your lists stay private unless you share a snapshot.</p><a href="/map/">Explore without an account ↗</a></section></Route>
+    <Route path="/sign-up/*?"><section className="auth-shell"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`}/><p>Save places and plans to your account. Your lists stay private unless you share a snapshot.</p><a href="/map/">Browse without an account ↗</a></section></Route>
     <Route><Portal/></Route>
   </Switch>;
 }

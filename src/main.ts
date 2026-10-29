@@ -5,6 +5,8 @@ let started=false;
 function start(){
   if(started)return;started=true;document.querySelector('[data-map-start]')?.remove();
   loadJapaneseFont();
+  // Preload renderer code only after the visitor chooses to open the live map.
+  void import('./map/engine.ts').catch(() => { /* App startup reports renderer failures. */ });
   void import('./growth/map-widget.ts').then(()=>import('./app.ts')).then(({App})=>{
     new App().start();
     void import('./map-account.ts').catch(()=>{});

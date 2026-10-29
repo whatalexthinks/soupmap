@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { claimOpening, OPENING_SESSION_KEY } from "../src/startup.ts";
-import { citySurfaceActive, movingScreenSpaceError, renderBudget } from "../src/map/render-policy.ts";
+import { citySurfaceActive, movingScreenSpaceError, renderBudget, renderPixelRatio } from "../src/map/render-policy.ts";
 
 test("the opening is claimed before playback and cannot repeat after a reload in the same tab",()=>{
   const values=new Map<string,string>();
@@ -39,4 +39,20 @@ test("mobile reduces mesh detail during gestures and restores it when the camera
   assert.equal(movingScreenSpaceError(true,false),32);
   assert.equal(movingScreenSpaceError(false,true),16);
   assert.equal(movingScreenSpaceError(false,false),16);
+});
+
+test("mobile refines nearby buildings only while stationary without raising the memory budget",()=>{
+  assert.equal(movingScreenSpaceError(true, false, 500), 12);
+  assert.equal(movingScreenSpaceError(true, false, 5_000), 20);
+  assert.equal(movingScreenSpaceError(true, false, 50_000), 32);
+  assert.equal(movingScreenSpaceError(true, true, 500), 64);
+  assert.equal(movingScreenSpaceError(false, false, 500), 16);
+});
+
+test("close-up mobile sharpness stays capped and returns to 1x during gestures",()=>{
+  assert.equal(renderPixelRatio(true, false, 500, 3), 1.5);
+  assert.equal(renderPixelRatio(true, true, 500, 3), 1);
+  assert.equal(renderPixelRatio(true, false, 50_000, 3), 1);
+  assert.equal(renderPixelRatio(true, false, 500, 1), 1);
+  assert.equal(renderPixelRatio(false, false, 500, 3), 2);
 });

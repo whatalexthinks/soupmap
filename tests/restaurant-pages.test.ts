@@ -103,9 +103,10 @@ test("an identity provider that fails leaves requests signed out, never broken",
   assert.deepEqual((await run((_req, res) => { res.status(401).end(); })).statuses, [401, 401]);
 });
 
-test("catalog pages before the directory loads: Save shows this device's saves, no weather box, no passport call for guests", async () => {
+test("catalog pages before the directory loads: Save is offered, no weather box, no passport call for guests", async () => {
   const shop = CURATED_SHOPS[0]!;
   const window = new Window({ url: `https://soupmap.com/catalog/${shop.slug}/` });
+  // Saving needs an account now: a device list must not show as saved.
   window.localStorage.setItem("soupmap:saved:v1", JSON.stringify([shop.slug]));
   window.document.write(`<main>${profileHtml(shop)}<p data-directory-status></p></main>`);
   const keys = ["window", "document", "location", "navigator", "localStorage", "sessionStorage", "HTMLElement", "Element", "HTMLButtonElement", "CSS"];
@@ -124,8 +125,9 @@ test("catalog pages before the directory loads: Save shows this device's saves, 
     await import("../src/catalog-entry.ts"); await tick();
     const save = window.document.querySelector<HTMLButtonElement>(".place-profile__actions [data-directory-save]")!;
     assert.equal(save.hidden, false);
-    assert.equal(save.textContent, "Saved ✓");
-    assert.equal(save.getAttribute("aria-pressed"), "true");
+    assert.equal(save.textContent, "Save +");
+    assert.notEqual(save.getAttribute("aria-pressed"), "true");
+    assert.equal(calls.filter(c => c.includes("/api/me")).length, 0, "nobody is asked who they are until they click");
     // happy-dom has no IntersectionObserver, so the widget loads at once.
     assert.equal(window.document.querySelector(".growth-weather"), null, "no weather service: no empty box");
     window.document.dispatchEvent(new window.Event("pointerdown", { bubbles: true })); await tick();

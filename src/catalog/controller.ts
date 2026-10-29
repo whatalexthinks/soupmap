@@ -6,7 +6,7 @@ import { loadPlaceDetails } from '../data/load-open-catalog.ts';
 import { directoryCard, profileHtml, profileUrl } from '../render/directory.ts';
 import { contactHtml } from '../ui/shop-details.ts';
 import { directoryState, directoryUrl, directoryResults, DIRECTORY_PAGE_SIZE, type DirectoryState } from './state.ts';
-import { accountSaved, changeAccountSaved } from '../personal-saves.ts';
+import { accountSaved, changeAccountSaved, requireSaveAccount } from '../personal-saves.ts';
 import { parseSaved, SAVED_KEY, distanceMeters } from '../discovery.ts';
 import { mountGooglePlace } from '../ui/google-place.ts';
 import { loadJapaneseFont } from '../fonts.ts';
@@ -155,13 +155,9 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     if(!valid.has(slug)||pendingSaves.has(slug))return;
     pendingSaves.add(slug);syncSaveButtons();
     try{
-      if(accountSaved()){
+      if(await requireSaveAccount("place")){
         const changed=await changeAccountSaved(slug,!saved().has(slug));
         announce(changed?'Account list updated.':'Your account changed. Check your saved places.');
-      }else{
-        if(guest.has(slug))guest.delete(slug);else guest.add(slug);
-        try{localStorage.setItem(SAVED_KEY,JSON.stringify([...guest]));announce('Saved places updated on this device.');}
-        catch{announce('Updated for this session. Device storage is unavailable.');}
       }
     }catch{announce('Could not update your account list. Please try again.');}
     finally{pendingSaves.delete(slug);if(state.collection==='saved')render();syncSaveButtons();}

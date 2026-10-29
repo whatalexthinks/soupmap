@@ -57,4 +57,4 @@ export function parseSaved(raw: string | null, valid: ReadonlySet<string>): Set<
     return new Set(Array.isArray(value) ? value.filter((s): s is string => typeof s === 'string' && valid.has(s)) : []);
   } catch { return new Set(); }
 }
-export { SAVED_KEY } from './saved-key.ts';
+export const SAVED_KEY = 'soupmap:saved:v1';

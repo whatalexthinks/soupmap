@@ -19,3 +19,9 @@ Existing device saves must remain independent until the user explicitly imports 
 **Why:** Account adoption must not lose existing guest choices, merge a shared device's private choices silently, or turn authentication into an undisclosed mailing-list subscription.
 
 **How to apply:** Keep guest storage separate from signed-in lists, offer an explicit non-destructive import, and obtain separate consent before any future marketing subscription.
+
+New personal saves require an account. Prompt at save actions with contextual benefits and email signup; do not create new device-only bookmarks, trips, passport memories or private recipe notes.
+
+**Why:** The user explicitly changed the saving policy to account/email signup everywhere appropriate, with persuasive sales messaging.
+
+**How to apply:** Keep public browsing, planning and cooking open. Explain cross-device/private saving, offer sign-in and a clear dismissal, and never treat a failed account request as permission to write locally.

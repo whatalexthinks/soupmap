@@ -154,27 +154,24 @@ test('account status: 401 is a guest; errors, HTML and offline are unavailable',
   assert.equal((await loadAccount(async () => { throw new TypeError('offline'); })).status, 'unavailable');
 });
 
-test('device data: saves, stamps and trips persist; a refused write is reported', async () => {
+test('guests cannot write new device saves, stamps or trips; legacy data is preserved', async () => {
   const storage = memory({ 'soupmap:saved:v1': JSON.stringify(['afuri-ebisu', 'not-a-shop']) });
   const data = new UserData(valid, storage);
   assert.deepEqual([...data.saved], ['afuri-ebisu']);
-  await data.setSaved('ginza-kagari', true);
-  assert.deepEqual(JSON.parse(storage.items.get('soupmap:saved:v1')!), ['afuri-ebisu', 'ginza-kagari']);
-  data.markVisited('afuri-ebisu', '2026-10-01');
-  assert.equal(JSON.parse(storage.items.get('soupmap:passport:v1')!)['afuri-ebisu'].date, '2026-10-01');
-  const trip = data.saveTrip({ name: 'Tokyo · 1 day', area: 'city:tokyo', areaLabel: 'Tokyo', days: [{ title: 'Day 1', stops: ['afuri-ebisu'] }] });
-  assert.equal(new UserData(valid, storage).trips[0]!.id, trip.id);
-  data.deleteTrip(trip.id);
-  assert.deepEqual(JSON.parse(storage.items.get(TRIPS_KEY)!), []);
+  await assert.rejects(data.setSaved('ginza-kagari', true),/account|sign in/i);
+  await assert.rejects(data.markVisited('afuri-ebisu', '2026-10-01'),/sign in/i);
+  await assert.rejects(data.saveTrip({ name: 'Tokyo · 1 day', area: 'city:tokyo', areaLabel: 'Tokyo', days: [{ title: 'Day 1', stops: ['afuri-ebisu'] }] }),/sign in/i);
+  assert.deepEqual(JSON.parse(storage.items.get('soupmap:saved:v1')!), ['afuri-ebisu','not-a-shop']);
+  assert.equal(storage.items.has(TRIPS_KEY),false);
+  assert.equal(storage.items.has('soupmap:passport:v1'),false);
   const exported = JSON.parse(data.exportJson());
   assert.equal(exported.format, 'soupmap-export');
-  assert.deepEqual(exported.saved, ['afuri-ebisu', 'ginza-kagari']);
+  assert.deepEqual(exported.saved, ['afuri-ebisu']);
 
   const full = { getItem: () => null, setItem: () => { throw new Error('QuotaExceededError'); } };
   const refused = new UserData(valid, full);
-  refused.markVisited('afuri-ebisu');
-  assert.equal(refused.persistent, false);
-  assert.ok(refused.visits['afuri-ebisu'], 'kept in memory for this visit');
+  await assert.rejects(refused.markVisited('afuri-ebisu'),/sign in/i);
+  assert.equal(refused.visits['afuri-ebisu'],undefined);
 });
 
 test('signed in, saved places come from the account and device saves are only imported on request', async () => {
@@ -253,7 +250,7 @@ test('workspace navigation preserves a trip draft and responds to history naviga
   assert.deepEqual(visible(),['overview'],'Unknown hashes safely show the overview');
 });
 
-test('a guest can plan, save and stamp without an account, and is offered one', async () => {
+test('a guest can plan publicly but cannot create device saves', async () => {
   const { root, $, $$, window: w } = page();
   const data = new UserData(valid, w.localStorage as unknown as Storage);
   data.account = { status: 'guest', lists: [] };
@@ -263,7 +260,7 @@ test('a guest can plan, save and stamp without an account, and is offered one', 
     assert.ok($(a.getAttribute('href')!), `Dashboard section exists: ${a.getAttribute('href')}`);
   }
   assert.ok($('.me-banner a[href="/sign-up"]'), 'guests are offered an account');
-  assert.match($('.me-hero')!.textContent!, /ON THIS DEVICE/);
+  assert.match($('.me-hero')!.textContent!, /SAVE WITH AN ACCOUNT/);
   assert.ok($('#places .me-chapters a[href^="/map/?hub="]'), 'an empty list points to the chapters');
   assert.ok($('.me-card--today'), 'there is always a bowl of the day');
 
@@ -278,28 +275,22 @@ test('a guest can plan, save and stamp without an account, and is offered one', 
   const mapLink = $('.me-plan__summary a') as unknown as HTMLAnchorElement;
   assert.equal(new URL(mapLink.href).pathname, '/map/');
   assert.equal(new URL(mapLink.href).searchParams.get('collection')!.split(',').length, $$('.me-stop').length);
-  assert.ok(w.localStorage.getItem('soupmap:planner:v1')!.includes('pref:Kagawa'), 'choices are remembered');
+  assert.equal(w.localStorage.getItem('soupmap:planner:v1'),null);
 
   // Save the first stop, then mark it visited from Your places.
   const first = $('.me-stop button[data-action=save]')!;
   const slug = first.dataset.slug!;
   first.click();
   await new Promise(resolve => setTimeout(resolve, 0));
-  assert.deepEqual(JSON.parse(w.localStorage.getItem('soupmap:saved:v1')!), [slug]);
-  assert.equal($(`#places .me-place button[data-slug="${slug}"][data-action=visit]`)?.textContent, 'Mark visited');
+  assert.equal(w.localStorage.getItem('soupmap:saved:v1'),null);
   assert.equal($('.me-plan .me-day') !== null, true, 'the plan survives the re-render');
-  assert.equal(w.document.activeElement?.getAttribute('data-slug'), slug, 'focus returns to the same control');
-  $(`#places button[data-slug="${slug}"][data-action=visit]`)!.click();
-  await new Promise(resolve => setTimeout(resolve, 0));
-  assert.ok(JSON.parse(w.localStorage.getItem('soupmap:passport:v1')!)[slug]);
-  assert.match($('.me-stats')!.textContent!, /Visited1/);
-  assert.ok($('#passport .me-stamp.is-on') || shop(slug).broth === 'other');
+  assert.equal(w.localStorage.getItem('soupmap:passport:v1'),null);
 
   // Save the trip: it appears under Your trips, on this device only.
   $('button[data-action=save-trip]')!.click();
   await new Promise(resolve => setTimeout(resolve, 0));
-  assert.equal($$('.me-trip').length, 1);
-  assert.match($('.me-notice')!.textContent!, /on this device/);
+  assert.equal($$('.me-trip').length, 0);
+  assert.equal(w.localStorage.getItem(TRIPS_KEY),null);
   assert.equal($('.me-trip button[data-action=trip-to-account]'), null, 'no account actions for guests');
 });
 
@@ -314,6 +305,7 @@ test('signed in, saves and trips go to the account through the existing API', as
     calls.push({ url, method: init.method ?? 'GET', body });
     const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { 'content-type': 'application/json' } });
     if (url === '/api/me') return json({ lists });
+    if (url.startsWith('/api/personal/') && (!init.method || init.method==='GET')) return json({entries:[]});
     if (url === '/api/lists') { lists.push({ id: 'trip', name: body.name, kind: 'custom', ids: [] }); return json({ list: lists.at(-1) }); }
     if (url === '/api/import-saves') { lists[0]!.ids.push(...body.ids); return json({ list: lists[0] }); }
     return json({ ok: true });
@@ -344,13 +336,11 @@ test('signed in, saves and trips go to the account through the existing API', as
     ($('form[data-form=plan]') as unknown as HTMLFormElement).requestSubmit();
     $('button[data-action=save-trip]')!.click();
     await new Promise(resolve => setTimeout(resolve, 10));
-    const created = calls.find(c => c.url === '/api/lists');
+    const created = calls.find(c => c.url.startsWith('/api/personal/trip/') && c.method==='PUT');
     assert.match((created?.body as { name: string }).name, /· 2 days$/);
-    const items = calls.find(c => c.url === '/api/lists/trip/items')!;
-    assert.equal(items.method, 'PUT');
-    assert.equal((items.body as { ids: string[] }).ids.length, 6);
-    assert.match($('.me-trip')!.textContent!, /also in your account/);
-    assert.ok($('.me-lists'), 'account lists are shown');
+    assert.equal((created?.body as {days:{stops:string[]}[]}).days.flatMap(d=>d.stops).length,6);
+    assert.equal(w.localStorage.getItem(TRIPS_KEY),null);
+    assert.ok($('.me-trip'), 'the account trip is shown without creating a second list');
   } finally {
     Object.defineProperty(globalThis, 'fetch', { configurable: true, writable: true, value: realFetch });
   }

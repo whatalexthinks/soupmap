@@ -37,7 +37,7 @@ import type { City } from "../data/cities.ts";
 import type { Shop } from "../data/shops.ts";
 import { creditHtml, getSource } from "../sources.ts";
 import { CameraDirector } from "./camera.ts";
-import { citySurfaceActive, movingScreenSpaceError, renderBudget } from "./render-policy.ts";
+import { citySurfaceActive, movingScreenSpaceError, renderBudget, renderPixelRatio } from "./render-policy.ts";
 import { PinLayer, type PickId } from "./pins.ts";
 import type { EngineStatus, FallbackStyle, FlyOptions, MapEngine, MapHover, MapMode } from "./types.ts";
 
@@ -139,7 +139,7 @@ export class MapEngineImpl implements MapEngine {
     // Cesium's default backing buffer is 1× CSS pixels, which softens text and
     // billboards on retina displays. Cap the multiplier to keep mobile GPUs cool.
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
-    this.viewer.resolutionScale = Math.min(dpr, options.lowPower ? 1 : 2) / dpr;
+    this.viewer.resolutionScale = renderPixelRatio(options.lowPower, true, Infinity, dpr) / dpr;
     this.viewer.targetFrameRate = options.lowPower ? 30 : 60;
 
     const scene = this.viewer.scene;
@@ -171,11 +171,17 @@ export class MapEngineImpl implements MapEngine {
   async start(): Promise<void> {
     // Bundled global imagery makes the opening Earth visible even before Google
     // tiles arrive, and outside Japan when the regional GSI fallback is active.
-    const earth = await TileMapServiceImageryProvider.fromUrl(
+    // Base imagery and Google tiles are independent; do not delay the city
+    // request until the bundled globe's metadata has finished loading.
+    void TileMapServiceImageryProvider.fromUrl(
       buildModuleUrl("Assets/Textures/NaturalEarthII"),
       {credit:new Credit("Natural Earth II · public domain")},
-    );
-    this.viewer.imageryLayers.addImageryProvider(earth,0);
+    ).then(earth => {
+      if (!this.viewer.isDestroyed()) {
+        this.viewer.imageryLayers.addImageryProvider(earth, 0);
+        this.viewer.scene.requestRender();
+      }
+    }).catch(() => console.warn("[soupmap] Base globe imagery unavailable; continuing with the city layer."));
     const key = this.options.googleKey;
     if (!key) {
       this.enableFallback("No Google Maps key configured");
@@ -200,7 +206,7 @@ export class MapEngineImpl implements MapEngine {
         return;
       }
       this.googleTileset = this.viewer.scene.primitives.add(tileset);
-      tileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, this.cameraMoving);
+      tileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, this.cameraMoving, this.viewer.camera.positionCartographic.height);
       this.syncGlobeVisibility();
       this.watchGoogleTiles(tileset);
       const surfaceReady = () => {
@@ -303,10 +309,13 @@ export class MapEngineImpl implements MapEngine {
     });
     const setMoving = (moving: boolean) => {
       this.cameraMoving = moving;
+      const height = this.viewer.camera.positionCartographic.height;
+      const dpr = Math.max(window.devicePixelRatio || 1, 1);
+      this.viewer.resolutionScale = renderPixelRatio(this.options.lowPower, moving, height, dpr) / dpr;
       if (this.googleTileset) {
-        this.googleTileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, moving);
-        this.viewer.scene.requestRender();
+        this.googleTileset.maximumScreenSpaceError = movingScreenSpaceError(this.options.lowPower, moving, height);
       }
+      this.viewer.scene.requestRender();
     };
     this.viewer.camera.moveStart.addEventListener(() => setMoving(true));
     this.viewer.camera.moveEnd.addEventListener(() => setMoving(false));

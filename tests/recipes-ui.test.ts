@@ -13,7 +13,8 @@ const pages = new Map(recipePages(recipes).map(p => [p.path, p]));
 const bySlug = new Map(recipes.map(r => [r.slug, r]));
 
 let window: Window | undefined;
-afterEach(async () => { await window?.happyDOM.abort(); await window?.happyDOM.close(); window = undefined; });
+const originalFetch=globalThis.fetch;
+afterEach(async () => { globalThis.fetch=originalFetch; await window?.happyDOM.abort(); await window?.happyDOM.close(); window = undefined; });
 
 function open(path: string, search = "") {
   window = new Window({ url: `https://soupmap.example${path}${search}` });
@@ -83,6 +84,16 @@ test("a browse page hides its own filter", () => {
 test("on a recipe: scale servings, switch units, run a timer, save, keep notes and cook step by step", async () => {
   const recipe = recipes.find(r => r.slug === "miso-soup")!;
   const { doc, $ } = open(`/recipes/${recipe.slug}/`);
+  const entries:Record<string,{saved:boolean;note:string}>={};
+  globalThis.fetch=(async (url: string,init:RequestInit={})=>{
+    if(url==="/api/me")return Response.json({lists:[]});
+    if(url==="/api/personal/recipe")return Response.json({entries:Object.entries(entries).map(([key,value])=>({key,value}))});
+    if(url.startsWith("/api/personal/recipe/")&&init.method==="PUT"){
+      entries[url.split("/").at(-1)!]=JSON.parse(String(init.body));
+      return Response.json({ok:true});
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  }) as typeof fetch;
   setupRecipe(doc);
   const amounts = () => [...doc.querySelectorAll(".r-ingredients .r-qty")].map(el => el.textContent);
   const before = amounts();
@@ -107,15 +118,19 @@ test("on a recipe: scale servings, switch units, run a timer, save, keep notes a
   assert.equal(tray.hidden, true);
 
   ($("[data-action=save]") as HTMLButtonElement).click();
-  assert.deepEqual(JSON.parse(window!.localStorage.getItem("soupmap:recipes:saved:v1")!), [recipe.slug]);
+  await tick(20);
+  assert.equal(window!.localStorage.getItem("soupmap:recipes:saved:v1"),null);
+  assert.equal(entries[recipe.slug]?.saved,true);
   assert.equal($("[data-action=save]").getAttribute("aria-pressed"), "true");
 
   const notes = $<HTMLTextAreaElement>("#r-notes-text");
   assert.equal($("#r-notes").hidden, false);
   notes.value = "Used white miso. Less next time.";
   notes.dispatchEvent(new window!.Event("input", { bubbles: true }) as unknown as Event);
-  await tick(450);
-  assert.equal(JSON.parse(window!.localStorage.getItem("soupmap:recipes:notes:v1")!)[recipe.slug], "Used white miso. Less next time.");
+  $("#r-notes button").click();
+  await tick(20);
+  assert.equal(window!.localStorage.getItem("soupmap:recipes:notes:v1"),null);
+  assert.equal(entries[recipe.slug]?.note,"Used white miso. Less next time.");
 
   // Ingredient ticks last for this tab.
   ($(".r-ing__check") as HTMLInputElement).click();

@@ -2,11 +2,12 @@
 import { loadRatings, ratingText, setupBrowse } from "./browse.ts";
 import { setupRecipe } from "./cook.ts";
 import { ReviewsSection, summaryLine } from "./reviews.ts";
+import { loadRecipeStorage } from "./storage.ts";
 
 const recipe = document.querySelector<HTMLElement>(".r-recipe");
 // Related-recipe cards on a recipe page show ratings too.
 const ratings = loadRatings();
-setupBrowse(document, ratings);
+void loadRecipeStorage().catch(()=>undefined).then(()=>setupBrowse(document, ratings));
 void ratings.then(result => {
   if (!result) return;
   for (const slot of document.querySelectorAll<HTMLElement>("[data-rating-for]")) slot.textContent = ratingText(result[slot.dataset.ratingFor!]);

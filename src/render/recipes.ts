@@ -352,7 +352,7 @@ export function recipeDetailPage(recipe: Recipe, all: readonly Recipe[], extras:
         ${placesHtml(recipe, extras.places?.get(recipe.slug))}
         <section class="r-notes" id="r-notes" aria-labelledby="notes-title" hidden>
           <h2 id="notes-title">Your notes</h2>
-          <p class="r-muted">Private, kept in this browser. What you changed, what you'd do next time.</p>
+          <p class="r-muted">Keep your cooking notes private in your account. Save what you changed and what you'd do next time.</p>
           <textarea id="r-notes-text" rows="4" maxlength="2000" aria-labelledby="notes-title"></textarea>
         </section>
         <section class="r-reviews" id="reviews" aria-labelledby="reviews-title" data-recipe="${recipe.slug}">
@@ -426,7 +426,7 @@ function structuredData(page: RecipePage, siteUrl: string, recipes: readonly Rec
 
 export function recipesHead(page: RecipePage, siteUrl: string, recipes: readonly Recipe[]): string {
   const url = `${siteUrl}${page.path}`;
-  const image = page.recipe?.photo ? `${siteUrl}${page.recipe.photo.src}` : `${siteUrl}${page.image ?? "/social/soupmap-world.png"}`;
+  const image = page.recipe?.photo ? `${siteUrl}${page.recipe.photo.src}` : `${siteUrl}${page.image ?? "/social/soupmap-share.png"}`;
   const json = structuredData(page, siteUrl, recipes).map(data =>
     `<script type="application/ld+json"${data["@type"] === "Recipe" ? " data-recipe-schema" : ""}>${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`).join("");
   return `<meta charset="utf-8" />
