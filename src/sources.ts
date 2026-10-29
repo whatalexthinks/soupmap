@@ -42,6 +42,20 @@ export interface Source {
 }
 
 export const SOURCES = [
+  {
+    id: "open-meteo", name: "Open-Meteo weather", provider: "Open-Meteo", kind: "service", status: "live",
+    usedFor: "Cached current temperature and precipitation for soup-weather widgets. The comfort score is calculated by Soupmap.",
+    url: "https://open-meteo.com/", license: "CC BY 4.0 data; hosted API commercial subscription for production",
+    licenseUrl: "https://open-meteo.com/en/terms", attribution: "Weather data by Open-Meteo; soup comfort index calculated by Soupmap",
+    attributionUrl: "https://open-meteo.com/", endpoints: ["https://api.open-meteo.com/v1/forecast", "https://customer-api.open-meteo.com/v1/forecast"],
+    notes: ["Free hosted access is for evaluation/non-commercial use. Production weather requires OPEN_METEO_API_KEY."], checked: "2026-10-27",
+  },
+  {
+    id: "resend", name: "Resend transactional email", provider: "Resend", kind: "service", status: "planned",
+    usedFor: "Visitor-requested soup spot and city guide emails, enabled only with a verified sender and server credentials.",
+    url: "https://resend.com/", license: "Service terms", licenseUrl: "https://resend.com/legal/terms-of-service",
+    attribution: "Transactional email delivered by Resend", attributionUrl: "https://resend.com/", checked: "2026-10-27",
+  },
   // ── Opt-in historical context (prebuilt Tokyo pilot) ──────────────────────
   {
     id: "history-wikidata",

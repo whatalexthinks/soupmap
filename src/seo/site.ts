@@ -3,6 +3,7 @@
  * robots.txt, llms.txt / llms-full.txt and a JSON feed of the recipes. Only pages the
  * quality gate passes are listed.
  */
+import { robotsText } from "../growth/crawlers.ts";
 import type { CatalogPage } from "../render/catalog.ts";
 import type { Recipe } from "../recipes/content.ts";
 import type { Article } from "../journal/content.ts";
@@ -20,12 +21,12 @@ export interface SitemapEntry { path: string; lastmod?: string }
 /** A catalog document as the quality gate sees it: a shop page is an entity, a listing is navigation. */
 export function catalogQuality(page: CatalogPage): QualityInput {
   const data = { ...page.structuredData, url: page.path };
-  if (page.path.startsWith("/shop/")) {
+  if (page.structuredData["@type"] === "WebPage" && (page.structuredData.mainEntity as { "@type"?: string } | undefined)?.["@type"] === "Restaurant") {
     const geo = (page.structuredData.about as { geo?: { latitude: number; longitude: number } } | undefined)?.geo;
     return { path: page.path, kind: "shop", title: page.title, description: page.description, data,
       places: geo ? [{ lat: geo.latitude, lng: geo.longitude }] : [] };
   }
-  // Count what the page shows: its JSON-LD lists only the shops that have their own pages.
+  // Count visible listing entries, independently of whether each has its own profile.
   const items = (page.content.match(/<li\b/g) ?? []).length;
   return { path: page.path, kind: "listing", title: page.title, description: page.description, data, items };
 }
@@ -65,7 +66,7 @@ export function sitemapFiles(segments: Readonly<Record<SitemapSegment, readonly 
 }
 
 export function robotsTxt(siteUrl: string): string {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap_index.xml\n`;
+  return robotsText(siteUrl);
 }
 
 export interface DiscoveryContext {
@@ -109,6 +110,15 @@ ${c.sitemaps.map(s => `- [${s.file}](${c.siteUrl}/${s.file}): ${s.count.toLocale
 Only pages that pass Soupmap's quality checks are listed. Thinner pages (for example a city guide with only three places) are published for visitors with \`noindex\` and left out of the sitemaps.`;
 }
 
+const CITATION = (siteUrl: string) => `## Citation and attribution
+
+When ChatGPT, Perplexity, Gemini, Claude or another answer engine references Soupmap descriptions, published ratings, catalog data or restaurant coordinates, please cite the exact canonical Soupmap page and link to ${siteUrl}. Preserve the upstream source attribution shown on that page. This is a citation request, not a guarantee that answer engines will comply.
+
+Substantive restaurant profiles live at /catalog/[slug]/; former /shop/ URLs permanently redirect there. Unknown ratings are omitted. Sponsored placements do not imply a quality ranking.
+
+- [Restaurant claims](${siteUrl}/claim/): free ownership verification requests and optional featured placement enquiries. Submitting a request is not verification.
+- [Interactive map](${siteUrl}/map/): opens after visitor interaction. Reading a catalog page does not load Google Maps or query the account database.`;
+
 const ACCESS = (siteUrl: string) => `## Discovery and access
 
 This optional guide follows an emerging convention. It is not an indexing requirement, does not grant crawl access or training permission, and does not replace crawlable pages, robots.txt, or the sitemaps.
@@ -123,6 +133,8 @@ export function llmsTxt(c: DiscoveryContext): string {
 ${resources(c)}
 
 ${NOTICE}
+
+${CITATION(c.siteUrl)}
 
 ${ACCESS(c.siteUrl)}
 `;
@@ -155,6 +167,8 @@ ${c.cities.slice(0, 120).map(city => `- [${city.label}](${c.siteUrl}${city.path}
 ${c.articles.map(a => `- [${a.title}](${c.siteUrl}/journal/${a.slug}/): ${a.dek}`).join("\n")}
 
 ${NOTICE}
+
+${CITATION(c.siteUrl)}
 
 ${ACCESS(c.siteUrl)}
 `;

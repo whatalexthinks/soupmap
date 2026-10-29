@@ -23,7 +23,7 @@ test("indexation gates out thin locations, not merely unverified records", () =>
     { signatureBowl: "Menu not verified" }, { blurb: "A short placeholder." },
     { neighborhood: "Japan" }, { lat: NaN },
   ]) assert.equal(isIndexableShop({ ...shop, ...change }), false);
-  assert.equal(shopPath(shop), `/shop/${shop.slug}/`);
+  assert.equal(shopPath(shop), `/catalog/${shop.slug}/`);
   assert.equal(shopPath(OPEN_SHOPS[0]!), `/map/#${OPEN_SHOPS[0]!.slug}`);
 });
 
@@ -92,7 +92,7 @@ test("ordinary homepage links reach every directory within three clicks", () => 
   }
   for (const page of pages) {
     assert.ok(depths.has(page.path), page.path);
-    assert.ok(depths.get(page.path)! <= (page.path.startsWith("/shop/") ? 4 : 3),
+    assert.ok(depths.get(page.path)! <= (page.structuredData["@type"] === "WebPage" ? 4 : 3),
       `${page.path}: ${depths.get(page.path)} clicks`);
   }
 });
@@ -137,7 +137,7 @@ test("all indexable documents have unique metadata and are reachable by ordinary
     }
   }
   assert.equal(visited.size, pages.length);
-  assert.equal(pages.filter(p => p.path.startsWith("/shop/")).length, CURATED_SHOPS.length);
+  assert.equal(pages.filter(p => p.structuredData["@type"] === "WebPage").length, CURATED_SHOPS.length);
 });
 
 test("shop HTML contains facts, truthful verification, provenance and matching social metadata", async () => {
@@ -158,7 +158,7 @@ test("shop HTML contains facts, truthful verification, provenance and matching s
   assert.ok(doc.querySelector('a[href="/credits/"]'));
   const data = JSON.parse(doc.querySelector('script[type="application/ld+json"]')!.textContent);
   assert.equal(data.url, origin + page.path);
-  assert.equal(data.about["@type"], "Place");
+  assert.equal(data.about["@type"], "Restaurant");
   assert.ok(!data.aggregateRating && !data.openingHours && !data.priceRange);
   assert.equal(doc.querySelectorAll('script:not([type="application/ld+json"])').length, 0);
   await window.happyDOM.close();
@@ -193,7 +193,7 @@ test("static output and sitemap agree; thin shops are not emitted", () => {
     const listed = listedGuides.includes(name);
     assert.ok(html.includes(listed ? '<meta name="robots" content="index,follow">' : '<meta name="robots" content="noindex,follow">'), name);
   }
-  assert.equal(locations.length, pages.length + 4 + journal.length + recipes.length + listedGuides.length);
+  assert.equal(locations.length, pages.length + 5 + journal.length + recipes.length + listedGuides.length);
   for (const page of recipes) {
     assert.ok(locations.includes(origin + page.path));
     // The recipes index is Vite's own entry; every other recipe page is generated with the compiled assets.

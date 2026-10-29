@@ -1,3 +1,4 @@
+import { isFeatured } from '../growth/config.ts';
 import { discover, type SortOrder } from '../discovery.ts';
 import { isEditorial } from '../data/indexation.ts';
 import { CITIES } from '../data/cities.ts';
@@ -31,8 +32,9 @@ export function directoryUrl(state: DirectoryState, baseCity: string, current: U
   return url;
 }
 export function directoryResults(shops: readonly Shop[], state: DirectoryState, saved: ReadonlySet<string>, origin?: {lat:number;lng:number}): Shop[] {
-  return discover(state.collection === 'editorial' ? shops.filter(isEditorial) : shops, {
+  const result = discover(state.collection === 'editorial' ? shops.filter(isEditorial) : shops, {
     query:state.query,city:state.city,cuisine:state.cuisine,sort:state.sort,hideChains:state.hideChains,
     savedOnly:state.collection === 'saved',saved,broths:new Set(),origin,
   });
+  return state.sort === 'guide' ? result.sort((a,b) => Number(isFeatured(b.slug))-Number(isFeatured(a.slug))) : result;
 }

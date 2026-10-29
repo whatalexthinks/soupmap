@@ -1,3 +1,7 @@
+import { growthPublicApi, growthAccountApi } from './growth-api.ts';
+import { GrowthStore } from './growth-store.ts';
+import { apiProtection } from './protection.ts';
+import { CURATED_SHOPS } from '../src/data/shops.ts';
 import express from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
@@ -18,10 +22,16 @@ import { recipePagesWithRatings } from "./recipe-pages.ts";
 const app = express();
 const httpServer = createHttpServer(app);
 app.disable("x-powered-by");
+// Set only to the known proxy hop count for this deployment; never trust arbitrary forwarded IPs.
+if (process.env.TRUST_PROXY_HOPS) app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS));
+app.use('/api', apiProtection());
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(cors({credentials:true, origin: false}));
 app.use(express.json({limit:"64kb"}));
 app.use(express.urlencoded({extended:true, limit:"64kb"}));
+const growthStore = new GrowthStore();
+app.use('/api/growth', growthPublicApi(growthStore));
+
 // IndexNow is the owner's tool, authorised by its own token, so it doesn't wait on Clerk.
 const indexNow = indexNowConfig(process.env);
 const reviews = new ReviewStore();
@@ -35,12 +45,18 @@ app.use("/api", clerkMiddleware((req) => ({
     process.env.CLERK_PUBLISHABLE_KEY,
   ),
 })));
+app.use('/api/passport', growthAccountApi(growthStore));
 // Recipe reviews are public to read, so they mount before the account-only API.
 const recipeSlugs = new Set(readdirSync(resolve("content/recipes")).filter(name => name.endsWith(".md") && name !== "README.md").map(name => name.slice(0, -3)));
 app.use("/api/recipes", recipesApi(reviews, recipeSlugs));
 app.use("/api", personalApi(new ListStore()));
 app.use("/api", (_req, res) => { res.status(404).json({error:"Not found."}); });
 
+const legacyShops = new Set(CURATED_SHOPS.map(shop=>shop.slug));
+app.get('/shop/:slug', (req,res,next)=>{
+  if(!legacyShops.has(req.params.slug as string)){next();return;}
+  res.redirect(301, `/catalog/${req.params.slug}/`);
+});
 const production = process.env.NODE_ENV === "production";
 if (!production) {
   const {createServer} = await import("vite");
@@ -63,9 +79,13 @@ if (!production) {
       res.sendFile(resolve("dist/account/index.html"));
     } else next();
   });
-  // Recipe pages carry their real reader rating in schema.org data.
+  // Add real reader ratings before static delivery.
   app.use(recipePagesWithRatings(reviews));
-  app.use(sirv("dist", {etag:true}));
+  app.use(sirv("dist", {etag:true, setHeaders(res,path){
+    if (/\/(?:assets|cesium)\//.test(path)) res.setHeader('Cache-Control','public, max-age=31536000, immutable');
+    else if (/\/(?:catalog|city|guides)\//.test(path)||/\/(?:robots\.txt|llms(?:-full)?\.txt|sitemap[^/]*\.xml)$/.test(path))
+      res.setHeader('Cache-Control','public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
+  }}));
 }
 app.use((_req, res) => { res.status(404).type("text").send("Page not found."); });
 app.use((error: Error & {status?: number}, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

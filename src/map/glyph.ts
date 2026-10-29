@@ -1,3 +1,4 @@
+import { isFeatured } from '../growth/config.ts';
 /**
  * Map markers drawn to canvas at runtime. No Cesium dependency.
  *
@@ -17,9 +18,9 @@ const INK = "#302822";
 const CREAM = "#fcf9f3";
 const VERMILION = "#9c4933";
 
-export type MarkerKind = "dot" | "saved" | "pick";
+export type MarkerKind = "dot" | "saved" | "pick" | "featured";
 
-export const MARKER_SIZE: Record<MarkerKind, number> = { dot: 16, saved: 20, pick: 26 };
+export const MARKER_SIZE: Record<MarkerKind, number> = { dot: 16, saved: 20, pick: 26, featured: 28 };
 export const SELECTED_SIZE = { width: 34, height: 44 } as const;
 
 /** Unknown-broth shops are coloured by their main noodle style instead. */
@@ -38,6 +39,7 @@ export function markerColor(shop: Pick<Shop, "broth" | "cuisine" | "name" | "nam
 
 /** Curated records with editorial notes stand out from imported locations. */
 export function markerKind(shop: Pick<Shop, "slug">, saved: boolean): MarkerKind {
+  if (isFeatured(shop.slug)) return "featured";
   if (isEditorial(shop)) return "pick";
   return saved ? "saved" : "dot";
 }
@@ -93,9 +95,9 @@ export function markerGlyph(kind: MarkerKind, color: string): HTMLCanvasElement 
   const s = MARKER_SIZE[kind];
   const [c, ctx] = canvas(s, s);
   const m = s / 2;
-  if (kind === "pick") {
+  if (kind === "pick" || kind === "featured") {
     circle(ctx, m, m, m - 0.5, CREAM);
-    circle(ctx, m, m, m - 2.2, VERMILION);
+    circle(ctx, m, m, m - 2.2, kind === "featured" ? "#b58a35" : VERMILION);
     miniBowl(ctx, m, m - 2.5, 13, CREAM, color);
   } else if (kind === "saved") {
     circle(ctx, m, m, m - 0.5, CREAM);

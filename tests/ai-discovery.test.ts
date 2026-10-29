@@ -31,7 +31,8 @@ test("AI guide uses the configured canonical origin and existing public resource
     assert.ok(!assets.get(name)!.includes("soupmap.com"), name);
     assert.ok(!assets.get(name)!.includes("https://atlas.example//"), name);
   }
-  assert.match(assets.get("robots.txt")!, /User-agent: \*\nAllow: \/\n\nSitemap: https:\/\/atlas\.example\/sitemap_index\.xml\n/);
+  assert.ok(assets.get("robots.txt")!.includes("Sitemap: https://atlas.example/sitemap.xml"));
+  assert.ok(assets.get("robots.txt")!.includes("Disallow: /api/"));
   assert.equal(assets.get("sitemap.xml"), assets.get("sitemap_index.xml"), "the URL already in Search Console serves the index");
   assert.match(assets.get("sitemap-pages.xml")!, /https:\/\/atlas\.example\/credits\//);
   // The full guide lists every recipe, and the JSON feed carries the same recipes as data.

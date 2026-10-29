@@ -17,3 +17,5 @@
 - [Recipes policy](recipes-policy.md) — honest, safe recipes; diet tags checked; only verified free-licence photos; account-gated reviews with moderation.
 - [SEO page graph](seo-graph-policy.md) — every generated page passes the quality gate; guides are honest listings with kana-derived place names; /sitemap.xml stays the index.
 - [Site identity and navigation](site-navigation.md) — one shared wordmark, destinations and warm palette; useful paths between discovery, profiles and plans.
+
+- [Catalog growth](catalog-growth.md) — canonical restaurant profiles, static crawler delivery, email saves, verified claims, sponsored pins and account passport.

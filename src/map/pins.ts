@@ -1,3 +1,4 @@
+import { isFeatured } from '../growth/config.ts';
 /**
  * Shop pins and clusters.
  * - Pins are billboards clamped to the 3D tiles (CLAMP_TO_3D_TILE: tiles only, verified
@@ -48,7 +49,7 @@ interface Pin {
  * Names are for close navigation, not a city-wide layer: imported locations only
  * label at street level, editor's picks a little further out, the selection always.
  */
-const LABEL_DISTANCE: Record<MarkerKind, number> = { dot: 300, saved: 900, pick: 2500 };
+const LABEL_DISTANCE: Record<MarkerKind, number> = { dot: 300, saved: 900, pick: 2500, featured: 2500 };
 const SELECTED_LABEL_DISTANCE = 14_000;
 /** Bounded reuse cache: active pins plus recently visited viewports. */
 const MAX_CACHED_PINS = 360;
@@ -177,7 +178,7 @@ export class PinLayer {
     const { shop, billboard, label } = pin;
     const selected = shop.slug === this.selected;
     const kind = markerKind(shop, this.saved.has(shop.slug));
-    const color = markerColor(shop);
+    const color = isFeatured(shop.slug) ? "#b58a35" : markerColor(shop);
     const look = `${selected ? "selected" : kind}:${color}`;
     if (look === pin.look) return;
     pin.look = look;

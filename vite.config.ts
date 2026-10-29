@@ -1,3 +1,4 @@
+import { validateCommerce } from './scripts/lib/validate-commerce.ts';
 import { renderSiteShell } from "./src/render/shell.ts";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -50,6 +51,7 @@ const CESIUM_BUILD = "node_modules/cesium/Build/Cesium";
 export function soupmapHtml(env: Record<string, string>): Plugin {
   const siteUrl = (env.VITE_SITE_URL || "https://soupmap.com").replace(/\/+$/, "");
   const analyticsToken = (env.VITE_CF_ANALYTICS_TOKEN || "").trim();
+  validateCommerce();
   const documents = catalogPages(ORDERED_SHOPS);
   const articles = loadJournal();
   const journal = journalPages(articles);
@@ -93,6 +95,10 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         }
         if (!/^\/(?:shop|city|catalog|guides)(?:\/|$)/.test(url.pathname)) return next();
         const path = `${url.pathname.replace(/\/index\.html$/, "").replace(/\/+$/, "")}/`;
+        if(path.startsWith('/shop/')) {
+          const replacement=path.replace('/shop/','/catalog/');
+          if(routes.has(replacement)){res.statusCode=301;res.setHeader('Location',replacement+url.search);res.end();return;}
+        }
         const page = routes.get(path);
         if (!page) {
           res.statusCode = 404;
@@ -171,7 +177,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
       const recipeDates = new Map(recipes.map(r => [`/recipes/${r.slug}/`, r.updated ?? r.date]));
       const articleDates = new Map(articles.map(a => [`/journal/${a.slug}/`, a.date]));
       const segments: Record<"pages" | "journal" | "recipes" | "catalog" | "cities", SitemapEntry[]> = {
-        pages: ["/", "/map/", "/me/", "/credits/"].map(path => ({ path })),
+        pages: ["/", "/map/", "/me/", "/credits/", "/claim/"].map(path => ({ path })),
         journal: journal.map(page => ({ path: page.path, lastmod: articleDates.get(page.path) })),
         recipes: recipeSite.map(page => ({ path: page.path, lastmod: recipeDates.get(page.path) })),
         catalog: documents.map(page => ({ path: page.path, lastmod: catalogDate })),
@@ -232,6 +238,7 @@ export default defineConfig(({ mode }) => {
           account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
           privacy: resolve(import.meta.dirname, "privacy/index.html"),
+          claim: resolve(import.meta.dirname, "claim/index.html"),
           terms: resolve(import.meta.dirname, "terms/index.html"),
           moderate: resolve(import.meta.dirname, "moderate/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),

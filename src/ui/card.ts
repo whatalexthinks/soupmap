@@ -1,3 +1,4 @@
+import { commerceLabels, outboundActions } from '../growth/render.ts';
 import { googlePanelShell, profileUrl } from "../render/directory.ts";
 import { mountGooglePlace } from "./google-place.ts";
 import { trackEvent } from "../analytics.ts";
@@ -154,7 +155,7 @@ export class ShopCard {
           <p class="blurb">${esc(shop.blurb)}</p>
           ${isEditorial(shop) ? "" : `<section class="card__contact" aria-label="Contact details" aria-busy="true"><p class="card__fine">Loading contact details…</p></section>`}
           ${shop.verified ? "" : `<p class="unverified">${icon("info")}<span>${esc(t("unverifiedNote"))}</span></p>`}
-          <div class="visit-actions"><button class="btn btn--primary" data-action="visit">${options.visited?'✓ In your passport · Edit visit':'I had a bowl here · Collect a stamp'}</button><button class="text-btn" data-action="contribute">Read & leave field notes ↗</button></div>
+          ${commerceLabels(shop)}${outboundActions(shop)}<div class="visit-actions"><button class="btn btn--primary" data-action="visit">${options.visited?'✓ In your passport · Edit visit':'I had a bowl here · Collect a stamp'}</button><button class="text-btn" data-action="contribute">Read & leave field notes ↗</button></div>
           <details class="card__context"><summary>Around this place <span aria-hidden="true">+</span></summary><div class="card__history"></div></details>
           <div class="actions">
             <button type="button" class="btn" data-action="building" aria-pressed="false"${options.buildingAvailable ? "" : " hidden"}>${icon("building")}${esc(t("buildingInfo"))}</button>
