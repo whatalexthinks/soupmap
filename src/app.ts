@@ -231,6 +231,8 @@ export class App {
   }
 
   start(): void {
+    const requestedCity = new URLSearchParams(location.search).get('city');
+    if (requestedCity && cityBySlug.has(requestedCity)) this.city = requestedCity;
     this.collection=collectionFromUrl(location.search,new Set(shopBySlug.keys()));
     if(this.collection)this.city=this.collection.hub?.city??'all';
     this.shared = router.shortlist();
@@ -493,6 +495,7 @@ export class App {
   private updateLocation(): void {
     const city = cityBySlug.get(this.city);
     $('#map-city').textContent = city?.name ?? 'Earth';
+    window.dispatchEvent(new window.CustomEvent('soupmap:city-selected',{detail:city?.name}));
     $('#map-city-ja').textContent = city?.nameJa ?? '';
     $('#map-coordinates').textContent = city
       ? `${Math.abs(city.lat).toFixed(4)}° ${city.lat < 0 ? 'S' : 'N'} · ${Math.abs(city.lng).toFixed(4)}° ${city.lng < 0 ? 'W' : 'E'}`
@@ -525,6 +528,7 @@ export class App {
       city:shop.city, broth:shop.broth, shared_list:this.sharedActive,
     });
     this.selected = slug;
+    window.dispatchEvent(new window.CustomEvent('soupmap:place-selected',{detail:{city:shop.city,slug}}));
     this.sheet.setCovered(true);
     this.card.open(shop, { focus: options.focus, buildingAvailable: this.buildingAvailable(shop), saved: this.saved.has(shop.slug), visited: !!this.journey.visits[shop.slug] });
     this.panel.markSelected(slug);

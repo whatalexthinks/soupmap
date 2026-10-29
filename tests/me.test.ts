@@ -325,7 +325,7 @@ test('signed in, saves and trips go to the account through the existing API', as
     dashboard.render();
     assert.match($('.me-hero')!.textContent!, /SIGNED IN/);
     assert.match($('.me-banner')!.textContent!, /1 place saved on this browser isn't in your account yet/);
-    assert.ok($('#places a.me-shop[href="/shop/ichiran-nakasu/"]'), 'account saves are listed');
+    assert.ok($('#places a.me-shop[href="/catalog/ichiran-nakasu/"]'), 'account saves are listed');
 
     $('button[data-action=import]')!.click();
     await new Promise(resolve => setTimeout(resolve, 0));

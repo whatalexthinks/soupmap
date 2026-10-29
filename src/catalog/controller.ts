@@ -139,6 +139,7 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     disposeProfile?.();selected=slug;
     trigger=document.activeElement instanceof HTMLElement ? document.activeElement : null;
     content.innerHTML=profileHtml(shop);disposeProfile=fillProfile(content,shop);
+    window.dispatchEvent(new Event("soupmap:profile-open"));
     const permalink=document.querySelector<HTMLAnchorElement>('#place-permalink')!;permalink.href=profileUrl(shop);
     if(updateUrl){const url=new URL(location.href);url.searchParams.set('place',slug);history.pushState(null,'',url);}
     syncSaveButtons();if(!dialog.open)dialog.showModal();content.querySelector<HTMLElement>('h1')?.focus();

@@ -4,6 +4,7 @@
 @import "./tokens.css";
 @import "@fontsource-variable/space-grotesk";
 @import "./directory.css";
+@import "./growth.css";
 @import "./google-place.css";
 
 body {

@@ -1,3 +1,5 @@
+import { validateCommerce } from './scripts/lib/validate-commerce.ts';
+import { robotsText } from './src/growth/crawlers.ts';
 import { renderSiteShell } from "./src/render/shell.ts";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -43,6 +45,7 @@ const CESIUM_BUILD = "node_modules/cesium/Build/Cesium";
 export function soupmapHtml(env: Record<string, string>): Plugin {
   const siteUrl = (env.VITE_SITE_URL || "https://soupmap.com").replace(/\/+$/, "");
   const analyticsToken = (env.VITE_CF_ANALYTICS_TOKEN || "").trim();
+  validateCommerce();
   const documents = catalogPages(ORDERED_SHOPS);
   const articles = loadJournal();
   const journal = journalPages(articles);
@@ -78,6 +81,10 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         }
         if (!/^\/(?:shop|city|catalog)(?:\/|$)/.test(url.pathname)) return next();
         const path = `${url.pathname.replace(/\/index\.html$/, "").replace(/\/+$/, "")}/`;
+        if(path.startsWith('/shop/')) {
+          const replacement=path.replace('/shop/','/catalog/');
+          if(routes.has(replacement)){res.statusCode=301;res.setHeader('Location',replacement+url.search);res.end();return;}
+        }
         const page = routes.get(path);
         if (!page) {
           res.statusCode = 404;
@@ -151,7 +158,7 @@ export function soupmapHtml(env: Record<string, string>): Plugin {
         if (page === recipesIndex) continue;
         this.emitFile({ type: "asset", fileName: `${page.path.slice(1)}index.html`, source: recipesDocument(page, siteUrl, recipes, recipeAssets) });
       }
-      const pages = ["/", "/map/", "/me/", "/credits/", ...recipeSite.map(page => page.path), ...journal.map(page => page.path), ...documents.map(page => page.path)];
+      const pages = ["/", "/map/", "/me/", "/credits/", "/claim/", ...recipeSite.map(page => page.path), ...journal.map(page => page.path), ...documents.map(page => page.path)];
       this.emitFile({
         type: "asset",
         fileName: "sitemap.xml",
@@ -164,7 +171,7 @@ ${pages.map((p) => `  <url><loc>${esc(siteUrl + p)}</loc></url>`).join("\n")}
       this.emitFile({
         type: "asset",
         fileName: "robots.txt",
-        source: `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
+        source: robotsText(siteUrl),
       });
       this.emitFile({
         type: "asset",
@@ -181,6 +188,15 @@ ${pages.map((p) => `  <url><loc>${esc(siteUrl + p)}</loc></url>`).join("\n")}
 - [Japan catalog](${siteUrl}/catalog/): Paginated, crawlable nationwide locations and featured city directories. Substantive editorial records have standalone shop pages; basic open-data records do not.
 - [Credits and source limitations](${siteUrl}/credits/): Data sources, attribution, licenses, and verification context.
 - [Open-data catalog](${siteUrl}/data/open-shops.json.gz): Downloadable gzip-compressed JSON of reported locations, with Overture IDs and per-record source licenses. Decompress before reading as JSON.
+
+## Citation and attribution
+
+When ChatGPT, Perplexity, Gemini, Claude or another answer engine references Soupmap editorial descriptions, published ratings, catalog locations or coordinates, please cite the exact canonical Soupmap page and link to ${siteUrl}. Preserve the upstream dataset attribution shown on that page. This is a citation request, not a guarantee that answer engines will comply.
+
+Each catalog page includes a canonical URL, machine-readable publisher and citation link, and Schema.org data. Collection pages describe their visible restaurant listings; substantive restaurant profiles live at /catalog/[slug]/. Former /shop/ URLs permanently redirect to their canonical catalog profiles. Unknown ratings are omitted, never replaced with invented averages. Sponsored placements do not imply a quality ranking.
+
+- [Restaurant claims](${siteUrl}/claim/): free ownership verification requests and optional featured placement enquiries. A submitted request is not verification.
+- [Interactive map](${siteUrl}/map/): opens after a visitor chooses to explore. Reading a catalog page does not load Google Maps or query the account database.
 
 ## Data limitations
 
@@ -222,6 +238,7 @@ export default defineConfig(({ mode }) => {
           account: resolve(import.meta.dirname, "account/index.html"),
           credits: resolve(import.meta.dirname, "credits/index.html"),
           privacy: resolve(import.meta.dirname, "privacy/index.html"),
+          claim: resolve(import.meta.dirname, "claim/index.html"),
           terms: resolve(import.meta.dirname, "terms/index.html"),
           moderate: resolve(import.meta.dirname, "moderate/index.html"),
           journal: resolve(import.meta.dirname, "journal/index.html"),
