@@ -12,6 +12,8 @@ import {OPEN_SHOPS} from '../src/data/shops.ts';
 import {displayName} from '../src/names.ts';
 import {cuisineOf} from '../src/cuisines.ts';
 import {shortlistHash} from '../src/shortlist.ts';
+import {setAccountSaved} from '../src/personal-saves.ts';
+import {fakeAccount, restoreFetch, settle} from './fake-account.ts';
 let window: Window;
 let app: App;
 beforeEach((context)=>{
@@ -33,7 +35,7 @@ beforeEach((context)=>{
   Object.defineProperty(globalThis,'requestAnimationFrame',{value:()=>0,configurable:true});
   app=new App();app.start();
 });
-afterEach(async()=>{await window.happyDOM.close();});
+afterEach(async()=>{setAccountSaved(null);restoreFetch();await window.happyDOM.close();});
 const el=(selector:string)=>window.document.querySelector(selector) as unknown as HTMLElement;
 const click=(selector:string)=>el(selector).click();
 const rows=()=>[...window.document.querySelectorAll<HTMLAnchorElement>('.shop-row')];
@@ -46,13 +48,14 @@ function analyticsEvents() {
   return events;
 }
 
-test('analytics counts actual shop opens, save changes, filters and directions without shop IDs',()=>{
+test('analytics counts actual shop opens, save changes, filters and directions without shop IDs',async()=>{
+  fakeAccount();
   const events=analyticsEvents();
   click('[data-slug="afuri-ebisu"]');
   app.select('afuri-ebisu',{fly:false,focus:false});
   assert.equal(events.filter(e=>e.name==='shop_opened').length,1);
-  click('#card [data-action="save"]');
-  click('#card [data-action="save"]');
+  click('#card [data-action="save"]');await settle();
+  click('#card [data-action="save"]');await settle();
   assert.deepEqual(events.filter(e=>e.name==='save_changed').map(e=>e.data.saved),[true,false]);
   const directions=el('#card [data-action="directions"]');
   directions.addEventListener('click',e=>e.preventDefault(),{once:true});
@@ -93,12 +96,13 @@ test('analytics counts copied shop links only after clipboard success',async()=>
   assert.ok(!JSON.stringify(events).includes(shop.slug));
 });
 
-test('analytics tracks shared-list opens once and distinguishes saves from shared discovery',()=>{
+test('analytics tracks shared-list opens once and distinguishes saves from shared discovery',async()=>{
+  fakeAccount();
   const events=analyticsEvents();
   window.history.replaceState(null,'','/'+shortlistHash(['afuri-ebisu']));
   window.dispatchEvent(new window.HashChangeEvent('hashchange'));
   app.select('afuri-ebisu',{fly:false,focus:false});
-  click('#card [data-action="save"]');
+  click('#card [data-action="save"]');await settle();
   window.dispatchEvent(new window.HashChangeEvent('hashchange'));
   assert.equal(events.filter(e=>e.name==='shared_shortlist_opened').length,1);
   assert.ok(events.some(e=>e.name==='save_changed' && e.data.shared_list===true && e.data.saved===true));
@@ -165,14 +169,22 @@ test('city links keep crawlable destinations and expose only the current filter'
     assertCurrent('tokyo');
   }
 });
-test('bookmark survives tab changes, persists to storage, and can be removed',()=>{
-  click('[data-save="afuri-ebisu"]');
+test('bookmarks need an account: guests are invited to sign up; saves survive tab changes and can be removed',async()=>{
+  const account=fakeAccount({signedIn:false});
+  click('[data-save="afuri-ebisu"]');await settle();
+  assert.equal((el('dialog.save-prompt') as unknown as HTMLDialogElement).open,true,'the sign-up prompt opens');
+  assert.equal(el('#saved-count').textContent,'0');
+  assert.equal(window.localStorage.getItem('soupmap:saved:v1'),null,'nothing saved to the device');
+  click('dialog.save-prompt .save-prompt__dismiss');
+  account.signedIn=true;
+  click('[data-save="afuri-ebisu"]');await settle();
   assert.equal(el('#saved-count').textContent,'1');
-  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!),['afuri-ebisu']);
+  assert.deepEqual(account.saved,['afuri-ebisu']);
   click('#saved-tab');
   assert.equal(rows().length,1);
-  click('[data-save="afuri-ebisu"]');
+  click('[data-save="afuri-ebisu"]');await settle();
   assert.equal(rows().length,0);
+  assert.deepEqual(account.saved,[]);
   assert.match(el('#shop-list').textContent ?? '',/room for discovery/);
   assert.equal(el('#saved-count').textContent,'0');
 });
@@ -200,13 +212,14 @@ test('changing flavor closes an excluded card, reset recovers all results',()=>{
   assert.ok(el('[data-load-more]'));
   assert.equal(el('#filter-count').textContent,'All styles');
 });
-test('card bookmark remains synchronized with collection and cross-tab updates',()=>{
+test('card bookmark stays in sync with the collection and with account changes made elsewhere',async()=>{
+  fakeAccount();
   click('[data-slug="ginza-kagari"]');
-  click('[data-action="save"]');
+  click('[data-action="save"]');await settle();
   assert.equal(el('[data-action="save"]').getAttribute('aria-pressed'),'true');
   assert.equal(el('#saved-count').textContent,'1');
-  window.localStorage.removeItem('soupmap:saved:v1');
-  window.dispatchEvent(new window.StorageEvent('storage',{key:'soupmap:saved:v1'}));
+  // Another tab or the account page removed it: the account announces the change.
+  setAccountSaved('current-session',[]);
   assert.equal(el('#saved-count').textContent,'0');
   assert.equal(el('[data-action="save"]').getAttribute('aria-pressed'),'false');
 });
@@ -360,9 +373,10 @@ test('initial shared link opens the shortlist without importing or replacing sav
 });
 
 test('sharing is opt-in and includes only the selected saved shops', async () => {
+  fakeAccount();
   const events=analyticsEvents();
-  click('[data-save="afuri-ebisu"]');
-  click('[data-save="ginza-kagari"]');
+  click('[data-save="afuri-ebisu"]');await settle();
+  click('[data-save="ginza-kagari"]');await settle();
   assert.equal(el('#share-shortlist').hidden, true);
   click('#saved-tab');
   click('#share-shortlist');
@@ -391,25 +405,26 @@ test('sharing is opt-in and includes only the selected saved shops', async () =>
   assert.equal(window.document.activeElement?.id, 'share-shortlist');
 });
 
-test('share chooser retains its named group when saved shops are removed', () => {
-  click('[data-save="afuri-ebisu"]');
+test('share chooser retains its named group when saved shops are removed', async () => {
+  fakeAccount();
+  click('[data-save="afuri-ebisu"]');await settle();
   click('#saved-tab');
   click('#share-shortlist');
   assertSavedShopGroup(1);
-  window.localStorage.setItem('soupmap:saved:v1', '[]');
-  window.dispatchEvent(new window.StorageEvent('storage', {key:'soupmap:saved:v1'}));
+  setAccountSaved('current-session', []);
   assertSavedShopGroup(0);
   assert.match(el('.shortlist-share__list').textContent!, /No saved shops yet/);
 });
 
-test('shared view spans cities and adds individual saves without replacing existing ones', () => {
-  click('[data-save="ginza-kagari"]');
+test('shared view spans cities and adds individual saves without replacing existing ones', async () => {
+  const account=fakeAccount();
+  click('[data-save="ginza-kagari"]');await settle();
   openShared(['afuri-ebisu', 'ichiran-nakasu']);
   assert.deepEqual(rows().map(r => r.dataset.slug), ['afuri-ebisu', 'ichiran-nakasu']);
   assert.equal(el('#shared-tab').getAttribute('aria-pressed'), 'true');
-  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari']);
-  click('[data-save="afuri-ebisu"]');
-  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari', 'afuri-ebisu']);
+  assert.deepEqual(account.saved, ['ginza-kagari']);
+  click('[data-save="afuri-ebisu"]');await settle();
+  assert.deepEqual(account.saved, ['ginza-kagari', 'afuri-ebisu']);
   assert.equal(rows().length, 2);
   click('[data-slug="ichiran-nakasu"]');
   assert.ok(window.location.hash.startsWith('#shortlist='));
@@ -422,8 +437,9 @@ test('shared view spans cities and adds individual saves without replacing exist
   assert.equal(window.location.hash, '');
   click('#shared-tab');
   assert.deepEqual(rows().map(r => r.dataset.slug), ['afuri-ebisu', 'ichiran-nakasu']);
-  click('[data-save="afuri-ebisu"]');
-  assert.deepEqual(JSON.parse(window.localStorage.getItem('soupmap:saved:v1')!), ['ginza-kagari']);
+  click('[data-save="afuri-ebisu"]');await settle();
+  assert.deepEqual(account.saved, ['ginza-kagari']);
+  assert.equal(window.localStorage.getItem('soupmap:saved:v1'), null);
 });
 
 test('shared view handles missing shops, invalid payloads and preserves the missing notice on return', () => {
@@ -471,8 +487,9 @@ test('share chooser stays bounded, caps selection and follows language and cross
 });
 
 test('shortlist copy reports clipboard failure and leaves a selectable link', async () => {
+  fakeAccount();
   const events=analyticsEvents();
-  click('[data-save="afuri-ebisu"]');
+  click('[data-save="afuri-ebisu"]');await settle();
   click('#saved-tab');
   click('#share-shortlist');
   chooseShared('afuri-ebisu');
@@ -595,7 +612,8 @@ test('reset filters clears both a chapter and the chain filter',()=>{
   assert.ok(rows().length>3);
 });
 
-test('visit stamps coexist with current shop facts, Street View, history, and local saves',()=>{
+test('visit stamps go to the account passport and coexist with shop facts, Street View and history',async()=>{
+  const account=fakeAccount();
   app.select('afuri-ebisu',{fly:false,focus:false});
   assert.ok(el('#card [data-action="directions"]'));
   assert.ok(el('#card [data-action="stand-outside"]'));
@@ -603,9 +621,9 @@ test('visit stamps coexist with current shop facts, Street View, history, and lo
   click('#card [data-action="visit"]');
   (el('#visit-form [name="bowl"]') as HTMLInputElement).value='Yuzu shio';
   (el('#visit-form [name="note"]') as HTMLTextAreaElement).value='My private memory';
-  el('#visit-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  const visits=JSON.parse(window.localStorage.getItem('soupmap:passport:v1')!);
-  assert.equal(visits['afuri-ebisu'].note,'My private memory');
+  el('#visit-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await settle();
+  assert.equal((account.entries.visit?.['afuri-ebisu'] as {note?:string}|undefined)?.note,'My private memory');
+  assert.equal(window.localStorage.getItem('soupmap:passport:v1'),null,'never kept on the device');
   assert.equal(window.document.querySelectorAll('.visit-stamp').length,1);
   assert.ok(el('#card [data-action="visit"]').textContent?.includes('In your passport'));
   assert.equal(window.localStorage.getItem('soupmap:saved:v1'),null);
@@ -613,8 +631,9 @@ test('visit stamps coexist with current shop facts, Street View, history, and lo
   assert.equal((el('#journey-dialog') as HTMLDialogElement).open,false);
 });
 
-test('field notes can target an imported shop without rendering the entire nationwide catalog',async context=>{
-  context.mock.method(globalThis,'fetch',async()=>Response.json({enabled:false}));
+test('field notes can target an imported shop without rendering the entire nationwide catalog',async()=>{
+  // The community guide is switched off; drafts are saved privately to the account.
+  const account=fakeAccount({other:()=>Response.json({enabled:false})});
   const shop=OPEN_SHOPS[0]!;
   app.select(shop.slug,{fly:false,focus:false});
   click('#card [data-action="contribute"]');
@@ -626,8 +645,9 @@ test('field notes can target an imported shop without rendering the entire natio
   assert.equal((el('#note-submit') as HTMLButtonElement).disabled,true);
   assert.match(el('#community-status').textContent??'',/not connected/);
   (el('#field-note-form [name="body"]') as HTMLTextAreaElement).value='A useful note kept as a private draft.';
-  click('[data-save-draft]');
-  assert.equal(JSON.parse(window.localStorage.getItem('soupmap:field-draft:v1')!).shop,shop.slug);
+  click('[data-save-draft]');await settle();
+  assert.equal((account.entries.draft?.community as {shop?:string}|undefined)?.shop,shop.slug);
+  assert.equal(window.localStorage.getItem('soupmap:field-draft:v1'),null);
   assert.equal(window.localStorage.getItem('soupmap:receipts:v1'),null);
 });
 

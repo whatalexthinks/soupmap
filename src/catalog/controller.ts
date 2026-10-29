@@ -149,7 +149,10 @@ export function mountDirectory(options: {account?:boolean} = {}): void {
     if(dialog?.open)dialog.close();if(content)content.innerHTML='';
     if(updateUrl){const url=new URL(location.href);url.searchParams.delete('place');history.replaceState(null,'',url);}
     const fallback=document.querySelector<HTMLElement>('#directory-query');
-    (trigger?.isConnected?trigger:fallback)?.focus({preventScroll:true});
+    // A re-render while the profile was open (an account loading, a save) replaces the trigger: use its successor.
+    const slug=trigger?.dataset.profile;
+    const successor=!trigger?.isConnected&&slug?[...document.querySelectorAll<HTMLElement>('[data-profile]')].find(el=>el.dataset.profile===slug):undefined;
+    (trigger?.isConnected?trigger:successor??fallback)?.focus({preventScroll:true});
   }
   async function save(slug:string) {
     if(!valid.has(slug)||pendingSaves.has(slug))return;

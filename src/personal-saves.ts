@@ -28,6 +28,8 @@ export async function requireSaveAccount(kind: Parameters<typeof promptToSave>[0
 
 export function accountSaved(): ReadonlySet<string> | null { return remote; }
 export function setAccountSaved(owner: string | null, ids: readonly string[] = []): void {
+  // Signed out and staying signed out: nothing changed, so nothing should re-render.
+  if (!owner && !accountId && !remote) return;
   accountId = owner;
   revision++;
   remote = owner ? new Set(ids) : null;

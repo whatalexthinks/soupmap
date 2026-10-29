@@ -8,6 +8,7 @@ import {profileUrl} from '../src/render/directory.ts';
 import {mountDirectory} from '../src/catalog/controller.ts';
 import {accountSaved, setAccountSaved} from '../src/personal-saves.ts';
 import {SAVED_KEY} from '../src/discovery.ts';
+import {fakeAccount, restoreFetch, settle} from './fake-account.ts';
 
 const origin='https://soupmap.example';
 const root=catalogPages(CURATED_SHOPS).find(page=>page.path==='/catalog/')!;
@@ -21,7 +22,7 @@ beforeEach(()=>{
   window.document.write(catalogDocument(root,origin,'/style.css'));
   setAccountSaved(null);
 });
-afterEach(async()=>{setAccountSaved(null);await window.happyDOM.close();});
+afterEach(async()=>{setAccountSaved(null);restoreFetch();await window.happyDOM.close();});
 const el=<T extends HTMLElement=HTMLElement>(selector:string)=>window.document.querySelector(selector) as unknown as T;
 const click=(selector:string)=>el(selector).click();
 function change(id:string,value:string){el<HTMLSelectElement>(id).value=value;el(id).dispatchEvent(new window.Event('change',{bubbles:true}));}
@@ -71,25 +72,39 @@ test('profile deep links open imported records without redirecting people to the
   assert.equal(window.location.search,'');
 });
 
-test('guest saves persist across catalog and map and profile close restores keyboard focus',()=>{
+test('guests are invited to create an account to save, nothing lands on the device, and profile close restores focus',async()=>{
+  const account=fakeAccount({signedIn:false});
   mountDirectory({account:false});
   change('#directory-collection','editorial');
   const trigger=el('[data-profile="afuri-ebisu"]');trigger.focus();trigger.click();
-  click('#place-dialog [data-directory-save]');
-  assert.deepEqual(JSON.parse(window.localStorage.getItem(SAVED_KEY)!),['afuri-ebisu']);
-  click('#place-close');assert.equal(window.document.activeElement,trigger);
-  change('#directory-collection','saved');assert.equal(cards().length,1);
-  click('#directory-results [data-directory-save]');assert.equal(cards().length,0);
+  click('#place-dialog [data-directory-save]');await settle();
+  assert.deepEqual(account.requests,['GET /api/me']);
+  assert.equal(el<HTMLDialogElement>('dialog.save-prompt').open,true,'the sign-up prompt opens');
+  assert.match(el('dialog.save-prompt .save-prompt__signup').getAttribute('href')!,/^\/sign-up\?redirect_url=/);
+  assert.equal(window.localStorage.getItem(SAVED_KEY),null);
+  click('dialog.save-prompt .save-prompt__dismiss');
+  // Compare DOM nodes by identity: a failed deep-equal on happy-dom elements exhausts memory.
+  click('#place-close');assert.ok(window.document.activeElement===trigger,'focus returns to the place the visitor opened');
 });
 
-test('signed-in directory saves use the account and never overwrite guest storage',async context=>{
+test('signed-in saves fill the saved collection and can be removed again',async()=>{
+  const account=fakeAccount();
+  mountDirectory({account:false});
+  click('[data-directory-save="afuri-ebisu"]');await settle();
+  assert.deepEqual(account.saved,['afuri-ebisu']);
+  change('#directory-collection','saved');assert.equal(cards().length,1);
+  click('#directory-results [data-directory-save]');await settle();
+  assert.deepEqual(account.saved,[]);assert.equal(cards().length,0);
+  assert.equal(window.localStorage.getItem(SAVED_KEY),null);
+});
+
+test('signed-in directory saves use the account and never overwrite guest storage',async()=>{
   window.localStorage.setItem(SAVED_KEY,JSON.stringify(['afuri-ebisu']));
   mountDirectory({account:false});setAccountSaved('account',[]);
-  const calls:string[]=[];
-  context.mock.method(globalThis,'fetch',async(url:unknown)=>{calls.push(String(url));return Response.json({});});
+  const account=fakeAccount();
   click('[data-directory-save="ginza-kagari"]');
-  await new Promise(resolve=>setTimeout(resolve,0));
-  assert.deepEqual(calls,['/api/saved/ginza-kagari']);
+  await settle();
+  assert.deepEqual(account.requests,['GET /api/me','PUT /api/saved/ginza-kagari']);
   assert.ok(accountSaved()?.has('ginza-kagari'));
   assert.deepEqual(JSON.parse(window.localStorage.getItem(SAVED_KEY)!),['afuri-ebisu']);
 });
@@ -125,12 +140,13 @@ test('collection shortcuts retain the query and chips remove only their own filt
   assert.equal(el<HTMLSelectElement>('#directory-collection').value,'editorial');
 });
 
-test('list view persists across filters and saved-place updates',()=>{
+test('list view persists across filters and saved-place updates',async()=>{
   window.localStorage.setItem('soupmap:directory-view','list');
+  fakeAccount();
   mountDirectory({account:false});
   assert.equal(el('#directory-results').dataset.view,'list');
   assert.equal(el('[data-directory-view="list"]').getAttribute('aria-pressed'),'true');
-  click('[data-directory-save="afuri-ebisu"]');
+  click('[data-directory-save="afuri-ebisu"]');await settle();
   click('[data-directory-collection="saved"]');
   assert.deepEqual(cards().map(card=>card.dataset.record),['afuri-ebisu']);
   assert.equal(el('#directory-results').dataset.view,'list');
