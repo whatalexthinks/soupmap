@@ -31,9 +31,9 @@ The two named examples below have source-linked notes. They illustrate different
 
 For ramen served in soup, it helps to separate seasoning from stock. *Shoyu* (醤油) means soy sauce; *shio* (塩) means salt. Neither word tells you every ingredient used in the broth. *Tonkotsu* (豚骨), by contrast, describes pork-bone stock. A clear-looking bowl can still contain chicken, pork, fish or a combination. Our [ramen flavours guide](/journal/four-ramen-flavours/) explains the distinction in more detail.
 
-If you like the idea of citrus and a relatively clear broth, [AFURI Ebisu](/shop/afuri-ebisu/) is one example to research. The [brand's own menu](https://afuri.com/menu/) describes yuzu shio ramen with chicken-and-dashi broth, yuzu, pork chashu and egg. That description supports a useful comparison; it does not promise that every item is available at every branch today.
+If you like the idea of citrus and a relatively clear broth, [AFURI Ebisu](/catalog/afuri-ebisu/) is one example to research. The [brand's own menu](https://afuri.com/menu/) describes yuzu shio ramen with chicken-and-dashi broth, yuzu, pork chashu and egg. That description supports a useful comparison; it does not promise that every item is available at every branch today.
 
-If you want the noodles and soup separately, consider *tsukemen* (つけ麺), or dipping noodles. You lift noodles from one bowl and dip them into a more concentrated soup in another. [Rokurinsha Tokyo Station](/shop/rokurinsha-tokyo-station/) is listed as a dipping-ramen shop by the station operator. Read our [tsukemen guide](/journal/tsukemen/) if the format is new to you.
+If you want the noodles and soup separately, consider *tsukemen* (つけ麺), or dipping noodles. You lift noodles from one bowl and dip them into a more concentrated soup in another. [Rokurinsha Tokyo Station](/catalog/rokurinsha-tokyo-station/) is listed as a dipping-ramen shop by the station operator. Read our [tsukemen guide](/journal/tsukemen/) if the format is new to you.
 
 Tokyo's soup possibilities do not end with ramen. Soba, udon and other soups are worth exploring too. But a map's cuisine category is a starting clue, not a complete description of the broth or menu.
 

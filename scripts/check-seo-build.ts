@@ -8,7 +8,21 @@ import { resolve } from "node:path";
 const root = resolve("dist");
 const sitemap = await readFile(resolve(root, "sitemap.xml"), "utf8");
 const robots = await readFile(resolve(root, "robots.txt"), "utf8");
-const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]!.replaceAll("&amp;", "&"));
+const locations = (xml: string) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]!.replaceAll("&amp;", "&"));
+// The newer SEO graph emits a sitemap index; validate its segments, not XML as HTML.
+const urls: string[] = [];
+const visited = new Set<string>();
+async function collect(xml: string): Promise<void> {
+  if (!xml.includes("<sitemapindex")) { urls.push(...locations(xml)); return; }
+  for (const value of locations(xml)) {
+    const url = new URL(value);
+    const file = resolve(root, `.${url.pathname}`);
+    if (!file.startsWith(root + "/") || visited.has(file)) throw new Error("Unsafe or repeated sitemap segment.");
+    visited.add(file);
+    await collect(await readFile(file, "utf8"));
+  }
+}
+await collect(sitemap);
 const errors: string[] = [];
 if (!sitemap.startsWith("<?xml") || !urls.length) errors.push("Sitemap must be non-empty XML.");
 if (new Set(urls).size !== urls.length) errors.push("Duplicate sitemap URLs.");

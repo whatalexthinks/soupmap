@@ -33,7 +33,7 @@ The names on a ramen menu describe different parts of the bowl. *Shio* (塩) ref
 
 Then there is *dashi* (だし), a family of stocks rather than one universal recipe. Kombu, a type of kelp, can be used, but fish ingredients are common too. Our [dashi guide](/journal/dashi/) explains why the word alone cannot settle a dietary question.
 
-A concrete example is [AFURI Ebisu](/shop/afuri-ebisu/). The [brand's menu](https://afuri.com/menu/) describes yuzu shio ramen with chicken-and-dashi broth and lists pork chashu and egg among its toppings. The pale soup and citrus do not make that bowl vegetarian. A different menu item at the same brand needs its own ingredient check.
+A concrete example is [AFURI Ebisu](/catalog/afuri-ebisu/). The [brand's menu](https://afuri.com/menu/) describes yuzu shio ramen with chicken-and-dashi broth and lists pork chashu and egg among its toppings. The pale soup and citrus do not make that bowl vegetarian. A different menu item at the same brand needs its own ingredient check.
 
 Ask separately about the stock, the seasoning sauce, the aroma oil, the noodles and every topping. A label for one component does not describe the whole meal.
 

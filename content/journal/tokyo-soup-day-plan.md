@@ -31,7 +31,7 @@ For an introduction to styles and source quality, start with the [Tokyo soup gui
 
 This option is for a day that already takes you through Tokyo Station. [Tokyo Ramen Street](/journal/tokyo-ramen-street/) sits in the Tokyo Station First Avenue shopping complex on the Yaesu side. Use the [operator's official guide](https://www.tokyoeki-1bangai.co.jp/street/ramen/en/) to orient yourself and check the restaurants it lists.
 
-[Rokurinsha Tokyo Station](/shop/rokurinsha-tokyo-station/) is one possible anchor. The operator describes it as a dipping-ramen shop and features Tokusei Tsukemen. That gives you a reason to investigate if you want noodles served separately from the dipping soup. It is not a live report of today's menu, wait or seat availability.
+[Rokurinsha Tokyo Station](/catalog/rokurinsha-tokyo-station/) is one possible anchor. The operator describes it as a dipping-ramen shop and features Tokusei Tsukemen. That gives you a reason to investigate if you want noodles served separately from the dipping soup. It is not a live report of today's menu, wait or seat availability.
 
 Before heading underground, check which side of the station you need. A pin on a three-dimensional map can help with broad orientation, but it cannot reliably describe every corridor or entrance. Keep the operator's floor guide available and match the branch name, not just the brand.
 
@@ -39,7 +39,7 @@ If you have a train to catch, the departure is the fixed appointment; the bowl i
 
 ## Option two: make Ebisu the anchor instead
 
-If your plans already put you in Ebisu, researching a bowl there is usually more sensible than adding a station detour for its own sake. [AFURI Ebisu](/shop/afuri-ebisu/) provides a contrasting example to the dipping-noodle format.
+If your plans already put you in Ebisu, researching a bowl there is usually more sensible than adding a station detour for its own sake. [AFURI Ebisu](/catalog/afuri-ebisu/) provides a contrasting example to the dipping-noodle format.
 
 The [official AFURI menu](https://afuri.com/menu/) describes yuzu shio ramen with chicken-and-dashi broth and yuzu, alongside pork chashu and egg. The citrus is a useful flavor clue. The word shio is not evidence of vegetarian stock, and the menu description is not a branch-specific guarantee for the day of your visit.
 
